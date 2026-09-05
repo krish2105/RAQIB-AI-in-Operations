@@ -61,7 +61,7 @@ def workforce(site: str, max_rho: float = Query(0.85, gt=0, lt=1), max_tills: in
     mu = sum(mus) / len(mus) if mus else 30.0
     ceiling = max_tills or max(s.tills, 3, tills_for_target_rho(max(lam), mu, max_rho))
     try:
-        plan = staffing_plan(lam, mu, max_rho=max_rho, max_tills=ceiling)
+        plan = staffing_plan(lam, mu, max_rho=max_rho, max_tills=ceiling, baseline_tills=s.tills)
     except RuntimeError as exc:
         return {"site": site, "sufficient": False, "reason": str(exc)}
     return {"site": site, "sufficient": True, "day": slots[0].slot_start.date().isoformat(), "slots": [x.slot_start.isoformat() for x in slots],

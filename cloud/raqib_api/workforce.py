@@ -39,8 +39,12 @@ class StaffingPlan:
 
 
 def staffing_plan(lam: list[float], mu: float, max_rho: float = 0.85, max_tills: int = 6, slot_minutes: int = 15,
-                  max_step: int | None = None) -> StaffingPlan:
-    """λ per slot (per hour), μ per till per hour. Returns integer tills per slot."""
+                  max_step: int | None = None, baseline_tills: int | None = None) -> StaffingPlan:
+    """λ per slot (per hour), μ per till per hour. Returns integer tills per slot.
+
+    `baseline_tills` is the flat schedule to compare against (the store's current practice);
+    it defaults to `max_tills`.
+    """
     n = len(lam)
     if n == 0:
         raise ValueError("need at least one slot")
@@ -67,7 +71,7 @@ def staffing_plan(lam: list[float], mu: float, max_rho: float = 0.85, max_tills:
         wq.append(None if not r.stable else round(r.wq * 60, 2))
     hours = slot_minutes / 60.0
     staff_hours = sum(tills) * hours
-    baseline = max_tills if lam_arr.size else 1
+    baseline = baseline_tills or max_tills
     baseline_hours = baseline * n * hours
     return StaffingPlan(tills, [float(x) for x in lam_arr], mu, max_rho, round(staff_hours, 2), [round(r, 3) for r in rho],
                         wq, baseline, round(baseline_hours, 2), round(baseline_hours - staff_hours, 2), slot_minutes)

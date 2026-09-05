@@ -13,8 +13,9 @@ test("grader path: event → clip → approve proposal → restock task", async 
   const now = new Date();
   const base = new Date(now.getTime() - 50 * 60_000);
   const ulid = (i: number) => (Date.now() + i).toString(36).toUpperCase().padStart(26, "0").slice(-26);
+  // 150 arrivals spread over the last 50 minutes, dense enough that the slot holding the queue event has rho > 0.85.
   const arrivals = Array.from({ length: 150 }, (_, i) => ({
-    id: ulid(i), site: SITE, camera: "cam1", ts: new Date(base.getTime() + i * 15_000).toISOString(), kind: "footfall_tick", severity: 1, payload: { zone: "entrance", track_id: i }, clip_path: null, rule_id: "R12",
+    id: ulid(i), site: SITE, camera: "cam1", ts: new Date(base.getTime() + i * 20_000).toISOString(), kind: "footfall_tick", severity: 1, payload: { zone: "entrance", track_id: i }, clip_path: null, rule_id: "R12",
   }));
   const queueId = ulid(999);
   const queue = { id: queueId, site: SITE, camera: "cam1", ts: new Date(now.getTime() - 60_000).toISOString(), kind: "queue_over", severity: 2, payload: { zone: "queue_till_1", till: 1, count: 7, sustained_s: 90, confidence: 0.86 }, clip_path: null, rule_id: "R10" };
@@ -40,10 +41,15 @@ test("grader path: event → clip → approve proposal → restock task", async 
   const card = page.locator("article").filter({ hasText: "Propose opening a till" }).first();
   await expect(card).toBeVisible();
   await card.getByTestId("approve").click();
-  await expect(card.getByText("Executed")).toBeVisible();
-
-  // Executed filter shows restock work orders created by the agent (shelf gaps in seeded history)
+  // Approved → executed: the card leaves the Proposed filter and appears under Executed with the decision recorded.
+  await expect(card).toBeHidden();
   await page.getByRole("tab", { name: "Executed" }).click();
+  const executed = page.locator("article").filter({ hasText: "Propose opening a till" }).first();
+  await expect(executed).toBeVisible();
+  await expect(executed.getByText("Executed")).toBeVisible();
+  await expect(executed.getByText("by operator")).toBeVisible();
+
+  // Restock work orders raised autonomously for shelf gaps in the seeded history
   await expect(page.locator("article").filter({ hasText: "Create work order" }).first()).toBeVisible();
 
   // Audit table registered calls

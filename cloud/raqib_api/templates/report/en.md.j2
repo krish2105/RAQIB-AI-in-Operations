@@ -36,7 +36,7 @@ Forecast not available: {{ d.forecast.reason }}.
 
 ## 4. Workforce plan (MILP, ρ ≤ {{ d.staffing.max_rho if d.staffing else '0.85' }})
 {% if d.staffing %}
-Planned staff-hours **{{ d.staffing.staff_hours }}** vs **{{ d.staffing.baseline_staff_hours }}** with all tills open all day (saves {{ d.staffing.savings_hours }} h). Tills per slot: {{ d.staffing.tills | join(' ') }}.
+Planned staff-hours **{{ d.staffing.staff_hours }}** vs **{{ d.staffing.baseline_staff_hours }}** with today's {{ d.staffing.baseline_tills }} tills open all week (saves {{ d.staffing.savings_hours }} h). Peak {{ d.staffing.peak_tills }} tills, mean {{ d.staffing.mean_tills }}; {{ d.staffing.slots_over_baseline }} slots need more than the {{ d.staffing.baseline_tills }} tills open today.
 {% if d.before_after %}
 Before/after simulation: customer wait {{ d.before_after.baseline_customer_wait_min }} → {{ d.before_after.with_plan_customer_wait_min }} customer-minutes per day (**{{ d.before_after.reduction_pct }}% reduction**).
 {% endif %}

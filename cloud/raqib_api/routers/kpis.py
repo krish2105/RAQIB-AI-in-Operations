@@ -7,8 +7,13 @@ from sqlmodel import Session, select
 
 from ..db import get_session
 from ..kpis import summary
-from ..models import Event, Site
+from ..models import Event, Site, Zone
 from .sites import ensure_bundled_sites
+
+
+def shelf_ids(session: Session, site: str) -> list[str]:
+    zones = session.exec(select(Zone).where(Zone.site == site, Zone.kind == "shelf")).all()
+    return [str(z.meta.get("shelf_id", z.name)) for z in zones]
 
 router = APIRouter(tags=["kpis"])
 
@@ -24,4 +29,4 @@ def kpis(site: str, window_h: float = 24.0, session: Session = Depends(get_sessi
     for e in events:
         if e.ts.tzinfo is None:
             e.ts = e.ts.replace(tzinfo=UTC)
-    return {"site": site, "as_of": now.isoformat(), **summary(events, s.profile, s.tills, now, window_h)}
+    return {"site": site, "as_of": now.isoformat(), **summary(events, s.profile, s.tills, now, window_h, shelves=shelf_ids(session, site))}

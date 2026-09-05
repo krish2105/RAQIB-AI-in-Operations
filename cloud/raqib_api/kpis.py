@@ -9,19 +9,21 @@ from typing import Any
 from .ops_theory import service_level, slot_rates
 
 
-def osa(events: Iterable[Any], now: datetime, window_h: float = 24.0, gap_default_min: float = 15.0) -> dict[str, float]:
+def osa(events: Iterable[Any], now: datetime, window_h: float = 24.0, gap_default_min: float = 15.0,
+        shelves: Iterable[str] | None = None) -> dict[str, float]:
     """On-shelf availability per shelf over the window.
 
     A `shelf_gap` event opens a gap; the gap closes at the next shelf_gap-free
     re-emit boundary or after `gap_default_min` when no further signal arrives.
-    OSA = 1 - gap_time / window.
+    OSA = 1 - gap_time / window. Shelves in `shelves` with no gap signal score 1.0,
+    so the store average is over every monitored shelf, not only the ones that failed.
     """
     start = now - timedelta(hours=window_h)
     gaps: dict[str, list[datetime]] = {}
     for e in events:
         if e.kind == "shelf_gap" and e.ts >= start:
             gaps.setdefault(str(e.payload.get("shelf_id", e.payload.get("zone", "?"))), []).append(e.ts)
-    result: dict[str, float] = {}
+    result: dict[str, float] = {s: 1.0 for s in (shelves or [])}
     for shelf, times in gaps.items():
         times.sort()
         total = 0.0
@@ -67,7 +69,8 @@ def downtime_minutes(events: Iterable[Any]) -> float:
     return sum(float(e.payload.get("stopped_s", 0)) for e in events if e.kind == "machine_stopped") / 60.0
 
 
-def summary(events: list[Any], profile: str, tills: int, now: datetime, window_h: float = 24.0) -> dict[str, Any]:
+def summary(events: list[Any], profile: str, tills: int, now: datetime, window_h: float = 24.0,
+            shelves: Iterable[str] | None = None) -> dict[str, Any]:
     start = now - timedelta(hours=window_h)
     recent = [e for e in events if e.ts >= start]
     footfall = sum(1 for e in recent if e.kind == "footfall_tick")
@@ -86,7 +89,7 @@ def summary(events: list[Any], profile: str, tills: int, now: datetime, window_h
     }
     if profile == "retail":
         sl = service_level(recent, max_queue=3)
-        shelf = osa(recent, now, window_h)
+        shelf = osa(recent, now, window_h, shelves=shelves)
         out.update({
             "service_level": round(sl, 3) if sl is not None else None,
             "osa": {k: round(v, 3) for k, v in shelf.items()},

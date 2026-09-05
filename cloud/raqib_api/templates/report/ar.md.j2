@@ -36,7 +36,7 @@
 
 ## 4. خطة القوى العاملة (برمجة عددية، ρ ≤ {{ d.staffing.max_rho if d.staffing else '0.85' }})
 {% if d.staffing %}
-ساعات العمل المخططة **{{ d.staffing.staff_hours }}** مقابل **{{ d.staffing.baseline_staff_hours }}** عند فتح كل الصناديق طوال اليوم (توفير {{ d.staffing.savings_hours }} ساعة). الصناديق لكل فترة: {{ d.staffing.tills | join(' ') }}.
+ساعات العمل المخططة **{{ d.staffing.staff_hours }}** مقابل **{{ d.staffing.baseline_staff_hours }}** عند فتح كل الصناديق طوال اليوم (توفير {{ d.staffing.savings_hours }} ساعة). الذروة {{ d.staffing.peak_tills }} صناديق، المتوسط {{ d.staffing.mean_tills }}؛ {{ d.staffing.slots_over_baseline }} فترة تحتاج أكثر من {{ d.staffing.baseline_tills }} صناديق المفتوحة اليوم.
 {% if d.before_after %}
 محاكاة قبل/بعد: انتظار العملاء {{ d.before_after.baseline_customer_wait_min }} ← {{ d.before_after.with_plan_customer_wait_min }} دقيقة-عميل يوميًا (**انخفاض {{ d.before_after.reduction_pct }}%**).
 {% endif %}

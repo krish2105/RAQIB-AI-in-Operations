@@ -63,18 +63,33 @@ def build_report_data(site: str, session: Session, now: datetime | None = None) 
         if e.ts.tzinfo is None:
             e.ts = e.ts.replace(tzinfo=UTC)
     week = [e for e in events if e.ts >= start]
-    kp = summary(week, s.profile, s.tills, now, window_h=24 * 7)
+    from ..routers.kpis import shelf_ids
+
+    kp = summary(week, s.profile, s.tills, now, window_h=24 * 7, shelves=shelf_ids(session, site))
     top = sorted(week, key=lambda e: (-e.severity, e.ts))[:8]
     fc = fit_predict(hourly_counts(events, "footfall_tick", end=now), horizon=24)
-    last_day = [e for e in week if e.ts.date() == (now - timedelta(days=1)).date()] or week[-400:]
-    slots = slot_rates(last_day, tills_open=s.tills)
+    # The staffing plan and the before/after simulation cover the whole week of 15-min slots.
+    slots = slot_rates(week, tills_open=s.tills)
     mus = [x.mu_per_h for x in slots if x.served > 0]
     mu = sum(mus) / len(mus) if mus else 30.0
     plan = None
+    plan_dict = None
     if slots and s.profile == "retail":
         lam = [x.lam_per_h for x in slots]
         ceiling = max(s.tills, 3, tills_for_target_rho(max(lam), mu))
-        plan = staffing_plan(lam, mu, max_tills=ceiling)
+        plan = staffing_plan(lam, mu, max_tills=ceiling, baseline_tills=s.tills)
+        by_day: dict[str, dict[str, float]] = {}
+        for sl, c in zip(slots, plan.tills, strict=True):
+            d0 = by_day.setdefault(sl.slot_start.date().isoformat(), {"staff_hours": 0.0, "peak_tills": 0, "slots": 0})
+            d0["staff_hours"] += c * plan.slot_minutes / 60
+            d0["peak_tills"] = max(d0["peak_tills"], c)
+            d0["slots"] += 1
+        plan_dict = {**plan.as_dict(), "by_day": {k: {**v, "staff_hours": round(v["staff_hours"], 2)} for k, v in by_day.items()},
+                     "peak_tills": max(plan.tills), "mean_tills": round(sum(plan.tills) / len(plan.tills), 2),
+                     "slots_over_baseline": sum(1 for c in plan.tills if c > s.tills)}
+        # keep the JSON compact: the full per-slot vectors live in /workforce
+        for k in ("tills", "lam", "rho", "wq_min"):
+            plan_dict[k] = plan_dict[k][-96:]
     ba = before_after(slots, mu, s.tills, plan.tills) if plan else None
     actions = session.exec(select(Action).where(Action.site == site, Action.created_at >= start)).all()
     calls = session.exec(select(ToolCall).where(ToolCall.site == site, ToolCall.created_at >= start)).all()
@@ -84,7 +99,7 @@ def build_report_data(site: str, session: Session, now: datetime | None = None) 
         "site": site, "profile": s.profile, "period": {"start": start.date().isoformat(), "end": now.date().isoformat()},
         "generated_at": now.isoformat(), "kpis": kp, "top_events": [
             {"id": e.id, "ts": e.ts.isoformat(), "kind": e.kind, "severity": e.severity, "rule_id": e.rule_id, "payload": e.payload} for e in top],
-        "forecast": fc.as_dict(), "staffing": plan.as_dict() if plan else None, "before_after": ba,
+        "forecast": fc.as_dict(), "staffing": plan_dict, "before_after": ba,
         "governance": {"actions": len(actions), "autonomous": sum(1 for a in actions if a.autonomous), "proposals": proposals,
                        "approved_by_human": approved, "approval_rate": round(approved / proposals, 3) if proposals else None,
                        "tool_calls": len(calls), "cost_usd": round(sum(c.cost_usd for c in calls), 4),

@@ -36,7 +36,7 @@
 
 ## 4. कार्यबल योजना (MILP, ρ ≤ {{ d.staffing.max_rho if d.staffing else '0.85' }})
 {% if d.staffing %}
-नियोजित स्टाफ़-घंटे **{{ d.staffing.staff_hours }}** बनाम **{{ d.staffing.baseline_staff_hours }}** (बचत {{ d.staffing.savings_hours }} घंटे)। प्रति स्लॉट काउंटर: {{ d.staffing.tills | join(' ') }}।
+नियोजित स्टाफ़-घंटे **{{ d.staffing.staff_hours }}** बनाम **{{ d.staffing.baseline_staff_hours }}** (बचत {{ d.staffing.savings_hours }} घंटे)। शिखर {{ d.staffing.peak_tills }} काउंटर, औसत {{ d.staffing.mean_tills }}; {{ d.staffing.slots_over_baseline }} स्लॉट में आज खुले {{ d.staffing.baseline_tills }} काउंटरों से अधिक चाहिए।
 {% if d.before_after %}
 पहले/बाद सिमुलेशन: ग्राहक प्रतीक्षा {{ d.before_after.baseline_customer_wait_min }} → {{ d.before_after.with_plan_customer_wait_min }} ग्राहक-मिनट प्रति दिन (**{{ d.before_after.reduction_pct }}% कमी**)।
 {% endif %}
