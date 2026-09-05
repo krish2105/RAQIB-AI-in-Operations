@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
@@ -26,5 +26,12 @@ def kpis(site: str, window_h: float = 24.0, session: Session = Depends(get_sessi
     if s is None:
         raise HTTPException(404, "site not found")
     now = datetime.now(UTC)
-    events = ensure_utc(session.exec(select(Event).where(Event.site == site).order_by(Event.ts)).all())
+    # Bound the scan to the window this call actually needs (plus a small margin for slot
+    # edges) instead of loading the site's entire history: on a demo with tens of thousands
+    # of events, materialising every row on every /kpis call is the difference between an
+    # 8 ms query and an 8 s one, and it is the single worker the free-tier deploy has.
+    since = now - timedelta(hours=window_h + 1)
+    events = ensure_utc(
+        session.exec(select(Event).where(Event.site == site, Event.ts >= since).order_by(Event.ts)).all()
+    )
     return {"site": site, "as_of": now.isoformat(), **summary(events, s.profile, s.tills, now, window_h, shelves=shelf_ids(session, site))}

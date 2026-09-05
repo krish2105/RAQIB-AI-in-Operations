@@ -59,7 +59,15 @@ def build_report_data(site: str, session: Session, now: datetime | None = None) 
     if s is None:
         raise ValueError(f"site {site!r} not found")
     start = now - timedelta(days=7)
-    events = ensure_utc(session.exec(select(Event).where(Event.site == site).order_by(Event.ts)).all())
+    # The report needs the last 7 days for `week` plus enough history before that for the
+    # forecast to train (fit_predict needs >= MIN_DAYS span); fetch that bounded window
+    # rather than the site's entire history (see routers/forecast.py's same reasoning).
+    from ..routers.forecast import _FORECAST_LOOKBACK_DAYS
+
+    fetch_since = now - timedelta(days=_FORECAST_LOOKBACK_DAYS)
+    events = ensure_utc(
+        session.exec(select(Event).where(Event.site == site, Event.ts >= fetch_since).order_by(Event.ts)).all()
+    )
     week = [e for e in events if e.ts >= start]
     from ..routers.kpis import shelf_ids
 

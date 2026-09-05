@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 
 from ..db import get_session
-from ..forecast import fit_predict, hourly_counts
+from ..forecast import MIN_DAYS, SEASON_H, fit_predict, hourly_counts
 from ..models import Event, Site
 from ..tz import ensure_utc
 from ..ops_theory import slot_rates, tills_for_target_rho
@@ -17,9 +17,17 @@ router = APIRouter(tags=["forecast"])
 
 TARGET_KIND = {"queue": "footfall_tick", "shelf": "shelf_gap", "machine": "machine_stopped", "footfall": "footfall_tick"}
 
+# fit_predict needs >= MIN_DAYS of span, and the seasonal-naive baseline looks back one
+# SEASON_H window from the furthest forecast point; this covers both with a week of margin
+# rather than ever materialising a site's full, ever-growing history.
+_FORECAST_LOOKBACK_DAYS = MIN_DAYS + (SEASON_H // 24) + 7
 
-def _events(session: Session, site: str) -> list[Event]:
-    return ensure_utc(session.exec(select(Event).where(Event.site == site).order_by(Event.ts)).all())
+
+def _events(session: Session, site: str, lookback_days: int = _FORECAST_LOOKBACK_DAYS) -> list[Event]:
+    since = datetime.now(UTC) - timedelta(days=lookback_days)
+    return ensure_utc(
+        session.exec(select(Event).where(Event.site == site, Event.ts >= since).order_by(Event.ts)).all()
+    )
 
 
 @router.get("/forecast")
