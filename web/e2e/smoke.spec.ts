@@ -38,13 +38,16 @@ test("grader path: event → clip → approve proposal → restock task", async 
 
   // Actions: approve the open-till proposal
   await page.goto("/en/actions");
-  const card = page.locator("article").filter({ hasText: "Propose opening a till" }).first();
-  await expect(card).toBeVisible();
+  const first = page.locator("article").filter({ hasText: "Propose opening a till" }).first();
+  await expect(first).toBeVisible();
+  // Pin this exact card by its action id: seeded history may hold several open-till proposals.
+  const testId = (await first.getAttribute("data-testid"))!;
+  const card = page.getByTestId(testId);
   await card.getByTestId("approve").click();
   // Approved → executed: the card leaves the Proposed filter and appears under Executed with the decision recorded.
   await expect(card).toBeHidden();
   await page.getByRole("tab", { name: "Executed" }).click();
-  const executed = page.locator("article").filter({ hasText: "Propose opening a till" }).first();
+  const executed = page.getByTestId(testId);
   await expect(executed).toBeVisible();
   await expect(executed.getByText("Executed")).toBeVisible();
   await expect(executed.getByText("by operator")).toBeVisible();
