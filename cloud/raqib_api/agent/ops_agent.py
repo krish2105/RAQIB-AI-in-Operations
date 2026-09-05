@@ -10,6 +10,7 @@ from sqlmodel import Session, select
 
 from ..config import settings
 from ..models import Action, Event, Site
+from ..tz import HasEventFields, ensure_utc
 from ..ops_theory import slot_rates
 from .backends import AgentBackend, make_backend
 from .policies import Policy, is_proposal
@@ -18,14 +19,11 @@ from .tools import Call, ToolRunner
 log = logging.getLogger(__name__)
 
 
-def build_context(event: Event, session: Session) -> dict[str, Any]:
+def build_context(event: HasEventFields, session: Session) -> dict[str, Any]:
     site = session.get(Site, event.site)
     tills = site.tills if site else 1
     since = event.ts - timedelta(minutes=60)
-    recent = session.exec(select(Event).where(Event.site == event.site, Event.ts >= since, Event.ts <= event.ts)).all()
-    for e in recent:
-        if e.ts.tzinfo is None:
-            e.ts = e.ts.replace(tzinfo=UTC)
+    recent = ensure_utc(session.exec(select(Event).where(Event.site == event.site, Event.ts >= since, Event.ts <= event.ts)).all())
     slots = slot_rates(recent, tills_open=tills)
     rho = slots[-1].rho if slots else 0.0
     open_tills = tills
@@ -40,7 +38,13 @@ def build_context(event: Event, session: Session) -> dict[str, Any]:
     }
 
 
-def handle_event(event: Event, session: Session, backend: AgentBackend | None = None, runner: ToolRunner | None = None) -> list[Action]:
+def handle_event(event: Event | HasEventFields, session: Session, backend: AgentBackend | None = None, runner: ToolRunner | None = None) -> list[Action]:
+    # Normalise once, up front: a row fresh from `session.refresh()` round-trips through
+    # SQLite/Postgres with a naive `ts` (the DateTime column drops tzinfo). Every callsite
+    # below only reads `event` fields, so working from a detached, tz-aware view means
+    # nothing downstream ever compares a naive timestamp against an aware one, and nothing
+    # here can accidentally mutate — and dirty — the caller's tracked ORM row.
+    event = ensure_utc([event])[0]
     backend = backend or make_backend()
     runner = runner or ToolRunner(session, event.site, backend.name)
     ctx = build_context(event, session)

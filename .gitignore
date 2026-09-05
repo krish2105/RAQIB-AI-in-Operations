@@ -29,3 +29,5 @@ runs/
 !.env.example
 # os
 .DS_Store
+.vercel
+.env*

@@ -19,6 +19,7 @@ from ..config import settings
 from ..forecast import fit_predict, hourly_counts
 from ..kpis import summary
 from ..models import Action, Event, Site, ToolCall
+from ..tz import ensure_utc
 from ..ops_theory import mmc, slot_rates, tills_for_target_rho
 from ..workforce import staffing_plan
 
@@ -58,10 +59,7 @@ def build_report_data(site: str, session: Session, now: datetime | None = None) 
     if s is None:
         raise ValueError(f"site {site!r} not found")
     start = now - timedelta(days=7)
-    events = session.exec(select(Event).where(Event.site == site).order_by(Event.ts)).all()
-    for e in events:
-        if e.ts.tzinfo is None:
-            e.ts = e.ts.replace(tzinfo=UTC)
+    events = ensure_utc(session.exec(select(Event).where(Event.site == site).order_by(Event.ts)).all())
     week = [e for e in events if e.ts >= start]
     from ..routers.kpis import shelf_ids
 

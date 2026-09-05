@@ -8,6 +8,7 @@ from sqlmodel import Session, select
 from ..db import get_session
 from ..forecast import fit_predict, hourly_counts
 from ..models import Event, Site
+from ..tz import ensure_utc
 from ..ops_theory import slot_rates, tills_for_target_rho
 from ..workforce import staffing_plan
 from .sites import ensure_bundled_sites
@@ -18,11 +19,7 @@ TARGET_KIND = {"queue": "footfall_tick", "shelf": "shelf_gap", "machine": "machi
 
 
 def _events(session: Session, site: str) -> list[Event]:
-    rows = session.exec(select(Event).where(Event.site == site).order_by(Event.ts)).all()
-    for e in rows:
-        if e.ts.tzinfo is None:
-            e.ts = e.ts.replace(tzinfo=UTC)
-    return rows
+    return ensure_utc(session.exec(select(Event).where(Event.site == site).order_by(Event.ts)).all())
 
 
 @router.get("/forecast")

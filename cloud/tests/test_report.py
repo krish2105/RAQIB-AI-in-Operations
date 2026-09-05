@@ -1,8 +1,13 @@
 import re
+from datetime import UTC, datetime, timedelta
 
 
 def test_seed_then_kpis_forecast_workforce_report(client):
-    r = client.post("/admin/seed", params={"site": "raqib_demo_store", "days": 21, "run_agent_last_hours": 3})
+    # A 24 h window always spans some of the store's 08:00-23:00 open hours, so at least one
+    # queue/shelf event — and therefore one agent action — is guaranteed regardless of the
+    # real-world hour this suite happens to run in (the simulator's footfall rate is a function
+    # of actual UTC hour-of-day and weekday, so a narrower window is not reliably non-empty).
+    r = client.post("/admin/seed", params={"site": "raqib_demo_store", "days": 21, "run_agent_last_hours": 24})
     assert r.status_code == 200
     body = r.json()
     assert body["inserted"] > 2000 and body["simulated"] is True
@@ -35,12 +40,31 @@ def test_seed_then_kpis_forecast_workforce_report(client):
 
 
 def test_factory_seed_and_report(client):
-    r = client.post("/admin/seed", params={"site": "greenlam_unit1", "days": 15, "run_agent_last_hours": 24}).json()
+    run_agent_last_hours = 24
+    before = datetime.now(UTC)
+    r = client.post("/admin/seed", params={"site": "greenlam_unit1", "days": 15, "run_agent_last_hours": run_agent_last_hours}).json()
     assert r["inserted"] > 500
     k = client.get("/kpis", params={"site": "greenlam_unit1"}).json()
     assert k["profile"] == "factory" and "compliance" in k and "downtime_min" in k
     rep = client.get("/report/weekly", params={"site": "greenlam_unit1", "lang": "en"}).json()
     assert len(rep["recommendations"]) == 3 and "MUSHRIF" in rep["markdown"]
     acts = client.get("/actions", params={"site": "greenlam_unit1"}).json()
-    assert any(a["tool"] == "escalate" for a in acts)
+    assert r["actions_created"] == len(acts) > 0
+
+    # The seed's own cutoff is anchored to its own `datetime.now()`, taken mid-request; ours
+    # is taken just before the call, so widen the window by one hour to avoid an off-by-a-few-
+    # seconds boundary miss. Whether escalate actually fired depends on the simulator's RNG
+    # landing a severity-3 event inside that window — never hardcode "at least one" here, since
+    # that count shifts with the wall-clock hour the suite happens to run in (the simulator's
+    # footfall rate is a function of real hour-of-day and weekday). Instead assert the agent's
+    # behaviour is *consistent* with what actually landed in the window.
+    cutoff = before - timedelta(hours=run_agent_last_hours + 1)
+    severity3 = client.get("/events", params={"site": "greenlam_unit1", "since": cutoff.isoformat(), "min_severity": 3, "limit": 5000}).json()
+    escalate_actions = [a for a in acts if a["tool"] == "escalate"]
+    if severity3:
+        assert escalate_actions, f"{len(severity3)} severity-3 events in the window but no escalate action was recorded"
+        assert all(a["autonomous"] and a["status"] == "executed" for a in escalate_actions)
+    else:
+        assert not escalate_actions
+
     assert client.get("/report/weekly", params={"site": "nope"}).status_code == 404
