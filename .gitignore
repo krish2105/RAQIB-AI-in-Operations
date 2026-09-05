@@ -1,0 +1,31 @@
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+*.egg-info/
+# node
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+# data / artefacts (large, licensed separately — see docs/datasets.md)
+edge/data/video/*.mp4
+edge/data/weights/*.pt
+edge/data/datasets/
+edge/data/clips/
+edge/data/*.db
+edge/data/*.sqlite*
+cloud/*.db
+*.sqlite3
+runs/
+# env
+.env
+.env.*
+!.env.example
+# os
+.DS_Store
