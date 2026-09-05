@@ -1,0 +1,54 @@
+# تقرير العمليات الأسبوعي — {{ 'رقيب' if d.profile == 'retail' else 'مشرف' }} — {{ d.site }}
+
+الفترة من {{ d.period.start }} إلى {{ d.period.end }} · أُنشئ {{ d.generated_at[:16] }} UTC
+
+## 1. ثلاث نتائج مقاسة
+{% if d.profile == 'retail' %}
+- مستوى الخدمة (نسبة الفترات ذات طابور ≤ 3): **{{ pct(d.kpis.service_level) }}** (الهدف 90%)
+- توافر المنتجات على الرف: **{{ pct(d.kpis.osa_store) }}**؛ عدد الزوار {{ d.kpis.footfall }}، {{ num(d.kpis.footfall_per_hour) }} في الساعة
+- ذروة استغلال الصناديق ρ: **{{ num(d.kpis.peak_rho, 2) }}** مع {{ d.staffing.baseline_tills if d.staffing else '-' }} صناديق متاحة
+{% else %}
+- الالتزام بمعدات الحماية: **{{ pct(d.kpis.compliance) }}**؛ اختراقات منطقة الحظر: **{{ d.kpis.breaches }}**
+- التوقف غير المخطط: **{{ num(d.kpis.downtime_min, 0) }} دقيقة** للماكينات {{ d.kpis.stopped_machines | join(', ') or '-' }}
+- الدخول إلى الخط: {{ d.kpis.footfall }}، {{ num(d.kpis.footfall_per_hour) }} في الساعة
+{% endif %}
+
+## 2. نموذج الطابور مقابل المُلاحَظ
+{% if d.kpis.queue_model %}
+| الفترة (UTC) | λ /س | μ /س لكل صندوق | ρ | W_q النموذج (د) | W_q المُلاحَظ (د) |
+|---|---|---|---|---|---|
+{% for s in d.kpis.queue_model[-8:] %}
+| {{ s.slot_start[11:16] }} | {{ num(s.lam_per_h, 0) }} | {{ num(s.mu_per_h, 0) }} | {{ num(s.rho, 2) }} | {{ num(s.wq_model_min, 1) }} | {{ num(s.wq_observed_min, 1) }} |
+{% endfor %}
+μ مُقدَّر من الفيديو وليس من نقاط البيع.
+{% else %}
+لا نشاط على الصناديق خلال الفترة.
+{% endif %}
+
+## 3. التنبؤ مقابل الأساس الموسمي
+{% if d.forecast.sufficient %}
+خطأ النموذج MAE **{{ d.forecast.mae }}** مقابل الأساس الموسمي **{{ d.forecast.mae_naive }}** (أفضل بنسبة {{ d.forecast.improvement_pct }}%). الذروات المتوقعة: {% for p in d.forecast.peaks[:3] %}{{ p.ts[11:16] }}{% if not loop.last %}، {% endif %}{% endfor %} UTC.
+{% else %}
+التنبؤ غير متاح: {{ d.forecast.reason }}.
+{% endif %}
+
+## 4. خطة القوى العاملة (برمجة عددية، ρ ≤ {{ d.staffing.max_rho if d.staffing else '0.85' }})
+{% if d.staffing %}
+ساعات العمل المخططة **{{ d.staffing.staff_hours }}** مقابل **{{ d.staffing.baseline_staff_hours }}** عند فتح كل الصناديق طوال اليوم (توفير {{ d.staffing.savings_hours }} ساعة). الصناديق لكل فترة: {{ d.staffing.tills | join(' ') }}.
+{% if d.before_after %}
+محاكاة قبل/بعد: انتظار العملاء {{ d.before_after.baseline_customer_wait_min }} ← {{ d.before_after.with_plan_customer_wait_min }} دقيقة-عميل يوميًا (**انخفاض {{ d.before_after.reduction_pct }}%**).
+{% endif %}
+{% else %}
+لا تتوفر بيانات كافية لخطة.
+{% endif %}
+
+## 5. الإجراءات الموصى بها
+{% for r in recs %}
+{{ loop.index }}. **{{ r.title }}** — {{ r.evidence }}. المتوقع: {{ r.expected_reduction }}.
+{% endfor %}
+
+## 6. حوكمة الوكيل
+{{ d.governance.actions }} إجراءات للوكيل ({{ d.governance.autonomous }} ذاتية، {{ d.governance.proposals }} مقترحات، نسبة موافقة البشر {{ pct(d.governance.approval_rate) }})، {{ d.governance.tool_calls }} استدعاء أداة، {{ d.governance.failed_calls }} فاشلة، تكلفة النموذج ${{ d.governance.cost_usd }}.
+
+## 7. جودة البيانات
+نسبة الأحداث المُحاكاة: {{ pct(d.data_quality.simulated_share) }}. مصدر معدل الخدمة: {{ d.data_quality.mu_source }}. تُموَّه الوجوه عند الالتقاط ولا توجد بيانات هوية في هذا التقرير.

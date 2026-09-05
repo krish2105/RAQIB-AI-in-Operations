@@ -1,0 +1,54 @@
+# {{ 'RAQIB' if d.profile == 'retail' else 'MUSHRIF' }} साप्ताहिक संचालन रिपोर्ट — {{ d.site }}
+
+अवधि {{ d.period.start }} से {{ d.period.end }} · तैयार {{ d.generated_at[:16] }} UTC
+
+## 1. तीन मापे गए परिणाम
+{% if d.profile == 'retail' %}
+- सेवा स्तर (15-मिनट स्लॉट जिनमें कतार ≤ 3): **{{ pct(d.kpis.service_level) }}** (लक्ष्य 90%)
+- स्टोर शेल्फ़ उपलब्धता (OSA): **{{ pct(d.kpis.osa_store) }}**; फ़ुटफ़ॉल {{ d.kpis.footfall }} ग्राहक, {{ num(d.kpis.footfall_per_hour) }} प्रति घंटा
+- चेकआउट का शिखर उपयोग ρ: **{{ num(d.kpis.peak_rho, 2) }}**, {{ d.staffing.baseline_tills if d.staffing else '-' }} काउंटर उपलब्ध
+{% else %}
+- PPE अनुपालन: **{{ pct(d.kpis.compliance) }}**; निषिद्ध क्षेत्र उल्लंघन: **{{ d.kpis.breaches }}**
+- अनियोजित डाउनटाइम: **{{ num(d.kpis.downtime_min, 0) }} मिनट**, मशीनें {{ d.kpis.stopped_machines | join(', ') or '-' }}
+- लाइन पर प्रवेश: {{ d.kpis.footfall }}, {{ num(d.kpis.footfall_per_hour) }} प्रति घंटा
+{% endif %}
+
+## 2. कतार मॉडल बनाम प्रेक्षित
+{% if d.kpis.queue_model %}
+| स्लॉट (UTC) | λ /घंटा | μ /घंटा प्रति काउंटर | ρ | W_q मॉडल (मिनट) | W_q प्रेक्षित (मिनट) |
+|---|---|---|---|---|---|
+{% for s in d.kpis.queue_model[-8:] %}
+| {{ s.slot_start[11:16] }} | {{ num(s.lam_per_h, 0) }} | {{ num(s.mu_per_h, 0) }} | {{ num(s.rho, 2) }} | {{ num(s.wq_model_min, 1) }} | {{ num(s.wq_observed_min, 1) }} |
+{% endfor %}
+μ वीडियो से अनुमानित है, POS से नहीं।
+{% else %}
+इस अवधि में चेकआउट गतिविधि नहीं मिली।
+{% endif %}
+
+## 3. पूर्वानुमान बनाम मौसमी naive
+{% if d.forecast.sufficient %}
+अगले 24 घंटे का मॉडल MAE **{{ d.forecast.mae }}** बनाम naive **{{ d.forecast.mae_naive }}** ({{ d.forecast.improvement_pct }}% बेहतर)। शिखर: {% for p in d.forecast.peaks[:3] %}{{ p.ts[11:16] }}{% if not loop.last %}, {% endif %}{% endfor %} UTC।
+{% else %}
+पूर्वानुमान उपलब्ध नहीं: {{ d.forecast.reason }}।
+{% endif %}
+
+## 4. कार्यबल योजना (MILP, ρ ≤ {{ d.staffing.max_rho if d.staffing else '0.85' }})
+{% if d.staffing %}
+नियोजित स्टाफ़-घंटे **{{ d.staffing.staff_hours }}** बनाम **{{ d.staffing.baseline_staff_hours }}** (बचत {{ d.staffing.savings_hours }} घंटे)। प्रति स्लॉट काउंटर: {{ d.staffing.tills | join(' ') }}।
+{% if d.before_after %}
+पहले/बाद सिमुलेशन: ग्राहक प्रतीक्षा {{ d.before_after.baseline_customer_wait_min }} → {{ d.before_after.with_plan_customer_wait_min }} ग्राहक-मिनट प्रति दिन (**{{ d.before_after.reduction_pct }}% कमी**)।
+{% endif %}
+{% else %}
+योजना के लिए पर्याप्त डेटा नहीं।
+{% endif %}
+
+## 5. अनुशंसित कार्रवाइयाँ
+{% for r in recs %}
+{{ loop.index }}. **{{ r.title }}** — {{ r.evidence }}. अपेक्षित: {{ r.expected_reduction }}.
+{% endfor %}
+
+## 6. एजेंट शासन
+{{ d.governance.actions }} एजेंट कार्रवाइयाँ ({{ d.governance.autonomous }} स्वायत्त, {{ d.governance.proposals }} प्रस्ताव, मानव अनुमोदन दर {{ pct(d.governance.approval_rate) }}), {{ d.governance.tool_calls }} टूल कॉल, {{ d.governance.failed_calls }} विफल, मॉडल लागत ${{ d.governance.cost_usd }}।
+
+## 7. डेटा गुणवत्ता
+सिम्युलेटेड इवेंट का हिस्सा: {{ pct(d.data_quality.simulated_share) }}। सेवा दर स्रोत: {{ d.data_quality.mu_source }}। चेहरे कैप्चर के समय ही ब्लर किए जाते हैं।

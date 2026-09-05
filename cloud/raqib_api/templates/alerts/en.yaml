@@ -1,0 +1,6 @@
+queue_over: "RAQIB · Queue alert · {zone}: {count} customers waiting at {time}. Consider opening another till."
+shelf_gap: "RAQIB · Shelf gap · {shelf_id}: {product} shelf looks empty since {time}. Restock task raised."
+zone_breach: "MUSHRIF · SAFETY · Person inside exclusion zone {zone} (camera {camera}) at {time}. Escalated to the safety officer."
+ppe_violation: "MUSHRIF · SAFETY · Worker without helmet in {zone} (camera {camera}) at {time}. Escalated to the safety officer."
+machine_stopped: "MUSHRIF · Downtime · Machine {machine_id} stopped for {minutes} min during the scheduled run. Work order raised."
+escalation: "Escalation to {role}: {note} (event {event_id}). Clip attached."

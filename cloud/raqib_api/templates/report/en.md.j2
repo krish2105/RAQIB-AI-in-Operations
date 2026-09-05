@@ -1,0 +1,54 @@
+# {{ 'RAQIB' if d.profile == 'retail' else 'MUSHRIF' }} weekly operations report — {{ d.site }}
+
+Period {{ d.period.start }} to {{ d.period.end }} · generated {{ d.generated_at[:16] }} UTC
+
+## 1. Three measured results
+{% if d.profile == 'retail' %}
+- Service level (share of 15-min slots with queue ≤ 3): **{{ pct(d.kpis.service_level) }}** (target 90%)
+- Store on-shelf availability: **{{ pct(d.kpis.osa_store) }}**; footfall {{ d.kpis.footfall }} customers, {{ num(d.kpis.footfall_per_hour) }} per hour
+- Peak checkout utilisation ρ: **{{ num(d.kpis.peak_rho, 2) }}** with {{ d.staffing.baseline_tills if d.staffing else '-' }} tills available
+{% else %}
+- PPE compliance: **{{ pct(d.kpis.compliance) }}**; zone breaches: **{{ d.kpis.breaches }}**
+- Unplanned downtime: **{{ num(d.kpis.downtime_min, 0) }} min** across machines {{ d.kpis.stopped_machines | join(', ') or '-' }}
+- Footfall on the line: {{ d.kpis.footfall }} entries, {{ num(d.kpis.footfall_per_hour) }} per hour
+{% endif %}
+
+## 2. Queue model vs observed
+{% if d.kpis.queue_model %}
+| Slot (UTC) | λ /h | μ /h per till | ρ | W_q model (min) | W_q observed (min) |
+|---|---|---|---|---|---|
+{% for s in d.kpis.queue_model[-8:] %}
+| {{ s.slot_start[11:16] }} | {{ num(s.lam_per_h, 0) }} | {{ num(s.mu_per_h, 0) }} | {{ num(s.rho, 2) }} | {{ num(s.wq_model_min, 1) }} | {{ num(s.wq_observed_min, 1) }} |
+{% endfor %}
+μ is estimated from video dwell times, not POS. Observed W_q uses Little's law on the measured queue length.
+{% else %}
+No checkout activity in the period.
+{% endif %}
+
+## 3. Forecast vs seasonal naive
+{% if d.forecast.sufficient %}
+Next-24h footfall model MAE **{{ d.forecast.mae }}** vs seasonal-naive **{{ d.forecast.mae_naive }}** ({{ d.forecast.improvement_pct }}% better). Peaks expected at {% for p in d.forecast.peaks[:3] %}{{ p.ts[11:16] }}{% if not loop.last %}, {% endif %}{% endfor %} UTC.
+{% else %}
+Forecast not available: {{ d.forecast.reason }}.
+{% endif %}
+
+## 4. Workforce plan (MILP, ρ ≤ {{ d.staffing.max_rho if d.staffing else '0.85' }})
+{% if d.staffing %}
+Planned staff-hours **{{ d.staffing.staff_hours }}** vs **{{ d.staffing.baseline_staff_hours }}** with all tills open all day (saves {{ d.staffing.savings_hours }} h). Tills per slot: {{ d.staffing.tills | join(' ') }}.
+{% if d.before_after %}
+Before/after simulation: customer wait {{ d.before_after.baseline_customer_wait_min }} → {{ d.before_after.with_plan_customer_wait_min }} customer-minutes per day (**{{ d.before_after.reduction_pct }}% reduction**).
+{% endif %}
+{% else %}
+Not enough slot data for a plan.
+{% endif %}
+
+## 5. Recommended actions
+{% for r in recs %}
+{{ loop.index }}. **{{ r.title }}** — {{ r.evidence }}. Expected: {{ r.expected_reduction }}.
+{% endfor %}
+
+## 6. Agent governance
+{{ d.governance.actions }} agent actions ({{ d.governance.autonomous }} autonomous, {{ d.governance.proposals }} proposals, human approval rate {{ pct(d.governance.approval_rate) }}), {{ d.governance.tool_calls }} tool calls, {{ d.governance.failed_calls }} failed, model cost ${{ d.governance.cost_usd }}.
+
+## 7. Data quality
+Simulated share of events: {{ pct(d.data_quality.simulated_share) }}. Service rate source: {{ d.data_quality.mu_source }}. Faces are blurred at capture; no identity data exists in this report.
