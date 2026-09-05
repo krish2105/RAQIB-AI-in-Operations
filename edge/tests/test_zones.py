@@ -31,7 +31,7 @@ def test_load_retail_demo_site():
     assert site.tills == 3
     assert {z.kind for z in site.zones} == {"entrance", "queue", "checkout", "shelf"}
     assert len(site.zones_for("cam1", "queue")) == 1
-    assert site.threshold("queue_n") == 4
+    assert site.threshold("queue_n") == 3
     assert site.threshold("reemit_s") == 300
     assert site.floor["width_m"] == 24
 
