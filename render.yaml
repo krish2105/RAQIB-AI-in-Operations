@@ -1,0 +1,30 @@
+# Render Blueprint: the cloud API as a free web service.
+# Free tier sleeps after 15 min idle; the edge box buffers events in SQLite and syncs on wake.
+services:
+  - type: web
+    name: raqib-api
+    runtime: python
+    plan: free
+    rootDir: .
+    buildCommand: pip install uv && cd cloud && uv pip install --system .
+    startCommand: cd cloud && uvicorn raqib_api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DATABASE_URL
+        sync: false          # Supabase Postgres URL, set in the dashboard
+      - key: CLIPS_DIR
+        value: /var/data/clips
+      - key: CORS_ORIGINS
+        value: https://raqib.vercel.app,http://localhost:3000
+      - key: AGENT_BACKEND
+        value: dryrun
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GREENLAM_URL
+        sync: false
+      - key: GREENLAM_EMPLOYEE_ID
+        sync: false
+      - key: GREENLAM_PIN
+        sync: false

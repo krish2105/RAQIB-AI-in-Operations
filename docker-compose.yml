@@ -1,0 +1,38 @@
+# Edge + API locally. The web app runs with `npm run dev` (or on Vercel).
+#   docker compose up --build
+services:
+  api:
+    build: ./cloud
+    ports: ["8000:8000"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////data/raqib.db}
+      CLIPS_DIR: /data/clips
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      AGENT_BACKEND: ${AGENT_BACKEND:-dryrun}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GREENLAM_URL: ${GREENLAM_URL:-}
+      GREENLAM_EMPLOYEE_ID: ${GREENLAM_EMPLOYEE_ID:-}
+      GREENLAM_PIN: ${GREENLAM_PIN:-}
+    volumes: ["api-data:/data"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  edge:
+    build: ./edge
+    depends_on:
+      api: { condition: service_healthy }
+    environment:
+      RAQIB_API_URL: http://api:8000
+      RAQIB_SITE: /app/edge/sites/retail_demo.yaml
+      RAQIB_DETECTOR: ${RAQIB_DETECTOR:-yolo}
+    volumes:
+      # weights and demo video are not in the image (licensed separately, see docs/datasets.md)
+      - ./edge/data:/app/edge/data
+    # CPU inference inside Docker on a Mac; the M4 Pro runs natively with MPS via scripts/dev.sh
+    command: ["raqib-edge", "run", "--site", "/app/edge/sites/retail_demo.yaml", "--api", "http://api:8000", "--no-verbose"]
+
+volumes:
+  api-data: {}

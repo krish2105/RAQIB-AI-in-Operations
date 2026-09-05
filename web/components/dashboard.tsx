@@ -8,6 +8,7 @@ import { api } from "@/lib/api";
 import { fmtNumber, fmtPct } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
 import { KpiTile } from "@/components/kpi/kpi-tile";
+import { MachineCard } from "@/components/kpi/machine-card";
 import { QueueModelChart } from "@/components/kpi/queue-model-card";
 import { EventStream } from "@/components/stream/event-stream";
 import { ProposalCard } from "@/components/actions/proposal-card";
@@ -73,9 +74,15 @@ export function Dashboard() {
       </motion.div>
 
       <motion.div variants={cell} className="sm:col-span-2 lg:col-span-7">
-        <Panel eyebrow={t("queueModelTitle")} sub={t("queueModelSub")} className="h-full">
-          {kpis.isPending ? <Skeleton className="m-4 h-[220px]" /> : kpis.isError ? <ErrorState what={t("queueModelTitle").toLowerCase()} onRetry={() => kpis.refetch()} /> : <QueueModelChart slots={k?.queue_model ?? []} />}
-        </Panel>
+        {profile === "retail" ? (
+          <Panel eyebrow={t("queueModelTitle")} sub={t("queueModelSub")} className="h-full">
+            {kpis.isPending ? <Skeleton className="m-4 h-[220px]" /> : kpis.isError ? <ErrorState what={t("queueModelTitle").toLowerCase()} onRetry={() => kpis.refetch()} /> : <QueueModelChart slots={k?.queue_model ?? []} />}
+          </Panel>
+        ) : (
+          <Panel eyebrow={tk("stopped")} sub={tk("stoppedSub")} className="h-full">
+            <MachineCard kpis={k} />
+          </Panel>
+        )}
       </motion.div>
 
       <motion.div variants={cell} className="sm:col-span-2 lg:col-span-5">

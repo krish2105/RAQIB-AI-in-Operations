@@ -32,7 +32,8 @@ test("grader path: event → clip → approve proposal → restock task", async 
 
   await expect(page).toHaveURL(/\/events\//);
   await expect(page.getByTestId("clip")).toBeVisible();
-  await expect(page.getByText("R10")).toBeVisible();
+  await expect(page.getByText(/^R10 — /)).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Queue over limit" })).toBeVisible();
 
   // Actions: approve the open-till proposal
   await page.goto("/en/actions");

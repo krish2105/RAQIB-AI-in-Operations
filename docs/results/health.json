@@ -1,0 +1,6 @@
+{
+  "status": "ok",
+  "events": 36316,
+  "agent_backend": "dryrun",
+  "database": "sqlite"
+}

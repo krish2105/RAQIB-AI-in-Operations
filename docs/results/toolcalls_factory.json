@@ -1,0 +1,30 @@
+{
+  "total_calls": 4,
+  "total_cost_usd": 0.0,
+  "by_tool": {
+    "escalate": {
+      "calls": 1,
+      "ok": 1,
+      "cost_usd": 0.0,
+      "latency_ms_avg": 0.1
+    },
+    "send_alert": {
+      "calls": 1,
+      "ok": 1,
+      "cost_usd": 0.0,
+      "latency_ms_avg": 0.1
+    },
+    "create_work_order": {
+      "calls": 1,
+      "ok": 1,
+      "cost_usd": 0.0,
+      "latency_ms_avg": 0.0
+    },
+    "log_downtime": {
+      "calls": 1,
+      "ok": 1,
+      "cost_usd": 0.0,
+      "latency_ms_avg": 0.0
+    }
+  }
+}

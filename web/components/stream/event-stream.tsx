@@ -7,7 +7,11 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { Link } from "@/i18n/navigation";
 import { api, type ApiEvent, type EventKind } from "@/lib/api";
-import { fmtTime } from "@/lib/format";
+import { dayStart, fmtDate, fmtTime } from "@/lib/format";
+
+function isToday(iso: string): boolean {
+  return new Date(iso).getTime() >= dayStart().getTime();
+}
 import { useAppStore } from "@/lib/store";
 import { EmptyState, ErrorState, SevChip, Skeleton } from "@/components/ui/panel";
 import { cn } from "@/lib/utils";
@@ -107,7 +111,8 @@ function EventRow({ e, compact }: { e: ApiEvent; compact: boolean }) {
           {detail && ` · ${detail}`}
         </div>
       </div>
-      <time dateTime={e.ts} className="num shrink-0 text-[0.75rem] text-ink-muted">
+      <time dateTime={e.ts} className="num shrink-0 text-end text-[0.75rem] leading-tight text-ink-muted">
+        {!isToday(e.ts) && <span className="block text-[0.625rem] text-ink-faint">{fmtDate(locale, e.ts)}</span>}
         {fmtTime(locale, e.ts, true)}
       </time>
       <Link href={`/events/${e.id}`} className="shrink-0 rounded-md border border-transparent px-2 py-1 text-[0.75rem] text-ink-muted opacity-70 transition group-hover:border-hairline-strong group-hover:text-ink group-hover:opacity-100 focus-visible:opacity-100">

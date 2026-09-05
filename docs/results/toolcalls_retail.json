@@ -1,0 +1,12 @@
+{
+  "total_calls": 1,
+  "total_cost_usd": 0.0,
+  "by_tool": {
+    "send_alert": {
+      "calls": 1,
+      "ok": 1,
+      "cost_usd": 0.0,
+      "latency_ms_avg": 0.1
+    }
+  }
+}

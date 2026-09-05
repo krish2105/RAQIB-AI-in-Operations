@@ -14,13 +14,15 @@
 {% endif %}
 
 ## 2. कतार मॉडल बनाम प्रेक्षित
-{% if d.kpis.queue_model %}
+{% if d.profile == 'retail' and d.kpis.queue_model %}
 | स्लॉट (UTC) | λ /घंटा | μ /घंटा प्रति काउंटर | ρ | W_q मॉडल (मिनट) | W_q प्रेक्षित (मिनट) |
 |---|---|---|---|---|---|
 {% for s in d.kpis.queue_model[-8:] %}
 | {{ s.slot_start[11:16] }} | {{ num(s.lam_per_h, 0) }} | {{ num(s.mu_per_h, 0) }} | {{ num(s.rho, 2) }} | {{ num(s.wq_model_min, 1) }} | {{ num(s.wq_observed_min, 1) }} |
 {% endfor %}
 μ वीडियो से अनुमानित है, POS से नहीं।
+{% elif d.profile == 'factory' %}
+फ़ैक्टरी प्रोफ़ाइल पर लागू नहीं। डाउनटाइम: **{{ num(d.kpis.downtime_min, 0) }} मिनट**, मशीनें {{ d.kpis.stopped_machines | join(', ') or '-' }}; {{ d.kpis.breaches }} निषिद्ध क्षेत्र उल्लंघन।
 {% else %}
 इस अवधि में चेकआउट गतिविधि नहीं मिली।
 {% endif %}

@@ -23,10 +23,12 @@ export default defineConfig({
       timeout: 120_000,
     },
     {
-      command: `NEXT_PUBLIC_API_URL=${API} npx next dev -p 3011`,
+      // Production build on its own port: Next 16 allows only one dev server per directory,
+      // and the smoke test should exercise the same bundle Vercel serves.
+      command: `NEXT_PUBLIC_API_URL=${API} npx next build && NEXT_PUBLIC_API_URL=${API} npx next start -p 3011`,
       url: `${WEB}/en`,
       reuseExistingServer: !process.env.CI,
-      timeout: 180_000,
+      timeout: 300_000,
     },
   ],
 });

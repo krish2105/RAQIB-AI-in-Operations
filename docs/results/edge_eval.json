@@ -1,0 +1,49 @@
+{
+  "generated_at": "2026-09-06T02:01:37",
+  "machine": "macOS-26.6.2-arm64-arm-64bit",
+  "detectors": {
+    "yolo": {
+      "device": "mps",
+      "latency_ms_p50": 8.9,
+      "latency_ms_p95": 9.9,
+      "fps_detect_only": 111.9,
+      "detections_per_class": {
+        "person": 241
+      },
+      "frames": 60
+    },
+    "rtdetr": {
+      "device": "mps",
+      "latency_ms_p50": 108.2,
+      "latency_ms_p95": 133.4,
+      "fps_detect_only": 8.9,
+      "detections_per_class": {
+        "person": 174
+      },
+      "frames": 20
+    }
+  },
+  "fixtures": {
+    "yolo": {
+      "person": 30
+    },
+    "rtdetr": {
+      "person": 48
+    }
+  },
+  "pipeline": {
+    "frames": 150,
+    "fps_end_to_end": 30.5,
+    "frame_to_event_ms_p50": 27.7,
+    "frame_to_event_ms_p95": 56.1,
+    "events": 16,
+    "events_by_kind": {
+      "footfall_tick": 16
+    },
+    "device": "mps"
+  },
+  "ppe_map50": {
+    "status": "not run",
+    "reason": "requires fine-tuned weights and SH17 (manual download, CC BY-NC-SA 4.0). Target >= 0.80 mAP50 is a pilot deliverable, not met by COCO weights."
+  }
+}
