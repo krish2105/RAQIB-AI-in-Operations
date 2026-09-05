@@ -7,6 +7,14 @@ One engine, two site profiles, three languages (EN / HI / AR), faces blurred bef
 > Term 4 · MAIB AI 218 *AI in Operations* deployed MVP · Portfolio · Greenlam pilot candidate.
 > Owner: Krishna Mathur (`krish2105`). Spec: `docs/superpowers/specs/2026-09-06-raqib-design.md`.
 
+## Live
+
+- **Dashboard:** https://raqib-orcin.vercel.app
+- **API:** https://raqib-backend-7qdg.onrender.com (docs at `/docs`)
+- **Repo:** https://github.com/krish2105/RAQIB-AI-in-Operations
+
+The API is a Render free-tier instance: it sleeps after 15 minutes idle (first request wakes it, ~30–60 s) and runs a single worker, so the weekly report (which aggregates the full seeded history) can take 20–35 s under load — a real free-tier CPU constraint, not a bug; `/kpis`, `/forecast` and `/workforce` are bounded to the window they need and stay fast. A paid instance removes both limits.
+
 ## The grader path (under 10 minutes)
 
 1. Open the dashboard → the **tape** across the top shows the last 24 hours of footfall with event ticks; KPIs show service level, on-shelf availability, queue, footfall; the **3D floor** pulses where events land.
@@ -63,13 +71,13 @@ curl -X POST 'localhost:8000/admin/seed?site=raqib_demo_store&days=21'          
 cd web   && NEXT_PUBLIC_API_URL=http://localhost:8000 npm run dev
 ```
 
-Docker (edge + API): `docker compose up --build`. Deploy: `render.yaml` (API), `web/vercel.json` (web), `cloud/supabase/schema.sql` (Postgres).
+Docker (edge + API): `docker compose up --build`. Deploy: `render.yaml` (API), `web/vercel.json` (web), `cloud/supabase/schema.sql` (Postgres). Live URLs above.
 
 ## Tests
 
 ```bash
 cd edge  && uv run pytest        # 47: rules with synthetic tracks, adapter on real frames, blur, store, sync, pipeline
-cd cloud && uv run pytest        # 41: routers, M/M/c textbook cases, policies (sev-3 cannot be downgraded), tools, forecast beats naive, MILP toy, report EN/HI/AR
+cd cloud && uv run pytest        # 44: routers, M/M/c textbook cases, policies (sev-3 cannot be downgraded), tools, forecast beats naive, MILP toy, report EN/HI/AR, session-safe tz normalisation
 cd web   && npm test             # 15: severity tokens, message catalogues complete in 3 languages, tape binning, live buffer
 cd web   && npm run e2e          # Playwright: event → clip → approve proposal → executed + audit; theme toggle + RTL
 ```
