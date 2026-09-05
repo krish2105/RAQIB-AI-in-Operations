@@ -17,7 +17,7 @@ services:
       - key: CLIPS_DIR
         value: /var/data/clips
       - key: CORS_ORIGINS
-        value: https://raqib.vercel.app,http://localhost:3000
+        value: https://raqib-orcin.vercel.app,http://localhost:3000
       - key: AGENT_BACKEND
         value: dryrun
       - key: ANTHROPIC_API_KEY
