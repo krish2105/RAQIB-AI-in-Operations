@@ -1,0 +1,75 @@
+# RAQIB retail demo site. Zones are normalised frame coordinates (0..1).
+# Camera cam1 loops a Pexels checkout clip (see docs/datasets.md).
+name: raqib_demo_store
+profile: retail
+tills: 3
+
+cameras:
+  cam1:
+    source: file
+    uri: edge/data/video/checkout_39221979.mp4
+    fps: 25
+  cam2:
+    source: file
+    uri: edge/data/video/timelapse_854634.mp4
+    fps: 30
+
+zones:
+  # A person whose foot point enters this band is counted once as footfall.
+  - name: entrance
+    kind: entrance
+    camera: cam1
+    polygon: [[0.00, 0.55], [1.00, 0.55], [1.00, 1.00], [0.00, 1.00]]
+  # Waiting area in front of the tills.
+  - name: queue_till_1
+    kind: queue
+    camera: cam1
+    polygon: [[0.05, 0.25], [0.60, 0.25], [0.60, 0.70], [0.05, 0.70]]
+    meta: { till: 1 }
+  # Standing at the belt/counter. Leaving after a dwell = one service completion.
+  - name: checkout_till_1
+    kind: checkout
+    camera: cam1
+    polygon: [[0.60, 0.20], [0.95, 0.20], [0.95, 0.75], [0.60, 0.75]]
+    meta: { till: 1 }
+  # Shelf face monitored for empty ratio.
+  - name: shelf_a1
+    kind: shelf
+    camera: cam1
+    polygon: [[0.00, 0.00], [0.35, 0.00], [0.35, 0.22], [0.00, 0.22]]
+    meta: { shelf_id: A1, product: "snacks" }
+  - name: entrance_2
+    kind: entrance
+    camera: cam2
+    polygon: [[0.00, 0.60], [1.00, 0.60], [1.00, 1.00], [0.00, 1.00]]
+  - name: aisle_shelf_b3
+    kind: shelf
+    camera: cam2
+    polygon: [[0.55, 0.05], [1.00, 0.05], [1.00, 0.45], [0.55, 0.45]]
+    meta: { shelf_id: B3, product: "dairy" }
+
+thresholds:
+  queue_n: 4          # persons in a queue zone
+  queue_s: 60         # seconds sustained before R10 fires
+  shelf_empty_ratio: 0.4
+  shelf_s: 300
+  checkout_dwell_s: 20
+  reemit_s: 300
+  min_conf: 0.35
+
+# Floor plan in metres for the 3D view. Origin bottom-left, x right, y depth.
+floor:
+  width_m: 24
+  depth_m: 16
+  zones:
+    - { name: entrance, x: 9, y: 0, w: 6, d: 2, kind: entrance }
+    - { name: queue_till_1, x: 2, y: 3, w: 4, d: 5, kind: queue, camera: cam1 }
+    - { name: checkout_till_1, x: 2, y: 8.5, w: 4, d: 1.5, kind: checkout, camera: cam1 }
+    - { name: checkout_till_2, x: 7, y: 8.5, w: 4, d: 1.5, kind: checkout }
+    - { name: checkout_till_3, x: 12, y: 8.5, w: 4, d: 1.5, kind: checkout }
+    - { name: shelf_a1, x: 18, y: 3, w: 1, d: 10, kind: shelf, camera: cam1 }
+    - { name: aisle_shelf_b3, x: 21, y: 3, w: 1, d: 10, kind: shelf, camera: cam2 }
+    - { name: entrance_2, x: 18, y: 0, w: 5, d: 2, kind: entrance, camera: cam2 }
+  cameras:
+    - { name: cam1, x: 1, y: 12, z: 3.2, yaw: -35 }
+    - { name: cam2, x: 23, y: 12, z: 3.2, yaw: 215 }

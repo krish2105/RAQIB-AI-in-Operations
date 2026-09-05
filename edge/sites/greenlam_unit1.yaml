@@ -1,0 +1,51 @@
+# MUSHRIF factory profile — Greenlam Laminates, one plant unit.
+# Pilot: replace cam1.uri with the plant RTSP URL supplied by the site engineer.
+name: greenlam_unit1
+profile: factory
+
+cameras:
+  cam1:
+    source: file
+    uri: edge/data/video/checkout_39221979.mp4   # stand-in until the plant RTSP feed is available
+    fps: 25
+
+zones:
+  - name: press_line_work_area
+    kind: work_area
+    camera: cam1
+    polygon: [[0.00, 0.20], [1.00, 0.20], [1.00, 1.00], [0.00, 1.00]]
+  - name: press_1_exclusion
+    kind: exclusion
+    camera: cam1
+    polygon: [[0.62, 0.25], [0.95, 0.25], [0.95, 0.70], [0.62, 0.70]]
+    meta: { machine_id: 1 }
+  - name: press_1_roi
+    kind: machine
+    camera: cam1
+    polygon: [[0.65, 0.05], [0.95, 0.05], [0.95, 0.25], [0.65, 0.25]]
+    meta: { machine_id: 1 }
+  - name: entrance
+    kind: entrance
+    camera: cam1
+    polygon: [[0.00, 0.80], [1.00, 0.80], [1.00, 1.00], [0.00, 1.00]]
+
+machines:
+  # machine_id must match the Greenlam tracker `machines.id` so work orders land on the right asset.
+  - { machine_id: 1, code: "PR-01", name: "Short-cycle press 1", scheduled: "06:00-22:00" }
+
+thresholds:
+  helmet_s: 2
+  machine_stop_s: 120
+  reemit_s: 300
+  min_conf: 0.35
+
+floor:
+  width_m: 30
+  depth_m: 18
+  zones:
+    - { name: press_line_work_area, x: 2, y: 2, w: 26, d: 12, kind: work_area, camera: cam1 }
+    - { name: press_1_exclusion, x: 18, y: 6, w: 6, d: 5, kind: exclusion, camera: cam1 }
+    - { name: press_1_roi, x: 19, y: 11, w: 4, d: 3, kind: machine, camera: cam1 }
+    - { name: entrance, x: 0, y: 15, w: 4, d: 3, kind: entrance, camera: cam1 }
+  cameras:
+    - { name: cam1, x: 2, y: 16, z: 4, yaw: -40 }
