@@ -1,0 +1,14 @@
+{
+  "frames": 40,
+  "events": 3,
+  "by_kind": {
+    "footfall_tick": 3
+  },
+  "fps": 11.001593305745574,
+  "device": "mps",
+  "detector": "rtdetr",
+  "latency_ms_p50": 56.46389550020103,
+  "latency_ms_p95": 70.71224135434022,
+  "clips": 0,
+  "synced": 0
+}

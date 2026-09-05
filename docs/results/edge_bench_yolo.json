@@ -1,0 +1,14 @@
+{
+  "frames": 200,
+  "events": 3,
+  "by_kind": {
+    "footfall_tick": 3
+  },
+  "fps": 49.36253785055543,
+  "device": "mps",
+  "detector": "yolo",
+  "latency_ms_p50": 16.812770500109764,
+  "latency_ms_p95": 28.470475297945082,
+  "clips": 0,
+  "synced": 0
+}
