@@ -77,7 +77,10 @@
     "breachesSub": "गंभीरता 3, 24 घंटे",
     "stopped": "बंद मशीनें",
     "stoppedSub": "पिछले 24 घंटे में",
-    "peakRho": "शिखर उपयोग ρ"
+    "peakRho": "शिखर उपयोग ρ",
+    "cost": "आज की इन्फ़रेंस लागत",
+    "costSub": "{requests} मॉडल कॉल · {tokens} टोकन · {providers}",
+    "costNone": "अभी कोई मॉडल कॉल नहीं"
   },
   "dashboard": {
     "title": "डैशबोर्ड",

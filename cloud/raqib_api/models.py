@@ -387,6 +387,35 @@ class EdgeHeartbeat(SQLModel, table=True):
     meta: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
 
 
+class LlmSpan(SQLModel, table=True):
+    """One row per model call (the OpenTelemetry span, persisted): the ledger behind the cost KPI."""
+
+    __tablename__ = "llm_spans"
+    id: int | None = Field(default=None, primary_key=True)
+    site: str = Field(default="-", index=True)
+    task: str = Field(index=True)
+    provider: str = Field(index=True)
+    model: str = ""
+    tokens_in: int = 0
+    tokens_out: int = 0
+    cost_usd: float = 0.0
+    latency_ms: float = 0.0
+    prompt_hash: str = ""
+    ok: bool = True
+    attempts: int = 1
+    ts: datetime = Field(default_factory=utcnow, index=True)
+
+
+class RetentionLog(SQLModel, table=True):
+    __tablename__ = "retention_log"
+    id: int | None = Field(default=None, primary_key=True)
+    ts: datetime = Field(default_factory=utcnow, index=True)
+    kind: str  # clips | events | memories
+    deleted: int = 0
+    cutoff: datetime
+    details: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
+
+
 V2_TABLES = ("captions", "documents", "chunks", "memories", "agent_runs", "agent_messages", "users", "stores",
              "drift_samples", "quota_counters", "ask_log", "opinions", "crew_flags", "memory_snapshots", "pos_transactions",
-             "notify_optins", "edge_heartbeats")
+             "notify_optins", "edge_heartbeats", "llm_spans", "retention_log")

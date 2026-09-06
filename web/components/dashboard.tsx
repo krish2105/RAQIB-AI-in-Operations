@@ -8,6 +8,7 @@ import { api } from "@/lib/api";
 import { fmtNumber, fmtPct } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
 import { KpiTile } from "@/components/kpi/kpi-tile";
+import { CostTile } from "@/components/kpi/cost-tile";
 import { MachineCard } from "@/components/kpi/machine-card";
 import { QueueModelChart } from "@/components/kpi/queue-model-card";
 import { EventStream } from "@/components/stream/event-stream";
@@ -60,6 +61,10 @@ export function Dashboard() {
           )}
         </motion.div>
       ))}
+      {/* v2: cost per site per day, the sum of every model call's span (stays $0 on the free providers) */}
+      <motion.div variants={cell} className="lg:col-span-4">
+        <CostTile site={site} />
+      </motion.div>
 
       <motion.div variants={cell} className="sm:col-span-2 lg:col-span-8 lg:row-span-2">
         <Panel eyebrow={t("floorTitle")} sub={t("floorSub")} className="h-full min-h-[380px]" bodyClassName="relative">

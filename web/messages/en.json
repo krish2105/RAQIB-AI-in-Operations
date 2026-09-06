@@ -77,7 +77,10 @@
     "breachesSub": "severity 3, 24 h",
     "stopped": "Machines stopped",
     "stoppedSub": "in the last 24 h",
-    "peakRho": "Peak utilisation ρ"
+    "peakRho": "Peak utilisation ρ",
+    "cost": "Inference cost today",
+    "costSub": "{requests} model calls · {tokens} tokens · {providers}",
+    "costNone": "no model calls yet"
   },
   "dashboard": {
     "title": "Dashboard",

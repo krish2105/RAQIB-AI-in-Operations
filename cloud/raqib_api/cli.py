@@ -19,6 +19,8 @@ def main(argv: list[str] | None = None) -> int:
     ix.add_argument("--since", default="7d", help="ISO timestamp or Nd/Nh (default 7d)")
     ix.add_argument("--no-embed", action="store_true")
     ix.add_argument("--no-captions", action="store_true")
+    ret = sub.add_parser("retention", help="delete clips/events/memories past their retention and log it")
+    ret.add_argument("--dry-run", action="store_true")
     doc = sub.add_parser("add-document", help="ingest a local .md/.txt/.csv/.pdf")
     doc.add_argument("path")
     doc.add_argument("--site", default="raqib_demo_store")
@@ -35,6 +37,10 @@ def main(argv: list[str] | None = None) -> int:
             site = s.get(Site, a.site)
             stats = index_since(a.site, _since(a.since), s, embed=not a.no_embed, captions=not a.no_captions, tills=site.tills if site else 3)
             print(json.dumps(stats.as_dict(), indent=2))
+        elif a.cmd == "retention":
+            from .jobs.retention import run_retention
+
+            print(json.dumps(run_retention(s, dry_run=a.dry_run), indent=2, default=str))
         elif a.cmd == "add-document":
             from pathlib import Path
 

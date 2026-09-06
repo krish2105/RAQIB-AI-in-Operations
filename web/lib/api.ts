@@ -519,6 +519,28 @@ export interface EdgeBox {
   fps_24h: Array<{ ts: string; fps: number; queue_depth: number }>;
 }
 
+export interface CostDay {
+  day: string;
+  requests: number;
+  tokens_in: number;
+  tokens_out: number;
+  llm_usd: number;
+  tool_usd: number;
+  usd: number;
+  providers: Record<string, { requests: number; tokens: number; usd: number }>;
+}
+
+export interface CostOut {
+  site: string | null;
+  days: number;
+  today: CostDay;
+  total_usd: number;
+  total_requests: number;
+  total_tokens: number;
+  by_day: CostDay[];
+  spans_today: number;
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -610,6 +632,7 @@ export const api = {
   },
   shelves: (site: string, window_h = 24 * 7) => request<ShelvesOut>(`/shelves${q({ site, window_h })}`),
   me: () => request<Me>("/auth/me"),
+  cost: (site: string, days = 7) => request<CostOut>(`/cost${q({ site, days })}`),
   fleetLeaderboard: (kpi: string, window_h = 24) => request<{ kpi: string; window_h: number; stores: FleetStore[] }>(`/fleet/leaderboard${q({ kpi, window_h })}`),
   fleetDrift: (site: string) => request<{ site: string; cameras: CameraDrift[] }>(`/fleet/drift${q({ site })}`),
   fleetHealth: (site: string) => request<{ site: string; boxes: EdgeBox[]; edge_offline_events: string[] }>(`/fleet/health${q({ site })}`),

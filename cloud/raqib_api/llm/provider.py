@@ -79,30 +79,45 @@ def parse_json(text: str) -> dict[str, Any] | None:
 
 
 class ProviderChain:
-    """Tries providers in order; validates strict JSON with one retry; records quota."""
+    """Tries providers in order; validates strict JSON with one retry; records quota; traces every call."""
 
-    def __init__(self, task: str, providers: list[LLMProvider], quota: Quota | None = None) -> None:
+    def __init__(self, task: str, providers: list[LLMProvider], quota: Quota | None = None, site: str = "-") -> None:
         self.task = task
         self.providers = providers
         self.quota = quota
+        self.site = site
         self.name = "chain(" + ",".join(p.name for p in providers) + ")"
 
     def complete(self, system: str, user: str, *, json_schema: dict | None = None,
                  images: list[bytes] | None = None, max_tokens: int = 800) -> LLMResult:
+        from ..telemetry import llm_span, record_span_row
+
         errors: list[str] = []
-        for p in self.providers:
-            if self.quota is not None and not self.quota.check(p.name):
-                errors.append(f"{p.name}: quota exhausted")
-                continue
-            try:
-                res = self._complete_with_schema(p, system, user, json_schema, images, max_tokens)
-            except (ProviderUnavailable, QuotaExhausted) as exc:
-                errors.append(f"{p.name}: {exc}")
-                log.info("provider %s unavailable for %s: %s", p.name, self.task, exc)
-                continue
-            if self.quota is not None:
-                self.quota.record(p.name, res.tokens_in + res.tokens_out, requests=res.attempts)
-            return res
+        with llm_span(self.task, self.site, system, user) as span:
+            for p in self.providers:
+                if self.quota is not None and not self.quota.check(p.name):
+                    errors.append(f"{p.name}: quota exhausted")
+                    continue
+                try:
+                    res = self._complete_with_schema(p, system, user, json_schema, images, max_tokens)
+                except (ProviderUnavailable, QuotaExhausted) as exc:
+                    errors.append(f"{p.name}: {exc}")
+                    log.info("provider %s unavailable for %s: %s", p.name, self.task, exc)
+                    continue
+                if self.quota is not None:
+                    self.quota.record(p.name, res.tokens_in + res.tokens_out, requests=res.attempts)
+                span.set_attribute("raqib.provider", res.provider)
+                span.set_attribute("raqib.model", res.model)
+                span.set_attribute("raqib.tokens_in", res.tokens_in)
+                span.set_attribute("raqib.tokens_out", res.tokens_out)
+                span.set_attribute("raqib.cost_usd", res.cost_usd)
+                span.set_attribute("raqib.latency_ms", res.latency_ms)
+                span.set_attribute("raqib.attempts", res.attempts)
+                record_span_row(self.task, self.site, res, system, user, ok=True)
+                return res
+            span.set_attribute("raqib.provider", "none")
+            span.set_attribute("raqib.cost_usd", 0.0)
+            span.set_attribute("raqib.error", "; ".join(errors)[:200])
         raise ProviderUnavailable(f"no provider for task {self.task!r}: " + "; ".join(errors))
 
     def _complete_with_schema(self, p: LLMProvider, system: str, user: str, schema: dict | None,
@@ -177,13 +192,13 @@ def _build(name: str, task: str) -> LLMProvider | None:
     return None
 
 
-def get_provider(task: Task, *, quota: Quota | None = None, providers: list[LLMProvider] | None = None) -> ProviderChain:
+def get_provider(task: Task, *, quota: Quota | None = None, providers: list[LLMProvider] | None = None, site: str = "-") -> ProviderChain:
     """Chain for `task`. Reads LLM_PROVIDER and per-task overrides; falls through the free order."""
     if task not in TASKS:
         raise ValueError(f"unknown task {task!r}; expected one of {TASKS}")
     if providers is None:
         providers = [p for p in (_build(n, task) for n in _order_for(task)) if p is not None]
-    return ProviderChain(task, providers, quota if quota is not None else Quota.default())
+    return ProviderChain(task, providers, quota if quota is not None else Quota.default(), site=site)
 
 
 def try_complete(chain: ProviderChain, system: str, user: str, **kw: Any) -> LLMResult | None:

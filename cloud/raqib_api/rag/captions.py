@@ -93,7 +93,7 @@ def caption_event(event: Event, frames: list[np.ndarray], provider: ProviderChai
         return base
     images = jpegs if jpegs is not None else frames_to_jpeg(frames)
     images = images[: settings.caption_max_frames]
-    provider = provider or get_provider("caption", quota=quota)
+    provider = provider or get_provider("caption", quota=quota, site=event.site)
     user = (f"<event kind={event.kind} rule={event.rule_id} severity={event.severity} zone={event.payload.get('zone', '-')}>"
             f" {len(images)} keyframes attached. Describe them.")
     res = try_complete(provider, SYSTEM, user, json_schema=CAPTION_SCHEMA, images=images, max_tokens=400)

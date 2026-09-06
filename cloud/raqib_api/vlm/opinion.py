@@ -78,7 +78,7 @@ def second_opinion(event: Event, frames: list[np.ndarray], provider: ProviderCha
         unavailable.status = "quota_exhausted"
         return unavailable
     images = (jpegs if jpegs is not None else frames_to_jpeg(frames))[: settings.caption_max_frames]
-    provider = provider or get_provider("opinion", quota=q)
+    provider = provider or get_provider("opinion", quota=q, site=event.site)
     user = (f"<event kind={event.kind} rule={event.rule_id} severity={event.severity} camera={event.camera} "
             f"zone={event.payload.get('zone', '-')} detector_confidence={event.payload.get('confidence', '-')}>"
             f" {len(images)} blurred keyframes attached.</event>\nGive your second opinion as JSON.")

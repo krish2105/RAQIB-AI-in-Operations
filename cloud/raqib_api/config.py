@@ -93,6 +93,15 @@ class Settings(BaseSettings):
     rate_ask_per_min: int = 20
     rate_vlm_per_min: int = 10
 
+    # ---- v2: observability, retention, cost ----
+    otel_exporter: str = "none"  # none | console | otlp ; spans are always recorded to llm_spans for the cost KPI
+    otel_exporter_otlp_endpoint: str | None = None
+    otel_service_name: str = "raqib-api"
+    retention_clips_days: int = 30
+    retention_events_days: int = 400
+    retention_memories_days: int = 90
+    retention_schedule: bool = True  # run the retention job daily inside the API process
+
     # ---- v2: fleet, drift, health ----
     drift_psi_threshold: float = 0.2
     drift_hours: int = 3  # consecutive hours over the threshold before a model_drift event

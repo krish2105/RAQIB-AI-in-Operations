@@ -77,7 +77,10 @@
     "breachesSub": "الخطورة 3، 24 ساعة",
     "stopped": "ماكينات متوقفة",
     "stoppedSub": "خلال آخر 24 ساعة",
-    "peakRho": "ذروة الاستغلال ρ"
+    "peakRho": "ذروة الاستغلال ρ",
+    "cost": "تكلفة الاستدلال اليوم",
+    "costSub": "{requests} استدعاء نموذج · {tokens} رمز · {providers}",
+    "costNone": "لا استدعاءات نموذج بعد"
   },
   "dashboard": {
     "title": "لوحة التحكم",
