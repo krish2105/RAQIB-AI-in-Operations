@@ -8,7 +8,7 @@ Every LLM, VLM and embedding call goes through `cloud/raqib_api/llm` (`get_provi
 |---|---|---|---|
 | route (query → plan, strict JSON) | `qwen3:4b-instruct` | 2.5 GB | 2.2 s, valid JSON first attempt |
 | answer, judge | `qwen3:8b` (`think=false`) | 5.2 GB | 4.8 s, valid JSON first attempt |
-| caption, opinion (vision) | `qwen2.5vl:7b` | 6.0 GB | 3 blurred 768-px keyframes: 32.4 s cold (load), 5.5 s warm, 3,220 tokens in, valid JSON first attempt |
+| caption, opinion (vision) | `qwen2.5vl:7b` | 6.0 GB | caption: 5.5 s warm on 3 blurred keyframes, 3,220 tokens in. Second opinion (Phase F): 29.6 s cold, 2.7 s warm, 3,406 tokens in; agreed with a queue event at 0.9 and disagreed at 0.7 when the same scene was labelled a PPE violation (below the 0.8 review threshold, so recorded as a metric only) |
 | embeddings | `bge-m3:567m` | 1.2 GB | see spike below |
 | fallback text (already present) | `llama3.2:3b` | 2.0 GB | 22.6 s cold; kept as a last local resort only |
 

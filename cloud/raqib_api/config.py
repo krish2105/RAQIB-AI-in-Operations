@@ -67,6 +67,12 @@ class Settings(BaseSettings):
     caption_max_frames: int = 3
     caption_daily_requests: int = 200
 
+    # ---- v2: VLM second opinion (advisory; can raise attention, never lower severity) ----
+    vlm_auto: bool = True  # auto-run for severity 3 and detector confidence < VLM_AUTO_MAX_CONF once a clip exists
+    vlm_auto_max_conf: float = 0.6
+    vlm_daily_requests: int = 100
+    vlm_review_confidence: float = 0.8  # disagreement at or above this confidence asks a human to review
+
     @property
     def cors_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

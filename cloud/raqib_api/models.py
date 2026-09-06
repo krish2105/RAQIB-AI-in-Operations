@@ -291,5 +291,32 @@ class AskLog(SQLModel, table=True):
     ts: datetime = Field(default_factory=utcnow, index=True)
 
 
+class Opinion(SQLModel, table=True):
+    """VLM second opinion on an event. Advisory: it may add a human-review request, never change severity."""
+
+    __tablename__ = "opinions"
+    id: int | None = Field(default=None, primary_key=True)
+    event_id: str = Field(foreign_key="events.id", index=True)
+    site: str = Field(index=True)
+    rule_severity: int
+    agrees: bool | None = None  # None = unavailable (no frames / no provider / quota)
+    confidence: float = 0.0
+    observed: str = ""
+    disagreement_reason: str | None = None
+    suggested_severity: int | None = None
+    disagreement: bool = Field(default=False, index=True)  # suggested severity below the rule's: recorded, never applied
+    review_action_id: int | None = Field(default=None, foreign_key="actions.id")
+    trigger: str = "on_demand"  # auto_sev3 | auto_low_conf | on_demand
+    status: str = "ok"  # ok | unavailable | quota_exhausted | invalid_json
+    model: str = "none"
+    provider: str = "none"
+    frames: int = 0
+    tokens_in: int = 0
+    tokens_out: int = 0
+    cost_usd: float = 0.0
+    latency_ms: float = 0.0
+    ts: datetime = Field(default_factory=utcnow, index=True)
+
+
 V2_TABLES = ("captions", "documents", "chunks", "memories", "agent_runs", "agent_messages", "users", "stores",
-             "drift_samples", "quota_counters", "ask_log")
+             "drift_samples", "quota_counters", "ask_log", "opinions")

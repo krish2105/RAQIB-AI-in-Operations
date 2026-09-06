@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 from sqlmodel import Session, select
 
@@ -90,7 +90,7 @@ def get_event(event_id: str, session: Session = Depends(get_session)) -> EventOu
 
 
 @router.put("/clips/{event_id}", status_code=201)
-async def upload_clip(event_id: str, file: UploadFile = File(...), session: Session = Depends(get_session)) -> dict:
+async def upload_clip(event_id: str, background: BackgroundTasks, file: UploadFile = File(...), session: Session = Depends(get_session)) -> dict:
     if session.get(Event, event_id) is None:
         raise HTTPException(404, "event not found")
     dest = Path(settings.clips_dir) / f"{event_id}.mp4"
@@ -105,7 +105,31 @@ async def upload_clip(event_id: str, file: UploadFile = File(...), session: Sess
     session.add(ev)
     session.commit()
     bus.publish(ev.site, "clip", {"event_id": event_id, "bytes": len(data)})
+    # v2 Watch: once the (blurred) clip exists, severity-3 and low-confidence events get a VLM second
+    # opinion after the response is sent; it can add a review request, never change severity.
+    from ..vlm.opinion import qualifies_for_auto
+
+    trigger = qualifies_for_auto(ev)
+    if trigger:
+        background.add_task(_auto_opinion, event_id, trigger)
     return {"event_id": event_id, "bytes": len(data)}
+
+
+def _auto_opinion(event_id: str, trigger: str) -> None:
+    from sqlmodel import Session
+
+    from .. import db as dbmod
+    from ..vlm.opinion import opine_event
+
+    try:
+        with Session(dbmod.engine) as s:
+            o = opine_event(event_id, s, trigger=trigger)
+            if o is not None:
+                bus.publish(o.site, "opinion", {"event_id": event_id, "agrees": o.agrees, "disagreement": o.disagreement, "status": o.status})
+    except Exception:  # noqa: BLE001 — advisory path must never take the API down
+        import logging
+
+        logging.getLogger(__name__).exception("auto opinion failed for %s", event_id)
 
 
 @router.get("/clips/{event_id}")
