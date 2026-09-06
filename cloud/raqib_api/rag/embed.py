@@ -13,7 +13,6 @@ from __future__ import annotations
 import hashlib
 import logging
 import math
-import struct
 from functools import lru_cache
 from typing import Any
 
@@ -53,17 +52,20 @@ def _unit(v: list[float]) -> list[float]:
 
 
 def _fake(dim: str, texts: list[str]) -> list[list[float]]:
+    """Hashed bag-of-words: deterministic, token-overlap-aware, so tests exercise the vector leg realistically."""
+    import re
+
     d = int(dim)
     out = []
     for t in texts:
-        h = hashlib.sha256(t.encode()).digest()
-        vals = []
-        i = 0
-        while len(vals) < d:
-            chunk = hashlib.sha256(h + struct.pack("<I", i)).digest()
-            vals.extend(struct.unpack("<8f", chunk[:32]))
-            i += 1
-        out.append([float(x) if math.isfinite(x) else 0.0 for x in vals[:d]])
+        vec = [0.0] * d
+        for tok in re.findall(r"\w+", t.lower()):
+            h = hashlib.sha256(tok.encode()).digest()
+            idx = int.from_bytes(h[:4], "little") % d
+            vec[idx] += 1.0 if h[4] % 2 else -1.0
+        if not any(vec):
+            vec[0] = 1.0
+        out.append(vec)
     return out
 
 

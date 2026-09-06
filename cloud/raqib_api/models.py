@@ -269,5 +269,27 @@ class QuotaCounter(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=utcnow)
 
 
+class AskLog(SQLModel, table=True):
+    """Every /ask call: question, plan, answer, citations, provider and cost. Feeds /ask/history and evals."""
+
+    __tablename__ = "ask_log"
+    id: str = Field(primary_key=True)  # ULID
+    site: str = Field(index=True)
+    q: str
+    lang: str = "en"
+    plan: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
+    answer: str = ""
+    citations: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON))
+    confidence: float = 0.0
+    hits: int = 0
+    provider: str = "none"
+    model: str = ""
+    tokens_in: int = 0
+    tokens_out: int = 0
+    cost_usd: float = 0.0
+    latency_ms: float = 0.0
+    ts: datetime = Field(default_factory=utcnow, index=True)
+
+
 V2_TABLES = ("captions", "documents", "chunks", "memories", "agent_runs", "agent_messages", "users", "stores",
-             "drift_samples", "quota_counters")
+             "drift_samples", "quota_counters", "ask_log")

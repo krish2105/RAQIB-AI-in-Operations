@@ -71,15 +71,17 @@ def test_index_creates_event_and_kpi_chunks_with_embeddings(db):
     with Session(db) as s:
         _events(s)
         stats = index_since("s1", T0 - timedelta(hours=1), s, captions=False, quota=_quota(db))
-        assert stats.events == 3 and stats.kpi_hours == 1 and stats.chunks == 4 and stats.embedded == 4
+        assert stats.events == 3 and stats.kpi_hours == 1 and stats.kpi_days == 1 and stats.chunks == 5 and stats.embedded == 5
         chunks = s.exec(select(Chunk).where(Chunk.site == "s1")).all()
         ev = [c for c in chunks if c.kind == "event"]
         assert len(ev) == 3 and all("R10" in c.text and len(c.embedding) == 8 and c.model == "fake:8" for c in ev)
-        kpi = [c for c in chunks if c.kind == "kpi"][0]
+        kpi = [c for c in chunks if c.kind == "kpi" and c.meta["period"] == "hour"][0]
         assert "footfall 40 customers" in kpi.text and "3 queue-over alerts" in kpi.text
+        day = [c for c in chunks if c.kind == "kpi" and c.meta["period"] == "day"][0]
+        assert "Daily KPI" in day.text and day.meta["footfall_tick"] == 40
         # re-index is idempotent
         again = index_since("s1", T0 - timedelta(hours=1), s, captions=False, quota=_quota(db))
-        assert again.events == 0 and len(s.exec(select(Chunk).where(Chunk.site == "s1")).all()) == 4
+        assert again.events == 0 and len(s.exec(select(Chunk).where(Chunk.site == "s1")).all()) == 5
 
 
 def test_embedding_failure_keeps_chunks_without_vectors(db, monkeypatch):
@@ -89,7 +91,7 @@ def test_embedding_failure_keeps_chunks_without_vectors(db, monkeypatch):
     with Session(db) as s:
         _events(s, n_queue=1, n_foot=2)
         stats = index_since("s1", T0 - timedelta(hours=1), s, captions=False, quota=_quota(db))
-        assert stats.chunks == 2 and stats.embedded == 0 and stats.embed_error
+        assert stats.chunks == 3 and stats.embedded == 0 and stats.embed_error
         assert all(c.embedding is None for c in s.exec(select(Chunk)).all())
 
 

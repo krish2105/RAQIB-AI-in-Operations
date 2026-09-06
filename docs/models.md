@@ -12,6 +12,8 @@ Every LLM, VLM and embedding call goes through `cloud/raqib_api/llm` (`get_provi
 | embeddings | `bge-m3:567m` | 1.2 GB | see spike below |
 | fallback text (already present) | `llama3.2:3b` | 2.0 GB | 22.6 s cold; kept as a last local resort only |
 
+Ask end to end on the seeded store (856 chunks), warm models: route 2.3–2.9 s (`qwen3:4b-instruct`), retrieve < 0.1 s, answer 9–10 s (`qwen3:8b`, 700–1,100 prompt tokens, 6 hits capped at 700 characters each). `qwen3:4b-instruct` as the answer model was 30 percent faster but failed the citation rule on the SOP question and picked the wrong day on the Hindi footfall question, so the 8B model stays.
+
 `bge-reranker-v2-m3` is not in the Ollama library; reranking uses `sentence-transformers` on the Mac when `RERANK_ENABLED=true` and is off on Render.
 
 ## Embedding spike (Task 24b)

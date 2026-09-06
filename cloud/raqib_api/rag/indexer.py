@@ -14,7 +14,7 @@ import logging
 import time
 from collections import Counter
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -40,6 +40,7 @@ class IndexStats:
     since: datetime
     events: int = 0
     kpi_hours: int = 0
+    kpi_days: int = 0
     documents: int = 0
     chunks: int = 0
     captions: int = 0
@@ -66,7 +67,9 @@ def chunk_event(event: Event, caption: Caption | None = None, kpis: dict[str, An
                  meta={"kind": event.kind, "severity": event.severity, "rule_id": event.rule_id, "camera": event.camera,
                        "zone": event.payload.get("zone"), "shelf_id": event.payload.get("shelf_id"), "till": event.payload.get("till"),
                        "has_clip": bool(event.clip_path), "caption_model": caption.model if caption else None,
-                       "simulated": bool(event.payload.get("simulated"))})
+                       "simulated": bool(event.payload.get("simulated")),
+                       **{k: event.payload[k] for k in ("count", "dwell_s", "empty_ratio", "stopped_s", "sustained_s", "confidence")
+                          if event.payload.get(k) is not None}})
 
 
 def chunk_document(doc: Document, text: str) -> list[Chunk]:
@@ -107,12 +110,22 @@ def kpi_chunks(site: str, events: list[Event], tills: int) -> list[Chunk]:
         h = e.ts.replace(minute=0, second=0, microsecond=0)
         hours.setdefault(h, Counter())[e.kind] += 1
     out = []
+    days: dict[datetime, Counter] = {}
     for h, c in sorted(hours.items()):
         text = (f"Hourly KPI for {h.strftime('%A %Y-%m-%d %H:00')} UTC: footfall {c['footfall_tick']} customers entered, "
                 f"{c['checkout_served']} checkouts served, {c['queue_over']} queue-over alerts, {c['shelf_gap']} shelf-gap alerts, "
                 f"{tills} tills configured.")
         out.append(Chunk(id=f"kpi-{site}-{h.strftime('%Y%m%d%H')}", site=site, kind="kpi", ts=h, text=text,
-                         meta={"hour": h.isoformat(), **{k: int(v) for k, v in c.items()}}))
+                         meta={"period": "hour", "hour": h.isoformat(), **{k: int(v) for k, v in c.items()}}))
+        d = h.replace(hour=0)
+        days[d] = days.get(d, Counter()) + c
+    for d, c in sorted(days.items()):
+        peak = max((h for h in hours if h.date() == d.date()), key=lambda h: hours[h]["footfall_tick"], default=None)
+        text = (f"Daily KPI for {d.strftime('%A %Y-%m-%d')}: footfall {c['footfall_tick']} customers entered the store, "
+                f"{c['checkout_served']} checkouts served, {c['queue_over']} queue-over alerts, {c['shelf_gap']} shelf-gap alerts"
+                + (f", busiest hour {peak.strftime('%H:00')} UTC with {hours[peak]['footfall_tick']} customers" if peak else "") + ".")
+        out.append(Chunk(id=f"kpi-{site}-{d.strftime('%Y%m%d')}-day", site=site, kind="kpi", ts=d, text=text,
+                         meta={"period": "day", "day": d.date().isoformat(), **{k: int(v) for k, v in c.items()}}))
     return out
 
 
@@ -162,13 +175,14 @@ def index_since(site: str, since: datetime, session: Session, *, embed: bool = T
         new_chunks.append(chunk_event(e, cap))
         stats.events += 1
     kpis = kpi_chunks(site, events, tills)
-    existing_kpi = {c.id for c in session.exec(select(Chunk).where(Chunk.site == site, Chunk.kind == "kpi", Chunk.ts >= since - timedelta(hours=1))).all()}
+    existing_kpi = set(session.exec(select(Chunk.id).where(Chunk.id.in_([k.id for k in kpis]))).all()) if kpis else set()
     for k in kpis:
         if k.id in existing_kpi:
             session.merge(k)
         else:
             new_chunks.append(k)
-    stats.kpi_hours = len(kpis)
+    stats.kpi_hours = sum(1 for k in kpis if k.meta.get('period') == 'hour')
+    stats.kpi_days = sum(1 for k in kpis if k.meta.get('period') == 'day')
     if embed and new_chunks:
         stats.embedded = embed_chunks(new_chunks, stats)
     for c in new_chunks:
