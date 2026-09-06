@@ -34,4 +34,8 @@ def kpis(site: str, window_h: float = 24.0, session: Session = Depends(get_sessi
     events = ensure_utc(
         session.exec(select(Event).where(Event.site == site, Event.ts >= since).order_by(Event.ts)).all()
     )
-    return {"site": site, "as_of": now.isoformat(), **summary(events, s.profile, s.tills, now, window_h, shelves=shelf_ids(session, site))}
+    # v2: POS transactions in the window give the service rate and label it "pos" (Phase B video estimate otherwise)
+    from ..integrations.pos import transactions
+
+    pos = [type("T", (), {"ts": t.ts.replace(tzinfo=UTC) if t.ts.tzinfo is None else t.ts, "till": t.till})() for t in transactions(site, session, since=now - timedelta(hours=window_h))]
+    return {"site": site, "as_of": now.isoformat(), **summary(events, s.profile, s.tills, now, window_h, shelves=shelf_ids(session, site), pos=pos or None)}

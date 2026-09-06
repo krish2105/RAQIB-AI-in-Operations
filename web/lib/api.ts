@@ -401,6 +401,30 @@ export interface TwinWhatIf {
   delta?: { staff_hours: number; customer_wait_min: number; wait_reduction_pct: number; service_level_model: number; peak_rho: number };
 }
 
+export interface PosSummary {
+  site: string;
+  transactions: number;
+  first: string | null;
+  last: string | null;
+  in_window: number;
+  tills_seen: number[];
+  mu_pos_per_h: number | null;
+  mu_video_per_h: number | null;
+  slots_with_pos: number;
+  slots: number;
+  mu_source: "pos" | "estimated_from_video";
+  adapters: Record<string, string>;
+}
+
+export interface PosImportResult {
+  site: string;
+  source: string;
+  inserted: number;
+  duplicates: number;
+  invalid: number;
+  errors: string[];
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -489,6 +513,24 @@ export const api = {
     const res = await fetch(`${API_URL}/documents`, { method: "POST", body: fd });
     if (!res.ok) throw new ApiError(res.status, res.statusText);
     return res.json() as Promise<ApiDocument & { created: boolean }>;
+  },
+  posSummary: (site: string) => request<PosSummary>(`/pos/summary${q({ site })}`),
+  posSampleUrl: (site: string, days = 7) => `${API_URL}/pos/sample${q({ site, days })}`,
+  posImport: async (site: string, file: File | Blob, filename = "pos.csv") => {
+    const fd = new FormData();
+    fd.append("site", site);
+    fd.append("file", file, filename);
+    const res = await fetch(`${API_URL}/pos/import`, { method: "POST", body: fd });
+    if (!res.ok) {
+      let detail = res.statusText;
+      try {
+        detail = (await res.json()).detail ?? detail;
+      } catch {
+        /* ignore */
+      }
+      throw new ApiError(res.status, String(detail));
+    }
+    return res.json() as Promise<PosImportResult>;
   },
   index: (site: string, days = 21) => request<{ chunks: number; embedded: number }>(`/admin/index${q({ site, days })}`, { method: "POST" }),
 };

@@ -70,13 +70,13 @@ def downtime_minutes(events: Iterable[Any]) -> float:
 
 
 def summary(events: list[Any], profile: str, tills: int, now: datetime, window_h: float = 24.0,
-            shelves: Iterable[str] | None = None) -> dict[str, Any]:
+            shelves: Iterable[str] | None = None, pos: list[Any] | None = None) -> dict[str, Any]:
     start = now - timedelta(hours=window_h)
     recent = [e for e in events if e.ts >= start]
     footfall = sum(1 for e in recent if e.kind == "footfall_tick")
     hours = max(1e-9, min(window_h, (now - min((e.ts for e in recent), default=now)).total_seconds() / 3600)) if recent else 1.0
     queue_counts = [float(e.payload.get("count", 0)) for e in recent if e.kind == "queue_over"]
-    slots = slot_rates(recent, tills_open=tills)
+    slots = slot_rates(recent, tills_open=tills, pos=pos)  # v2: POS transactions give μ and label it "pos"
     out: dict[str, Any] = {
         "profile": profile,
         "window_h": window_h,

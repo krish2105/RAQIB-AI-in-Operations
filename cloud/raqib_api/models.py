@@ -342,5 +342,19 @@ class MemorySnapshot(SQLModel, table=True):
     data: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON))
 
 
+class PosTransaction(SQLModel, table=True):
+    """One POS transaction (CSV import or adapter). Deduplicated on (site, txn_id)."""
+
+    __tablename__ = "pos_transactions"
+    site: str = Field(primary_key=True)
+    txn_id: str = Field(primary_key=True)
+    ts: datetime = Field(index=True)
+    till: int = Field(index=True)
+    items: int = 0
+    amount: float = 0.0
+    source: str = "csv"  # csv | odoo | shopify
+    imported_at: datetime = Field(default_factory=utcnow)
+
+
 V2_TABLES = ("captions", "documents", "chunks", "memories", "agent_runs", "agent_messages", "users", "stores",
-             "drift_samples", "quota_counters", "ask_log", "opinions", "crew_flags", "memory_snapshots")
+             "drift_samples", "quota_counters", "ask_log", "opinions", "crew_flags", "memory_snapshots", "pos_transactions")

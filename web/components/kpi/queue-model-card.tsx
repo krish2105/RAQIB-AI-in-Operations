@@ -43,7 +43,7 @@ export function QueueModelChart({ slots }: { slots: QueueSlot[] }) {
         <span className="inline-flex items-center gap-1.5"><span aria-hidden className="inline-block h-0.5 w-4 bg-signal" />{t("wqModel")} (min)</span>
         <span className="inline-flex items-center gap-1.5"><span aria-hidden className="inline-block h-0.5 w-4 border-t border-dashed border-warn" />{t("wqObserved")} (min)</span>
         <span className="inline-flex items-center gap-1.5"><span aria-hidden className="inline-block h-2.5 w-3 rounded-sm bg-signal/25" />{t("rho")}</span>
-        <span className="ms-auto text-ink-faint">{t("muNote")}</span>
+        <span className="ms-auto text-ink-faint">{(data?.queue_model?.some((q) => q.mu_source === "pos") ? t("muNotePos") : t("muNote"))}</span>
       </div>
     </div>
   );

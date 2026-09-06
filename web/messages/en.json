@@ -18,7 +18,8 @@
     "forecast": "Forecast",
     "report": "Report",
     "collapse": "Collapse menu",
-    "expand": "Expand menu"
+    "expand": "Expand menu",
+    "settings": "Settings"
   },
   "header": {
     "site": "Site",
@@ -94,7 +95,8 @@
     "emptyProposals": "No open proposals. The agent proposes a till or staffing change only when utilisation ρ exceeds 0.85.",
     "error": "Could not load {what}",
     "retry": "Retry",
-    "loading": "Loading"
+    "loading": "Loading",
+    "muNotePos": "μ comes from POS transactions (throughput per till)."
   },
   "floor": {
     "title": "Floor",
@@ -393,5 +395,34 @@
     "busiestMinute": "Busiest minute",
     "minute": "minute",
     "muNote": "μ {mu}/h per till, {source}."
+  },
+  "settings": {
+    "title": "Settings",
+    "sub": "Integrations, roles, retention. Secrets never leave the server; this page only shows whether each one is configured.",
+    "integrations": "Integrations",
+    "pos": "POS import",
+    "posSub": "CSV with columns ts, till, txn_id, items, amount. Rows are validated and deduplicated on txn_id; importing the same file twice inserts nothing new.",
+    "upload": "Import CSV",
+    "uploading": "Importing",
+    "imported": "{inserted} inserted · {duplicates} duplicates · {invalid} invalid",
+    "sample": "Download a labelled sample export",
+    "transactions": "Transactions",
+    "muPos": "μ from POS",
+    "muVideo": "μ from video",
+    "perTill": "per till per hour",
+    "muSource": "Queue model μ source",
+    "sourcePos": "POS",
+    "sourceVideo": "estimated from video",
+    "none": "none yet",
+    "adapters": "Adapters",
+    "status": {
+      "ready": "ready",
+      "stub": "stub"
+    },
+    "greenlam": "Greenlam tracker",
+    "whatsapp": "WhatsApp Cloud API",
+    "configured": "configured",
+    "notConfigured": "not configured",
+    "envHint": "Set the variables in .env (see .env.example) and restart the API."
   }
 }

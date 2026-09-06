@@ -103,17 +103,20 @@ def slot_rates(
     tills_open: int,
     slot_min: int = 15,
     default_mu_per_h: float = 30.0,
+    pos: Iterable[Any] | None = None,
 ) -> list[SlotRates]:
     """Aggregate events into slots and compute M/M/c per slot.
 
     `events` need .ts, .kind, .payload. footfall_tick -> arrivals; checkout_served -> service
     completions with payload.dwell_s; queue_over -> observed queue length (payload.count).
     μ falls back to `default_mu_per_h` (2 min per customer) in slots with no completions.
+    v2: `pos` rows (.ts, .till) are POS transactions; in a slot that has them, μ is the observed
+    throughput per open till (transactions per till per hour) and `mu_source` is "pos".
     """
     slots: dict[datetime, dict[str, Any]] = {}
     for e in events:
         key = _floor_slot(e.ts, slot_min)
-        s = slots.setdefault(key, {"arrivals": 0, "dwells": [], "queues": []})
+        s = slots.setdefault(key, {"arrivals": 0, "dwells": [], "queues": [], "pos": 0, "pos_tills": set()})
         if e.kind == "footfall_tick":
             s["arrivals"] += 1
         elif e.kind == "checkout_served":
@@ -122,19 +125,30 @@ def slot_rates(
                 s["dwells"].append(float(d))
         elif e.kind == "queue_over":
             s["queues"].append(float(e.payload.get("count", 0)))
+    for t in pos or []:
+        key = _floor_slot(t.ts, slot_min)
+        s = slots.setdefault(key, {"arrivals": 0, "dwells": [], "queues": [], "pos": 0, "pos_tills": set()})
+        s["pos"] += 1
+        s["pos_tills"].add(getattr(t, "till", 1))
     out: list[SlotRates] = []
     per_h = 60.0 / slot_min
     for key in sorted(slots):
         s = slots[key]
         lam = s["arrivals"] * per_h
-        mu = (3600.0 / (sum(s["dwells"]) / len(s["dwells"]))) if s["dwells"] else default_mu_per_h
         c = max(1, tills_open)
+        if s["pos"]:
+            active = max(1, min(c, len(s["pos_tills"])))
+            mu = s["pos"] * per_h / active
+            served, source = s["pos"], "pos"
+        else:
+            mu = (3600.0 / (sum(s["dwells"]) / len(s["dwells"]))) if s["dwells"] else default_mu_per_h
+            served, source = len(s["dwells"]), "estimated_from_video"
         r = mmc(lam, mu, c)
         wq_model = None if math.isinf(r.wq) else r.wq * 60.0
         q_obs = (sum(s["queues"]) / len(s["queues"])) if s["queues"] else None
         # Little's law on the observed queue: Wq = Lq / λ
         wq_obs = (q_obs / lam * 60.0) if (q_obs is not None and lam > 0) else None
-        out.append(SlotRates(key, lam, mu, len(s["dwells"]), s["arrivals"], c, r.rho, wq_model, wq_obs, q_obs))
+        out.append(SlotRates(key, lam, mu, served, s["arrivals"], c, r.rho, wq_model, wq_obs, q_obs, source))
     return out
 
 
