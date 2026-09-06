@@ -9,7 +9,7 @@ from sqlmodel import Session, delete, select
 
 from ..agent.ops_agent import handle_event
 from ..db import get_session
-from ..models import Action, AskLog, Caption, Chunk, Event, Opinion, Site, ToolCall
+from ..models import Action, AgentMessage, AgentRun, AskLog, Caption, Chunk, Event, Opinion, Site, ToolCall
 from ..simulate import generate
 from .sites import ensure_bundled_sites
 
@@ -66,6 +66,9 @@ def index(site: str = "raqib_demo_store", days: float = Query(21, ge=0.01, le=40
 def _reset_site(site: str, session: Session) -> None:
     """Delete in FK order: v2 rows that reference events (chunks, captions, ask log) go first so Postgres never rejects it."""
     for model in (AskLog, Chunk, Caption, Opinion, ToolCall, Action, Event):
+        session.exec(delete(model).where(model.site == site))
+    session.exec(delete(AgentMessage).where(AgentMessage.run_id.in_(select(AgentRun.id).where(AgentRun.site == site))))
+    for model in (AgentRun,):
         session.exec(delete(model).where(model.site == site))
     session.commit()
 

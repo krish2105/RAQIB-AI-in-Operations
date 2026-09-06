@@ -72,5 +72,6 @@ def test_work_order_cooldown_four_hours(client):
     e2 = make_event(1, kind="shelf_gap", severity=1, payload={"shelf_id": "A1", "product": "snacks", "empty_ratio": 0.7, "confidence": 0.8}, rule="R11")
     r = client.post("/events/batch", json={"events": [e1, e2]})
     assert r.json()["actions_created"] == 1
-    acts = client.get("/actions", params={"tool": "create_work_order"}).json()
+    # one tracker ticket per shelf per 4 h, whichever ticket tool raised it (Phase B create_work_order, v2 crew create_restock_task)
+    acts = [a for a in client.get("/actions", params={"limit": 50}).json() if a["tool"] in ("create_work_order", "create_restock_task")]
     assert len(acts) == 1 and acts[0]["status"] == "executed" and acts[0]["autonomous"] is True

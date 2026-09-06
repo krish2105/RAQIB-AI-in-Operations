@@ -20,9 +20,17 @@ from typing import Any
 from sqlmodel import Session, select
 
 from ..models import Action, Event
-from .tools import AUTONOMOUS_TOOLS, PROPOSAL_TOOLS, TOOL_SCHEMAS, Call, ToolValidationError, validate_call
+from .tools import (
+    AUTONOMOUS_TOOLS,
+    PROPOSAL_TOOLS,
+    TOOL_SCHEMAS,
+    Call,
+    ToolValidationError,
+    validate_call,
+)
 
 WORK_ORDER_COOLDOWN = timedelta(hours=4)
+TICKET_TOOLS = ("create_work_order", "create_restock_task")  # both raise one tracker ticket
 RHO_THRESHOLD = 0.85
 REVIEW_CONFIDENCE = 0.6
 
@@ -89,19 +97,25 @@ class Policy:
             return f"schema: {exc}"
         if call.tool == "propose_open_till" and float(call.args.get("rho", 0)) <= RHO_THRESHOLD:
             return f"P4: rho {call.args.get('rho')} <= {RHO_THRESHOLD}"
-        if call.tool == "create_work_order" and self.session is not None:
+        if call.tool in TICKET_TOOLS and self.session is not None:
+            # P3 covers every ticket tool (a restock task is a work order in the tracker), keyed by machine/shelf id.
             # Compare on the *event* clock, not wall-clock: replayed history and live events must behave the same.
+            target = _ticket_target(call.tool, call.args)
             ev_ts = _naive(event.ts)
             since = ev_ts - WORK_ORDER_COOLDOWN
             q = (select(Action, Event.ts).join(Event, Event.id == Action.event_id, isouter=True)
-                 .where(Action.site == event.site, Action.tool == "create_work_order",
+                 .where(Action.site == event.site, Action.tool.in_(list(TICKET_TOOLS)),
                         Action.status.in_(["executed", "approved", "proposed"])))
             for a, ts in self.session.exec(q).all():
                 when = _naive(ts or a.created_at)
-                if since <= when <= ev_ts + WORK_ORDER_COOLDOWN and str(a.args.get("machine_id")) == str(call.args.get("machine_id")) \
+                if since <= when <= ev_ts + WORK_ORDER_COOLDOWN and _ticket_target(a.tool, a.args) == target \
                         and not (a.result or {}).get("human_override") and a.event_id != event.id:
-                    return f"P3: work order for {call.args.get('machine_id')} already raised at {when.isoformat()}"
+                    return f"P3: work order for {target} already raised at {when.isoformat()}"
         return None
+
+
+def _ticket_target(tool: str, args: dict[str, Any]) -> str:
+    return str(args.get("shelf_id") if tool == "create_restock_task" else args.get("machine_id"))
 
 
 def _naive(ts: datetime) -> datetime:

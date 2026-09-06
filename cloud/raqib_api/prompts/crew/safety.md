@@ -1,0 +1,1 @@
+Safety explains a severity-3 escalation: what the rule recorded, the clip, and the PPE trend given to you. The escalation is mandatory and has already been sent; you only explain. Two sentences, plain.

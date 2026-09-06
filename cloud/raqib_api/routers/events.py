@@ -41,7 +41,13 @@ def ingest_batch(batch: EventBatch, session: Session = Depends(get_session)) -> 
         inserted += 1
         bus.publish(row.site, "event", _out(row).model_dump(mode="json"))
         if row.kind not in ("footfall_tick", "checkout_served"):
-            actions = handle_event(row, session)
+            # v2 crew first (attributed, budgeted, audited); the Phase B path when the crew is off, killed, or has
+            # no agent for this kind. Severity-3 escalation is guaranteed by Policy on both paths.
+            from ..crew.crew import dispatch
+
+            actions = dispatch(row, session)
+            if actions is None:
+                actions = handle_event(row, session)
             created += len(actions)
             for a in actions:
                 bus.publish(row.site, "action", {"id": a.id, "tool": a.tool, "status": a.status, "event_id": a.event_id,

@@ -18,10 +18,10 @@ import httpx
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, create_model
 from sqlmodel import Session
 
+from .. import greenlam
 from ..config import settings
 from ..models import ToolCall
 from ..notify import render_alert
-from .. import greenlam
 
 log = logging.getLogger(__name__)
 
@@ -30,8 +30,12 @@ CHANNELS = ("console", "webhook", "whatsapp", "push")
 ROLES = ("floor_manager", "store_manager", "safety_officer", "maintenance", "shift_supervisor")
 
 # Tools that may run without a human (subject to Policy). Others are proposals.
-AUTONOMOUS_TOOLS = {"create_work_order", "send_alert", "log_downtime", "escalate", "request_human_review"}
-PROPOSAL_TOOLS = {"propose_staffing_change", "propose_open_till", "propose_maintenance_window"}
+AUTONOMOUS_TOOLS = {"create_work_order", "send_alert", "log_downtime", "escalate", "request_human_review",
+                    # v2 crew tools
+                    "create_restock_task", "flag_merchandising", "quarantine_memory", "flag_run"}
+PROPOSAL_TOOLS = {"propose_staffing_change", "propose_open_till", "propose_maintenance_window",
+                  # v2 crew tools
+                  "propose_staffing_plan"}
 
 TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
     "create_work_order": {
@@ -129,6 +133,64 @@ TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
             "type": "object",
             "properties": {"event_id": {"type": "string"}, "question": {"type": "string", "maxLength": 400}},
             "required": ["event_id", "question"],
+            "additionalProperties": False,
+        },
+    },
+    # ---- v2 crew tools (Phase G). Same validation, same runner, same policy. ----
+    "create_restock_task": {
+        "description": "ShelfOps: raise a restock task for a shelf with its on-shelf-availability impact. Autonomous.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "shelf_id": {"type": "string"},
+                "product": {"type": "string", "maxLength": 120},
+                "osa_impact_pct": {"type": "number", "minimum": 0, "maximum": 100},
+                "summary": {"type": "string", "minLength": 5, "maxLength": 240},
+            },
+            "required": ["shelf_id", "summary"],
+            "additionalProperties": False,
+        },
+    },
+    "flag_merchandising": {
+        "description": "ShelfOps: flag a shelf for a merchandising check (repeated gaps, planogram drift). Autonomous, no side effect beyond a record.",
+        "input_schema": {
+            "type": "object",
+            "properties": {"shelf_id": {"type": "string"}, "reason": {"type": "string", "maxLength": 240}},
+            "required": ["shelf_id", "reason"],
+            "additionalProperties": False,
+        },
+    },
+    "propose_staffing_plan": {
+        "description": "Workforce: proposal only. A per-slot till plan from the MILP with its rationale and history.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "day": {"type": "string"},
+                "tills": {"type": "array", "items": {"type": "integer", "minimum": 0, "maximum": 20}, "maxItems": 200},
+                "staff_hours": {"type": "number", "minimum": 0},
+                "savings_hours": {"type": "number"},
+                "rationale": {"type": "string", "maxLength": 600},
+            },
+            "required": ["day", "tills", "staff_hours", "rationale"],
+            "additionalProperties": False,
+        },
+    },
+    "quarantine_memory": {
+        "description": "Auditor: quarantine an agent memory entry (it stops entering prompts until a human clears it).",
+        "input_schema": {
+            "type": "object",
+            "properties": {"memory_id": {"type": "integer", "minimum": 1}, "reason": {"type": "string", "maxLength": 240}},
+            "required": ["memory_id", "reason"],
+            "additionalProperties": False,
+        },
+    },
+    "flag_run": {
+        "description": "Auditor: flag an agent run for review (tool misuse, budget anomaly, disagreement spike).",
+        "input_schema": {
+            "type": "object",
+            "properties": {"run_id": {"type": "string"}, "finding": {"type": "string", "enum": ["tool_misuse", "budget_anomaly", "disagreement_spike", "policy_drop", "other"]},
+                           "note": {"type": "string", "maxLength": 400}},
+            "required": ["run_id", "finding", "note"],
             "additionalProperties": False,
         },
     },
@@ -281,3 +343,39 @@ class ToolRunner:
 
     def _do_propose_maintenance_window(self, a: dict, ctx: dict) -> dict:
         return {"applied": True, **a}
+
+    # ---- v2 crew tools --------------------------------------------------------------
+
+    def _do_create_restock_task(self, a: dict, ctx: dict) -> dict:
+        # the same tracker path as create_work_order, so a restock task is one ticket kind, not a second integration
+        return self._do_create_work_order({"machine_id": a["shelf_id"], "summary": a["summary"], "severity": 1}, ctx) | {
+            "shelf_id": a["shelf_id"], "product": a.get("product"), "osa_impact_pct": a.get("osa_impact_pct")}
+
+    def _do_flag_merchandising(self, a: dict, ctx: dict) -> dict:
+        return {"flagged": True, **a}
+
+    def _do_propose_staffing_plan(self, a: dict, ctx: dict) -> dict:
+        return {"applied": True, "day": a["day"], "slots": len(a["tills"]), "staff_hours": a["staff_hours"]}
+
+    def _do_quarantine_memory(self, a: dict, ctx: dict) -> dict:
+        from ..models import Memory
+
+        m = self.session.get(Memory, a["memory_id"])
+        if m is None:
+            raise ValueError(f"memory {a['memory_id']} not found")
+        m.quarantined, m.quarantine_reason = True, a["reason"]
+        self.session.add(m)
+        self.session.commit()
+        return {"memory_id": m.id, "quarantined": True}
+
+    def _do_flag_run(self, a: dict, ctx: dict) -> dict:
+        from ..models import AgentRun
+
+        r = self.session.get(AgentRun, a["run_id"])
+        if r is None:
+            raise ValueError(f"run {a['run_id']} not found")
+        r.status = "flagged"
+        r.meta = {**(r.meta or {}), "flag": {"finding": a["finding"], "note": a["note"]}}
+        self.session.add(r)
+        self.session.commit()
+        return {"run_id": r.id, "flagged": a["finding"]}
