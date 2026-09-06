@@ -1,48 +1,48 @@
 {
-  "date": "2026-09-06T06:09:53.729256+00:00",
+  "date": "2026-09-06T06:23:03.540177+00:00",
   "embed_model": "ollama:bge-m3:567m",
   "llm_provider": "ollama",
   "answer_model": "qwen3:8b",
   "summary": {
     "cases": 30,
     "recall_at_5": 1.0,
-    "citation_precision": 0.907,
+    "citation_precision": 0.933,
     "citation_coverage": 1.0,
-    "faithfulness": 0.872,
+    "faithfulness": 0.933,
     "language_match": 1.0,
     "must_say_ok": 1.0,
     "hallucinations": 0,
-    "latency_p95_ms": 33636.1,
-    "latency_mean_ms": 18159.2,
-    "tokens_per_query": 1310.3,
+    "latency_p95_ms": 23970.9,
+    "latency_mean_ms": 18119.3,
+    "tokens_per_query": 1488.2,
     "paths": {
-      "model": 26,
-      "template": 1,
+      "model": 27,
+      "template": 0,
       "no_match": 3
     },
     "judged": 27,
     "by_lang": {
       "en": {
         "recall_at_5": 1.0,
-        "faithfulness": 0.9,
+        "faithfulness": 0.95,
         "language_match": 1.0
       },
       "hi": {
         "recall_at_5": 1.0,
-        "faithfulness": 0.867,
+        "faithfulness": 0.9,
         "language_match": 1.0
       },
       "ar": {
         "recall_at_5": 1.0,
-        "faithfulness": 0.85,
+        "faithfulness": 0.95,
         "language_match": 1.0
       }
     },
     "gate": {
       "recall_at_5": true,
-      "faithfulness": false,
+      "faithfulness": true,
       "hallucinations": true,
-      "pass": false
+      "pass": true
     }
   },
   "cases": [
@@ -67,7 +67,7 @@
         "claims": 1,
         "supported": 1,
         "unsupported": [
-          ""
+          "Till 1 had the longest queue last Friday evening with 7 people waiting [c:01M1TNEW48PN7NZDJM90B6BVCZ]"
         ],
         "provider": "ollama",
         "model": "qwen3:8b"
@@ -75,17 +75,17 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 13420.6,
-      "tokens": 828,
+      "latency_ms": 10774.4,
+      "tokens": 973,
       "citations": 1,
       "expected": [
-        "01M1TMQFGNMB1S8J428JCDFA53"
+        "01M1TNEW48PN7NZDJM90B6BVCZ"
       ],
       "top5": [
-        "01M1TMQFGNMB1S8J428JCDFA53",
-        "01M1TMQFGP5DARWDKFZ8DFEXSH"
+        "01M1TNEW48PN7NZDJM90B6BVCZ",
+        "01M1TNEW48PN7NZDJM90B6BVD0"
       ],
-      "answer": "Till 1 had the longest queue last Friday evening, with 7 people waiting [c:01M1TMQFGNMB1S8J428JCDFA53]."
+      "answer": "Till 1 had the longest queue last Friday evening with 7 people waiting [c:01M1TNEW48PN7NZDJM90B6BVCZ]."
     },
     {
       "id": "q1-hi",
@@ -103,12 +103,12 @@
       "recall_at_5": 1.0,
       "citation_precision": 1.0,
       "citation_coverage": 1.0,
-      "faithfulness": 0.667,
+      "faithfulness": 0.5,
       "judge": {
-        "claims": 3,
-        "supported": 2,
+        "claims": 2,
+        "supported": 1,
         "unsupported": [
-          "[c:01M1TMQFGNMB1S8J428JCDFA53] यह कतार 220 सेकंड तक बनी रही।"
+          "पिछले शुक्रवार शाम को सबसे लंबी कतार टिल 1 पर थी"
         ],
         "provider": "ollama",
         "model": "qwen3:8b"
@@ -116,17 +116,17 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 21394.7,
-      "tokens": 1063,
+      "latency_ms": 19536.2,
+      "tokens": 1113,
       "citations": 1,
       "expected": [
-        "01M1TMQFGNMB1S8J428JCDFA53"
+        "01M1TNEW48PN7NZDJM90B6BVCZ"
       ],
       "top5": [
-        "01M1TMQFGNMB1S8J428JCDFA53",
-        "01M1TMQFGP5DARWDKFZ8DFEXSH"
+        "01M1TNEW48PN7NZDJM90B6BVCZ",
+        "01M1TNEW48PN7NZDJM90B6BVD0"
       ],
-      "answer": "[c:01M1TMQFGNMB1S8J428JCDFA53] इस घटना के दौरान 7 लोग लाइन में लगे थे। [c:01M1TMQFGNMB1S8J428JCDFA53] यह कतार 220 सेकंड तक बनी रही। [c:01M1TMQFGNMB1S8J428JCDFA53]"
+      "answer": "पिछले शुक्रवार शाम को सबसे लंबी कतार टिल 1 पर थी, जहां 7 लोग इंतजार कर रहे थे [c:01M1TNEW48PN7NZDJM90B6BVCZ]."
     },
     {
       "id": "q1-ar",
@@ -144,12 +144,12 @@
       "recall_at_5": 1.0,
       "citation_precision": 1.0,
       "citation_coverage": 1.0,
-      "faithfulness": 0.5,
+      "faithfulness": 1.0,
       "judge": {
         "claims": 2,
-        "supported": 1,
+        "supported": 2,
         "unsupported": [
-          "الصندوق 1 كان لديه أطول طابور مساء الجمعة الماضية"
+          "الصندوق الذي كان فيه أطول طابور مساء الجمعة الماضية هو صندوق 1"
         ],
         "provider": "ollama",
         "model": "qwen3:8b"
@@ -157,17 +157,17 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 10145.0,
-      "tokens": 841,
+      "latency_ms": 11696.8,
+      "tokens": 998,
       "citations": 1,
       "expected": [
-        "01M1TMQFGNMB1S8J428JCDFA53"
+        "01M1TNEW48PN7NZDJM90B6BVCZ"
       ],
       "top5": [
-        "01M1TMQFGNMB1S8J428JCDFA53",
-        "01M1TMQFGP5DARWDKFZ8DFEXSH"
+        "01M1TNEW48PN7NZDJM90B6BVCZ",
+        "01M1TNEW48PN7NZDJM90B6BVD0"
       ],
-      "answer": "الصندوق 1 كان لديه أطول طابور مساء الجمعة الماضية، حيث كان هناك 7 أشخاص في الطابور [c:01M1TMQFGNMB1S8J428JCDFA53]."
+      "answer": "الصندوق الذي كان فيه أطول طابور مساء الجمعة الماضية هو صندوق 1، حيث كان هناك 7 أشخاص في الطابور [c:01M1TNEW48PN7NZDJM90B6BVCZ]."
     },
     {
       "id": "q2-en",
@@ -190,31 +190,33 @@
       "judge": {
         "claims": 6,
         "supported": 6,
-        "unsupported": [],
+        "unsupported": [
+          "The highest empty ratio was 0.77 on 2026-09-06 at 19:20 UTC [c:01M1TNEW4DA3VZH32DG8FMVPE2]"
+        ],
         "provider": "ollama",
         "model": "qwen3:8b"
       },
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 26120.7,
-      "tokens": 1746,
+      "latency_ms": 21142.4,
+      "tokens": 1785,
       "citations": 6,
       "expected": [
-        "01M1TMQFG64BKFF4GXFE9W8JSC",
-        "01M1TMQFG64BKFF4GXFE9W8JSD",
-        "01M1TMQFG64BKFF4GXFE9W8JSE",
-        "01M1TMQFG64BKFF4GXFE9W8JSF",
-        "01M1TMQFG64BKFF4GXFE9W8JSG"
+        "01M1TNEW3QH633V6CHDWJ2V733",
+        "01M1TNEW3RBNK97WQZQEN766N4",
+        "01M1TNEW3RBNK97WQZQEN766N5",
+        "01M1TNEW3RBNK97WQZQEN766N6",
+        "01M1TNEW3RBNK97WQZQEN766N7"
       ],
       "top5": [
-        "01M1TMQFGTTETH8MQFM8HPFM86",
-        "01M1TMQFGTTETH8MQFM8HPFM83",
-        "01M1TMQFGTTETH8MQFM8HPFM85",
-        "01M1TMQFGTTETH8MQFM8HPFM82",
-        "01M1TMQFGSHD9VW276R6ZKVDRH"
+        "01M1TNEW4DA3VZH32DG8FMVPE2",
+        "01M1TNEW4C9ZRPFKMMVBA0SBF4",
+        "01M1TNEW4DA3VZH32DG8FMVPE1",
+        "01M1TNEW4C9ZRPFKMMVBA0SBF3",
+        "01M1TNEW4C9ZRPFKMMVBA0SBF1"
       ],
-      "answer": "Shelf gaps were detected in the dairy aisle (shelf B3) on Sunday 2026-09-06. The first gap occurred at 12:19 UTC with an empty ratio of 0.56 [c:01M1TMQFGRBW9KZHB523KG3Q6P]. Another gap was recorded at 18:51 UTC with an empty ratio of 0.51 [c:01M1TMQFGSHD9VW276R6ZKVDRH]. A gap at 19:02 UTC had an emp"
+      "answer": "The highest empty ratio was 0.77 on 2026-09-06 at 19:20 UTC [c:01M1TNEW4DA3VZH32DG8FMVPE2]. Other gaps occurred at 19:08 UTC [c:01M1TNEW4C9ZRPFKMMVBA0SBF4], 19:19 UTC [c:01M1TNEW4DA3VZH32DG8FMVPE1], 19:02 UTC [c:01M1TNEW4C9ZRPFKMMVBA0SBF3], 18:51 UTC [c:01M1TNEW4C9ZRPFKMMVBA0SBF1], and 12:19 UTC [c:"
     },
     {
       "id": "q2-hi",
@@ -233,37 +235,35 @@
       "recall_at_5": 1.0,
       "citation_precision": 1.0,
       "citation_coverage": 1.0,
-      "faithfulness": 0.5,
+      "faithfulness": 1.0,
       "judge": {
-        "claims": 2,
+        "claims": 1,
         "supported": 1,
-        "unsupported": [
-          "19:20 UTC तक बरकरार रही"
-        ],
+        "unsupported": [],
         "provider": "ollama",
         "model": "qwen3:8b"
       },
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 27490.9,
-      "tokens": 1748,
-      "citations": 2,
+      "latency_ms": 23916.9,
+      "tokens": 1805,
+      "citations": 1,
       "expected": [
-        "01M1TMQFG64BKFF4GXFE9W8JSC",
-        "01M1TMQFG64BKFF4GXFE9W8JSD",
-        "01M1TMQFG64BKFF4GXFE9W8JSE",
-        "01M1TMQFG64BKFF4GXFE9W8JSF",
-        "01M1TMQFG64BKFF4GXFE9W8JSG"
+        "01M1TNEW3QH633V6CHDWJ2V733",
+        "01M1TNEW3RBNK97WQZQEN766N4",
+        "01M1TNEW3RBNK97WQZQEN766N5",
+        "01M1TNEW3RBNK97WQZQEN766N6",
+        "01M1TNEW3RBNK97WQZQEN766N7"
       ],
       "top5": [
-        "01M1TMQFGTTETH8MQFM8HPFM86",
-        "01M1TMQFGTTETH8MQFM8HPFM85",
-        "01M1TMQFGTTETH8MQFM8HPFM84",
-        "01M1TMQFGTTETH8MQFM8HPFM83",
-        "01M1TMQFGTTETH8MQFM8HPFM82"
+        "01M1TNEW4DA3VZH32DG8FMVPE2",
+        "01M1TNEW4DA3VZH32DG8FMVPE1",
+        "01M1TNEW4C9ZRPFKMMVBA0SBF5",
+        "01M1TNEW4C9ZRPFKMMVBA0SBF4",
+        "01M1TNEW4C9ZRPFKMMVBA0SBF3"
       ],
-      "answer": "यह घटना शनिवार, 2026-09-06 को 18:51 UTC के आसपास हुई [c:01M1TMQFGSHD9VW276R6ZKVDRH] और 19:20 UTC तक बरकरार रही [c:01M1TMQFGTTETH8MQFM8HPFM86]।"
+      "answer": "यह शेल्फ़ डेयरी के लिए है [c:01M1TNEW4DA3VZH32DG8FMVPE2]।"
     },
     {
       "id": "q2-ar",
@@ -282,37 +282,35 @@
       "recall_at_5": 1.0,
       "citation_precision": 1.0,
       "citation_coverage": 1.0,
-      "faithfulness": 0.5,
+      "faithfulness": 1.0,
       "judge": {
-        "claims": 2,
+        "claims": 1,
         "supported": 1,
-        "unsupported": [
-          "في قسم الألبان، كانت فجوات الرفوف في الرف B3"
-        ],
+        "unsupported": [],
         "provider": "ollama",
         "model": "qwen3:8b"
       },
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 18787.4,
-      "tokens": 1534,
+      "latency_ms": 16688.3,
+      "tokens": 1680,
       "citations": 1,
       "expected": [
-        "01M1TMQFG64BKFF4GXFE9W8JSC",
-        "01M1TMQFG64BKFF4GXFE9W8JSD",
-        "01M1TMQFG64BKFF4GXFE9W8JSE",
-        "01M1TMQFG64BKFF4GXFE9W8JSF",
-        "01M1TMQFG64BKFF4GXFE9W8JSG"
+        "01M1TNEW3QH633V6CHDWJ2V733",
+        "01M1TNEW3RBNK97WQZQEN766N4",
+        "01M1TNEW3RBNK97WQZQEN766N5",
+        "01M1TNEW3RBNK97WQZQEN766N6",
+        "01M1TNEW3RBNK97WQZQEN766N7"
       ],
       "top5": [
-        "01M1TMQFGTTETH8MQFM8HPFM86",
-        "01M1TMQFGTTETH8MQFM8HPFM83",
-        "01M1TMQFGTTETH8MQFM8HPFM82",
-        "01M1TMQFGSHD9VW276R6ZKVDRH",
-        "01M1TMQFGSHD9VW276R6ZKVDRB"
+        "01M1TNEW4DA3VZH32DG8FMVPE2",
+        "01M1TNEW4C9ZRPFKMMVBA0SBF4",
+        "01M1TNEW4C9ZRPFKMMVBA0SBF3",
+        "01M1TNEW4C9ZRPFKMMVBA0SBF1",
+        "01M1TNEW4BRVTPNS2CE0N58VY2"
       ],
-      "answer": "في قسم الألبان، كانت فجوات الرفوف في الرف B3، وتم تسجيل عدة أحداث خلال يوم الأحد 6 سبتمبر 2026 [c:01M1TMQFGTTETH8MQFM8HPFM86]."
+      "answer": "كانت الفجوات في منطقة shelf_b3، وتم تسجيلها باستخدام الكاميرا cam1 [c:01M1TNEW4DA3VZH32DG8FMVPE2]."
     },
     {
       "id": "q3-en",
@@ -332,29 +330,31 @@
       "citation_coverage": 1.0,
       "faithfulness": 1.0,
       "judge": {
-        "claims": 6,
-        "supported": 6,
-        "unsupported": [],
+        "claims": 4,
+        "supported": 4,
+        "unsupported": [
+          ""
+        ],
         "provider": "ollama",
         "model": "qwen3:8b"
       },
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 22623.4,
-      "tokens": 1685,
+      "latency_ms": 23177.8,
+      "tokens": 1784,
       "citations": 1,
       "expected": [
-        "01M1TMR6VT1SXPH77FYW3S1DAA"
+        "01M1TNFK5N8B1C3155H8YKEEC2"
       ],
       "top5": [
-        "01M1TMR6VT1SXPH77FYW3S1DAA",
-        "01M1TMR6VT1SXPH77FYW3S1DAB",
-        "01M1TMR6VT1SXPH77FYW3S1DA9",
-        "01M1TMR6VT1SXPH77FYW3S1DAC",
-        "01M1TMR6VT1SXPH77FYW3S1DAE"
+        "01M1TNFK5N8B1C3155H8YKEEC2",
+        "01M1TNFK5PRQ2SVG2WSXAPT6ED",
+        "01M1TNFK5N8B1C3155H8YKEEC1",
+        "01M1TNFK5PRQ2SVG2WSXAPT6EE",
+        "01M1TNFK5PRQ2SVG2WSXAPT6EG"
       ],
-      "answer": "The SOP states that a third till is opened when either condition holds for more than two minutes: more than three customers waiting in any queue zone, or the M/M/c utilisation ρ shown on the dashboard exceeds 0.85 [c:01M1TMR6VT1SXPH77FYW3S1DAA]. The till supervisor calls the nearest floater, who log"
+      "answer": "The SOP states that a third till should be opened when either condition holds for more than two minutes: more than three customers wait in any queue zone, or the M/M/c utilisation ρ shown on the dashboard exceeds 0.85 [c:01M1TNFK5N8B1C3155H8YKEEC2]. The till supervisor calls the nearest floater, who"
     },
     {
       "id": "q3-hi",
@@ -385,27 +385,27 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 33636.1,
-      "tokens": 1943,
+      "latency_ms": 68315.3,
+      "tokens": 4263,
       "citations": 1,
       "expected": [
-        "01M1TMR6VT1SXPH77FYW3S1DAA"
+        "01M1TNFK5N8B1C3155H8YKEEC2"
       ],
       "top5": [
-        "01M1TMR6VT1SXPH77FYW3S1DAA",
-        "01M1TMR6VT1SXPH77FYW3S1DAB",
-        "01M1TMR6VT1SXPH77FYW3S1DAC",
-        "01M1TMR6VT1SXPH77FYW3S1DA9",
-        "01M1TMR76RFA3BJ765MA1TYPYR"
+        "01M1TNFK5N8B1C3155H8YKEEC2",
+        "01M1TNFK5PRQ2SVG2WSXAPT6ED",
+        "01M1TNFK5PRQ2SVG2WSXAPT6EE",
+        "01M1TNFK5N8B1C3155H8YKEEC1",
+        "01M1TNFKDW052891TCC27GNXTT"
       ],
-      "answer": "तिल सुपरवाइजर सबसे करीबी फ्लॉटर को बुलाता है, जो 90 सेकंड में लॉग इन करता है [c:01M1TMR6VT1SXPH77FYW3S1DAA]।"
+      "answer": "तिल सुपरवाइजर निकटतम फ्लॉटर को बुलाता है, जो 90 सेकंड में लॉग इन करता है [c:01M1TNFK5N8B1C3155H8YKEEC2]."
     },
     {
       "id": "q3-ar",
       "q": "ماذا يقول دليل الإجراءات عن فتح صندوق دفع ثالث؟",
       "lang": "ar",
       "expected_lang_ok": true,
-      "path": "template",
+      "path": "model",
       "provider": "ollama",
       "model": "qwen3:8b",
       "plan_source": "model",
@@ -414,33 +414,35 @@
         "vector"
       ],
       "recall_at_5": 1.0,
-      "citation_precision": 0.2,
+      "citation_precision": 1.0,
       "citation_coverage": 1.0,
-      "faithfulness": 1.0,
+      "faithfulness": 0.5,
       "judge": {
-        "claims": 4,
-        "supported": 4,
-        "unsupported": [],
+        "claims": 2,
+        "supported": 1,
+        "unsupported": [
+          "يُوافق أو يرفض المدير الأرضي على الاقتراح في عمليات [c:01M1TNFK5N8B1C3155H8YKEEC2]"
+        ],
         "provider": "ollama",
         "model": "qwen3:8b"
       },
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 29406.9,
-      "tokens": 3140,
-      "citations": 5,
+      "latency_ms": 23101.9,
+      "tokens": 1731,
+      "citations": 1,
       "expected": [
-        "01M1TMR6VT1SXPH77FYW3S1DAA"
+        "01M1TNFK5N8B1C3155H8YKEEC2"
       ],
       "top5": [
-        "01M1TMR6VT1SXPH77FYW3S1DAA",
-        "01M1TMR6VT1SXPH77FYW3S1DAE",
-        "01M1TMR6VT1SXPH77FYW3S1DAC",
-        "01M1TMR6VT1SXPH77FYW3S1DAB",
-        "01M1TMR6VT1SXPH77FYW3S1DA9"
+        "01M1TNFK5N8B1C3155H8YKEEC2",
+        "01M1TNFK5PRQ2SVG2WSXAPT6EG",
+        "01M1TNFK5PRQ2SVG2WSXAPT6EE",
+        "01M1TNFK5PRQ2SVG2WSXAPT6ED",
+        "01M1TNFK5N8B1C3155H8YKEEC1"
       ],
-      "answer": "أقرب السجلات: مستند \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store › 1. Opening a third till\" [c:01M1TMR6VT1SXPH77FYW3S1DAA]. مستند \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store › 5. Price tags and planogram\" [c:01M1TMR6VT1SXPH77FYW3S1DAE]. مستند \"R"
+      "answer": "يعرض RAQIB بطاقة 'اقتراح فتح صندوق' مع القيمة ρ والانتظار المتوقع، ويُوافق أو يرفض المدير الأرضي على الاقتراح في عمليات [c:01M1TNFK5N8B1C3155H8YKEEC2]."
     },
     {
       "id": "q4-en",
@@ -463,7 +465,7 @@
         "claims": 2,
         "supported": 1,
         "unsupported": [
-          "They are deleted after this period [c:01M1TMR7M6P4N72HT0ADPB1JGY]"
+          "Events are kept for 13 months for seasonal forecasting [c:01M1TNFKTDBB2RKQACK42DJRKF]"
         ],
         "provider": "ollama",
         "model": "qwen3:8b"
@@ -471,20 +473,20 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 18664.5,
-      "tokens": 1557,
+      "latency_ms": 14399.0,
+      "tokens": 1614,
       "citations": 1,
       "expected": [
-        "01M1TMR6VT1SXPH77FYW3S1DAF"
+        "01M1TNFK5PRQ2SVG2WSXAPT6EH"
       ],
       "top5": [
-        "01M1TMR6VT1SXPH77FYW3S1DAF",
-        "01M1TMR7M6P4N72HT0ADPB1JH0",
-        "01M1TMR7M6P4N72HT0ADPB1JGY",
-        "01M1TMR76RFA3BJ765MA1TYPYQ",
-        "01M1TMR76Q48BH3TFGB29PS8JF"
+        "01M1TNFK5PRQ2SVG2WSXAPT6EH",
+        "01M1TNFKTDBB2RKQACK42DJRKH",
+        "01M1TNFKTDBB2RKQACK42DJRKF",
+        "01M1TNFKDW052891TCC27GNXTS",
+        "01M1TNFKDW052891TCC27GNXTP"
       ],
-      "answer": "Clips are kept for 30 days [c:01M1TMR7M6P4N72HT0ADPB1JGY]. They are deleted after this period [c:01M1TMR7M6P4N72HT0ADPB1JGY]."
+      "answer": "Clips are kept for 30 days, then deleted [c:01M1TNFKTDBB2RKQACK42DJRKF]. Events are kept for 13 months for seasonal forecasting [c:01M1TNFKTDBB2RKQACK42DJRKF]."
     },
     {
       "id": "q4-hi",
@@ -515,20 +517,20 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 35584.1,
-      "tokens": 1984,
+      "latency_ms": 19936.9,
+      "tokens": 1846,
       "citations": 2,
       "expected": [
-        "01M1TMR6VT1SXPH77FYW3S1DAF"
+        "01M1TNFK5PRQ2SVG2WSXAPT6EH"
       ],
       "top5": [
-        "01M1TMR6VT1SXPH77FYW3S1DAF",
-        "01M1TMR7M6P4N72HT0ADPB1JH0",
-        "01M1TMR76Q48BH3TFGB29PS8JF",
-        "01M1TMR7M6P4N72HT0ADPB1JGY",
-        "01M1TMR76RFA3BJ765MA1TYPYN"
+        "01M1TNFK5PRQ2SVG2WSXAPT6EH",
+        "01M1TNFKTDBB2RKQACK42DJRKH",
+        "01M1TNFKDW052891TCC27GNXTS",
+        "01M1TNFKDW052891TCC27GNXTP",
+        "01M1TNFKTDBB2RKQACK42DJRKF"
       ],
-      "answer": "क्लिप 30 दिन रखी जाती हैं [c:01M1TMR7M6P4N72HT0ADPB1JH0]। इन क्लिप में कोई भी व्यक्ति के चेहरे के चित्र ब्लर कर दिए जाते हैं [c:01M1TMR7M6P4N72HT0ADPB1JGY]।"
+      "answer": "क्लिप 30 दिन रखी जाती हैं [c:01M1TNFKTDBB2RKQACK42DJRKH]। इन क्लिप में लोगों के चेहरे ब्लर कर दिए जाते हैं [c:01M1TNFKTDBB2RKQACK42DJRKF]।"
     },
     {
       "id": "q4-ar",
@@ -550,27 +552,29 @@
       "judge": {
         "claims": 1,
         "supported": 1,
-        "unsupported": [],
+        "unsupported": [
+          ""
+        ],
         "provider": "ollama",
         "model": "qwen3:8b"
       },
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 15146.4,
-      "tokens": 1615,
+      "latency_ms": 14170.3,
+      "tokens": 1691,
       "citations": 1,
       "expected": [
-        "01M1TMR6VT1SXPH77FYW3S1DAF"
+        "01M1TNFK5PRQ2SVG2WSXAPT6EH"
       ],
       "top5": [
-        "01M1TMR7M6P4N72HT0ADPB1JH0",
-        "01M1TMR6VT1SXPH77FYW3S1DAF",
-        "01M1TMR76Q48BH3TFGB29PS8JF",
-        "01M1TMR76RFA3BJ765MA1TYPYQ",
-        "01M1TMR7M6P4N72HT0ADPB1JGY"
+        "01M1TNFKTDBB2RKQACK42DJRKH",
+        "01M1TNFK5PRQ2SVG2WSXAPT6EH",
+        "01M1TNFKDW052891TCC27GNXTP",
+        "01M1TNFKDW052891TCC27GNXTS",
+        "01M1TNFKTDBB2RKQACK42DJRKF"
       ],
-      "answer": "المقاطع يتم الاحتفاظ بها لمدة 30 يومًا [c:01M1TMR6VT1SXPH77FYW3S1DAF]."
+      "answer": "التسجيلات المُخزنة تُحتفظ بها لمدة 30 يومًا [c:01M1TNFK5PRQ2SVG2WSXAPT6EH]."
     },
     {
       "id": "q5-en",
@@ -591,17 +595,19 @@
       "citation_coverage": 1.0,
       "faithfulness": 1.0,
       "judge": {
-        "claims": 1,
-        "supported": 1,
-        "unsupported": [],
+        "claims": 2,
+        "supported": 2,
+        "unsupported": [
+          "The highest footfall was on 2026-09-04, with 767 customers entering the store [c:kpi-raqib_demo_store-20260904-day]"
+        ],
         "provider": "ollama",
         "model": "qwen3:8b"
       },
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 14712.3,
-      "tokens": 1234,
+      "latency_ms": 13529.0,
+      "tokens": 1341,
       "citations": 1,
       "expected": [
         "kpi-raqib_demo_store-20260904-day"
@@ -613,7 +619,7 @@
         "kpi-raqib_demo_store-20260827-day",
         "kpi-raqib_demo_store-20260829-day"
       ],
-      "answer": "The highest footfall was on Friday 2026-09-04 with 767 customers [c:kpi-raqib_demo_store-20260904-day]."
+      "answer": "The highest footfall was on 2026-09-04, with 767 customers entering the store [c:kpi-raqib_demo_store-20260904-day]."
     },
     {
       "id": "q5-hi",
@@ -637,7 +643,7 @@
         "claims": 1,
         "supported": 1,
         "unsupported": [
-          ""
+          "2026-09-04 को सबसे ज़्यादा footfall था, जिसमें 767 ग्राहक दुकान में प्रवेश करे [c:kpi-raqib_demo_store-20260904-day]"
         ],
         "provider": "ollama",
         "model": "qwen3:8b"
@@ -645,8 +651,8 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 19123.5,
-      "tokens": 1359,
+      "latency_ms": 18391.2,
+      "tokens": 1479,
       "citations": 1,
       "expected": [
         "kpi-raqib_demo_store-20260904-day"
@@ -679,17 +685,19 @@
       "citation_coverage": 1.0,
       "faithfulness": 1.0,
       "judge": {
-        "claims": 1,
-        "supported": 1,
-        "unsupported": [],
+        "claims": 2,
+        "supported": 2,
+        "unsupported": [
+          "الزائر"
+        ],
         "provider": "ollama",
         "model": "qwen3:8b"
       },
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 11628.7,
-      "tokens": 1244,
+      "latency_ms": 12566.3,
+      "tokens": 1351,
       "citations": 1,
       "expected": [
         "kpi-raqib_demo_store-20260904-day"
@@ -701,7 +709,7 @@
         "kpi-raqib_demo_store-20260827-day",
         "kpi-raqib_demo_store-20260906-day"
       ],
-      "answer": "كان عدد الزوار الأعلى في يوم الجمعة 2026-09-04 بواقع 767 زائرًا [c:kpi-raqib_demo_store-20260904-day]."
+      "answer": "كان عدد الزوار الأعلى في يوم الجمعة 2026-09-04، حيث بلغ عدد الزوار 767 زائرًا [c:kpi-raqib_demo_store-20260904-day]."
     },
     {
       "id": "q6-en",
@@ -719,12 +727,12 @@
       "recall_at_5": 1.0,
       "citation_precision": 1.0,
       "citation_coverage": 1.0,
-      "faithfulness": 0.5,
+      "faithfulness": 1.0,
       "judge": {
-        "claims": 2,
-        "supported": 1,
+        "claims": 3,
+        "supported": 3,
         "unsupported": [
-          "This was the longest sustained queue, lasting 256 seconds [c:01M1TMQFGP5DARWDKFZ8DFEXSP]"
+          "The biggest queue this week was at till 1 on Saturday 2026-09-05 at 19:55 UTC, with 9 people waiting [c:01M1TNEW49176BDFN562ARK9PB]"
         ],
         "provider": "ollama",
         "model": "qwen3:8b"
@@ -732,19 +740,19 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 12869.7,
-      "tokens": 1176,
+      "latency_ms": 12601.4,
+      "tokens": 1295,
       "citations": 1,
       "expected": [
-        "01M1TMQFGP5DARWDKFZ8DFEXSP"
+        "01M1TNEW49176BDFN562ARK9PB"
       ],
       "top5": [
-        "01M1TMQFGP5DARWDKFZ8DFEXSP",
-        "01M1TMQFGNMB1S8J428JCDFA53",
-        "01M1TMQFGP5DARWDKFZ8DFEXSH",
-        "01M1TMQFGP5DARWDKFZ8DFEXSN"
+        "01M1TNEW49176BDFN562ARK9PB",
+        "01M1TNEW48PN7NZDJM90B6BVCZ",
+        "01M1TNEW48PN7NZDJM90B6BVD0",
+        "01M1TNEW49176BDFN562ARK9PA"
       ],
-      "answer": "The biggest queue this week occurred on Saturday 2026-09-05 at 19:55 UTC, with 9 people waiting at till 1 [c:01M1TMQFGP5DARWDKFZ8DFEXSP]. This was the longest sustained queue, lasting 256 seconds [c:01M1TMQFGP5DARWDKFZ8DFEXSP]."
+      "answer": "The biggest queue this week was at till 1 on Saturday 2026-09-05 at 19:55 UTC, with 9 people waiting [c:01M1TNEW49176BDFN562ARK9PB]."
     },
     {
       "id": "q6-hi",
@@ -767,7 +775,7 @@
         "claims": 2,
         "supported": 1,
         "unsupported": [
-          "इस हफ़्ते सबसे लंबी कतार शनिवार, 2026-09-05 के 19:55 UTC के आसपास थी"
+          "इस हफ़्ते सबसे लंबी कतार शनिवार, 2026-09-05 के 19:55 UTC को थी"
         ],
         "provider": "ollama",
         "model": "qwen3:8b"
@@ -775,19 +783,19 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 17588.3,
-      "tokens": 1279,
+      "latency_ms": 16805.7,
+      "tokens": 1424,
       "citations": 1,
       "expected": [
-        "01M1TMQFGP5DARWDKFZ8DFEXSP"
+        "01M1TNEW49176BDFN562ARK9PB"
       ],
       "top5": [
-        "01M1TMQFGP5DARWDKFZ8DFEXSP",
-        "01M1TMQFGNMB1S8J428JCDFA53",
-        "01M1TMQFGP5DARWDKFZ8DFEXSH",
-        "01M1TMQFGP5DARWDKFZ8DFEXSN"
+        "01M1TNEW49176BDFN562ARK9PB",
+        "01M1TNEW48PN7NZDJM90B6BVCZ",
+        "01M1TNEW48PN7NZDJM90B6BVD0",
+        "01M1TNEW49176BDFN562ARK9PA"
       ],
-      "answer": "इस हफ़्ते सबसे लंबी कतार शनिवार, 2026-09-05 के 19:55 UTC के आसपास थी, जहाँ 9 लोग लाइन में लगे थे [c:01M1TMQFGP5DARWDKFZ8DFEXSP]।"
+      "answer": "इस हफ़्ते सबसे लंबी कतार शनिवार, 2026-09-05 के 19:55 UTC को थी, जब 9 लोग लाइन में लगे थे [c:01M1TNEW49176BDFN562ARK9PB]।"
     },
     {
       "id": "q6-ar",
@@ -805,12 +813,12 @@
       "recall_at_5": 1.0,
       "citation_precision": 1.0,
       "citation_coverage": 1.0,
-      "faithfulness": 0.5,
+      "faithfulness": 1.0,
       "judge": {
-        "claims": 2,
+        "claims": 1,
         "supported": 1,
         "unsupported": [
-          "أطول فترة انتظار هذا الأسبوع كانت 256 ثانية"
+          "أطول فترة انتظار هذا الأسبوع كانت 256 ثانية [c:01M1TNEW49176BDFN562ARK9PB]"
         ],
         "provider": "ollama",
         "model": "qwen3:8b"
@@ -818,19 +826,19 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 12371.6,
-      "tokens": 1189,
+      "latency_ms": 11103.3,
+      "tokens": 1291,
       "citations": 1,
       "expected": [
-        "01M1TMQFGP5DARWDKFZ8DFEXSP"
+        "01M1TNEW49176BDFN562ARK9PB"
       ],
       "top5": [
-        "01M1TMQFGP5DARWDKFZ8DFEXSP",
-        "01M1TMQFGNMB1S8J428JCDFA53",
-        "01M1TMQFGP5DARWDKFZ8DFEXSH",
-        "01M1TMQFGP5DARWDKFZ8DFEXSN"
+        "01M1TNEW49176BDFN562ARK9PB",
+        "01M1TNEW48PN7NZDJM90B6BVCZ",
+        "01M1TNEW48PN7NZDJM90B6BVD0",
+        "01M1TNEW49176BDFN562ARK9PA"
       ],
-      "answer": "أطول فترة انتظار هذا الأسبوع كانت 256 ثانية، وحدثت يوم السبت 2026-09-05 الساعة 19:55 بتوقيت UTC [c:01M1TMQFGP5DARWDKFZ8DFEXSP]."
+      "answer": "أطول فترة انتظار هذا الأسبوع كانت 256 ثانية [c:01M1TNEW49176BDFN562ARK9PB]."
     },
     {
       "id": "q7-en",
@@ -853,7 +861,7 @@
         "claims": 2,
         "supported": 2,
         "unsupported": [
-          "Never close the last two tills between 17:00 and 21:00 on Thursday, Friday and Saturday [c:01M1TMR6VT1SXPH77FYW3S1DAB]"
+          "Never close the last two tills between 17:00 and 21:00 on Thursday, Friday and Saturday [c:01M1TNFK5PRQ2SVG2WSXAPT6ED]"
         ],
         "provider": "ollama",
         "model": "qwen3:8b"
@@ -861,20 +869,20 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 18499.0,
-      "tokens": 1671,
+      "latency_ms": 15503.5,
+      "tokens": 1776,
       "citations": 1,
       "expected": [
-        "01M1TMR6VT1SXPH77FYW3S1DAB"
+        "01M1TNFK5PRQ2SVG2WSXAPT6ED"
       ],
       "top5": [
-        "01M1TMR6VT1SXPH77FYW3S1DAB",
-        "01M1TMR6VT1SXPH77FYW3S1DAA",
-        "01M1TMR6VT1SXPH77FYW3S1DA9",
-        "01M1TMR6VT1SXPH77FYW3S1DAC",
-        "01M1TMR76RFA3BJ765MA1TYPYR"
+        "01M1TNFK5PRQ2SVG2WSXAPT6ED",
+        "01M1TNFK5N8B1C3155H8YKEEC2",
+        "01M1TNFK5N8B1C3155H8YKEEC1",
+        "01M1TNFK5PRQ2SVG2WSXAPT6EE",
+        "01M1TNFKDW052891TCC27GNXTT"
       ],
-      "answer": "A till should be closed only when every queue zone has two or fewer customers for ten consecutive minutes and ρ is below 0.6 [c:01M1TMR6VT1SXPH77FYW3S1DAB]. Never close the last two tills between 17:00 and 21:00 on Thursday, Friday and Saturday [c:01M1TMR6VT1SXPH77FYW3S1DAB]."
+      "answer": "A till should be closed only when every queue zone has two or fewer customers for ten consecutive minutes and ρ is below 0.6 [c:01M1TNFK5PRQ2SVG2WSXAPT6ED]. Never close the last two tills between 17:00 and 21:00 on Thursday, Friday and Saturday [c:01M1TNFK5PRQ2SVG2WSXAPT6ED]."
     },
     {
       "id": "q7-hi",
@@ -897,7 +905,7 @@
         "claims": 1,
         "supported": 1,
         "unsupported": [
-          ""
+          "बुधवार, वीरवार और शनिवार के 17:00 से 21:00 तक अंतिम दो टिल बंद नहीं करें [c:01M1TNFK5PRQ2SVG2WSXAPT6ED]"
         ],
         "provider": "ollama",
         "model": "qwen3:8b"
@@ -905,20 +913,20 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 28117.5,
-      "tokens": 1780,
+      "latency_ms": 23970.9,
+      "tokens": 1782,
       "citations": 1,
       "expected": [
-        "01M1TMR6VT1SXPH77FYW3S1DAB"
+        "01M1TNFK5PRQ2SVG2WSXAPT6ED"
       ],
       "top5": [
-        "01M1TMR6VT1SXPH77FYW3S1DAB",
-        "01M1TMR6VT1SXPH77FYW3S1DAA",
-        "01M1TMR6VT1SXPH77FYW3S1DAC",
-        "01M1TMR6VT1SXPH77FYW3S1DA9",
-        "01M1TMR76RFA3BJ765MA1TYPYS"
+        "01M1TNFK5PRQ2SVG2WSXAPT6ED",
+        "01M1TNFK5N8B1C3155H8YKEEC2",
+        "01M1TNFK5PRQ2SVG2WSXAPT6EE",
+        "01M1TNFK5N8B1C3155H8YKEEC1",
+        "01M1TNFKDW052891TCC27GNXTV"
       ],
-      "answer": "ग्रहण करने वाले आखिरी दो टिल को बुधवार, शुक्रवार और शनिवार के 17:00 से 21:00 तक बंद नहीं करना चाहिए [c:01M1TMR6VT1SXPH77FYW3S1DAB]."
+      "answer": "बुधवार, वीरवार और शनिवार के 17:00 से 21:00 तक अंतिम दो टिल बंद नहीं करें [c:01M1TNFK5PRQ2SVG2WSXAPT6ED]."
     },
     {
       "id": "q7-ar",
@@ -941,7 +949,7 @@
         "claims": 2,
         "supported": 2,
         "unsupported": [
-          ""
+          "لا تُغلق آخر تين صندوق الدفع بين 17:00 و21:00 يوم الخميس والجمعة والسبت [c:01M1TNFK5PRQ2SVG2WSXAPT6ED]"
         ],
         "provider": "ollama",
         "model": "qwen3:8b"
@@ -949,25 +957,74 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 20987.1,
-      "tokens": 1580,
+      "latency_ms": 19009.5,
+      "tokens": 1687,
       "citations": 1,
       "expected": [
-        "01M1TMR6VT1SXPH77FYW3S1DAB"
+        "01M1TNFK5PRQ2SVG2WSXAPT6ED"
       ],
       "top5": [
-        "01M1TMR6VT1SXPH77FYW3S1DAB",
-        "01M1TMR6VT1SXPH77FYW3S1DAA",
-        "01M1TMR6VT1SXPH77FYW3S1DAE",
-        "01M1TMR6VT1SXPH77FYW3S1DAC",
-        "01M1TMR6VT1SXPH77FYW3S1DAF"
+        "01M1TNFK5PRQ2SVG2WSXAPT6ED",
+        "01M1TNFK5N8B1C3155H8YKEEC2",
+        "01M1TNFK5PRQ2SVG2WSXAPT6EG",
+        "01M1TNFK5PRQ2SVG2WSXAPT6EE",
+        "01M1TNFK5PRQ2SVG2WSXAPT6EH"
       ],
-      "answer": "يجب إغلاق صندوق الدفع فقط عندما يكون هناك اثنان أو أقل من العملاء في كل منطقة طابور لعشر دقائق متتالية وρ أقل من 0.6 [c:01M1TMR6VT1SXPH77FYW3S1DAB]. لا تُغلق آخر تين صندوق الدفع بين 17:00 و21:00 يوم الخميس والجمعة والسبت [c:01M1TMR6VT1SXPH77FYW3S1DAB]."
+      "answer": "يجب إغلاق صندوق الدفع فقط عندما يكون هناك اثنان أو أقل من العملاء في كل منطقة طابور لعشر دقائق متتالية وρ أقل من 0.6 [c:01M1TNFK5PRQ2SVG2WSXAPT6ED]. لا تُغلق آخر تين صندوق الدفع بين 17:00 و21:00 يوم الخميس والجمعة والسبت [c:01M1TNFK5PRQ2SVG2WSXAPT6ED]."
     },
     {
       "id": "q8-en",
       "q": "Shelf gaps in confectionery shelf A1 last week",
       "lang": "en",
+      "expected_lang_ok": true,
+      "path": "model",
+      "provider": "ollama",
+      "model": "qwen3:8b",
+      "plan_source": "model",
+      "legs": [
+        "structured",
+        "bm25",
+        "vector"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 1.0,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": {
+        "claims": 3,
+        "supported": 3,
+        "unsupported": [
+          "The highest empty ratio was 0.78 on 2026-08-30 at 21:16 UTC [c:01M1TNEW3NPVHPFYMJNCN9XS0Y]"
+        ],
+        "provider": "ollama",
+        "model": "qwen3:8b"
+      },
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 19045.5,
+      "tokens": 1720,
+      "citations": 2,
+      "expected": [
+        "01M1TNEW2WJ5WARA1YAAXA9XNJ",
+        "01M1TNEW2XZAEVTZ588TJ587H0",
+        "01M1TNEW2YD41YVT84EDYZBP63",
+        "01M1TNEW2YD41YVT84EDYZBP64",
+        "01M1TNEW2YD41YVT84EDYZBP65"
+      ],
+      "top5": [
+        "01M1TNEW3PRTGNV8HFE1P7XT9C",
+        "01M1TNEW3NPVHPFYMJNCN9XS13",
+        "01M1TNEW3NPVHPFYMJNCN9XS0Y",
+        "01M1TNEW3NPVHPFYMJNCN9XS0Z",
+        "01M1TNEW3NPVHPFYMJNCN9XS0X"
+      ],
+      "answer": "The highest empty ratio was 0.78 on 2026-08-30 at 21:16 UTC [c:01M1TNEW3NPVHPFYMJNCN9XS0Y]. Multiple gaps occurred on the same day, with empty ratios ranging from 0.51 to 0.78 [c:01M1TNEW3PRTGNV8HFE1P7XT9C]. All events were simulated [c:01M1TNEW3PRTGNV8HFE1P7XT9C]."
+    },
+    {
+      "id": "q8-hi",
+      "q": "पिछले हफ़्ते शेल्फ़ A1 (कन्फ़ेक्शनरी) में गैप",
+      "lang": "hi",
       "expected_lang_ok": true,
       "path": "model",
       "provider": "ollama",
@@ -994,73 +1051,24 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 23765.8,
-      "tokens": 1634,
+      "latency_ms": 61610.0,
+      "tokens": 4213,
       "citations": 3,
       "expected": [
-        "01M1TMQFFD309H0NSJ8YEDHMGF",
-        "01M1TMQFFD309H0NSJ8YEDHMGG",
-        "01M1TMQFFEGAGY0FQR043EV0JR",
-        "01M1TMQFFEGAGY0FQR043EV0JS",
-        "01M1TMQFFFDEH4FKCAKAJRWFXK"
+        "01M1TNEW2WJ5WARA1YAAXA9XNJ",
+        "01M1TNEW2XZAEVTZ588TJ587H0",
+        "01M1TNEW2YD41YVT84EDYZBP63",
+        "01M1TNEW2YD41YVT84EDYZBP64",
+        "01M1TNEW2YD41YVT84EDYZBP65"
       ],
       "top5": [
-        "01M1TMQFG49VK8B9FBAZ4T07HK",
-        "01M1TMQFG49VK8B9FBAZ4T07HG",
-        "01M1TMQFG3SS88FFFR27SAJXF7",
-        "01M1TMQFG3SS88FFFR27SAJXF8",
-        "01M1TMQFG3SS88FFFR27SAJXF6"
+        "01M1TNEW3NPVHPFYMJNCN9XS13",
+        "01M1TNEW3PRTGNV8HFE1P7XT9E",
+        "01M1TNEW3PRTGNV8HFE1P7XT9C",
+        "01M1TNEW3PRTGNV8HFE1P7XT9D",
+        "01M1TNEW3NPVHPFYMJNCN9XS0Y"
       ],
-      "answer": "Shelf gaps were detected on shelf A1 (confectionery display) on Sunday 2026-08-30. The first gap occurred at 21:07 UTC with an empty ratio of 0.71 [c:01M1TMQFG3SS88FFFR27SAJXF5]. Another gap was recorded at 21:10 UTC with an empty ratio of 0.77 [c:01M1TMQFG3SS88FFFR27SAJXF6]. A gap was also detected"
-    },
-    {
-      "id": "q8-hi",
-      "q": "पिछले हफ़्ते शेल्फ़ A1 (कन्फ़ेक्शनरी) में गैप",
-      "lang": "hi",
-      "expected_lang_ok": true,
-      "path": "model",
-      "provider": "ollama",
-      "model": "qwen3:8b",
-      "plan_source": "model",
-      "legs": [
-        "structured",
-        "bm25",
-        "vector"
-      ],
-      "recall_at_5": 1.0,
-      "citation_precision": 1.0,
-      "citation_coverage": 1.0,
-      "faithfulness": 1.0,
-      "judge": {
-        "claims": 2,
-        "supported": 2,
-        "unsupported": [
-          ""
-        ],
-        "provider": "ollama",
-        "model": "qwen3:8b"
-      },
-      "hallucination": false,
-      "tripped": [],
-      "must_say_ok": true,
-      "latency_ms": 34048.3,
-      "tokens": 1926,
-      "citations": 1,
-      "expected": [
-        "01M1TMQFFD309H0NSJ8YEDHMGF",
-        "01M1TMQFFD309H0NSJ8YEDHMGG",
-        "01M1TMQFFEGAGY0FQR043EV0JR",
-        "01M1TMQFFEGAGY0FQR043EV0JS",
-        "01M1TMQFFFDEH4FKCAKAJRWFXK"
-      ],
-      "top5": [
-        "01M1TMQFG49VK8B9FBAZ4T07HG",
-        "01M1TMQFG49VK8B9FBAZ4T07HN",
-        "01M1TMQFG49VK8B9FBAZ4T07HK",
-        "01M1TMQFG49VK8B9FBAZ4T07HM",
-        "01M1TMQFG3SS88FFFR27SAJXF7"
-      ],
-      "answer": "शनिवार 2026-08-30 की रात 21:16 UTC पर एक गैप घटना रिकॉर्ड की गई, जिसमें खाली अनुपात 0.78 था [c:01M1TMQFG3SS88FFFR27SAJXFA]। इसके अलावा, रात 21:25 UTC पर एक अन्य घटना रिकॉर्ड की गई, जिसमें खाली अनुपात 0.70 था [c:01M1TMQFG3SS88FFFR27SAJXFA]।"
+      "answer": "एक घटना 2026-08-30 21:16 UTC पर हुई, जिसमें खाली अनुपात 0.78 था [c:01M1TNEW3NPVHPFYMJNCN9XS0Y]। एक अन्य घटना 2026-08-30 21:25 UTC पर हुई, जिसमें खाली अनुपात 0.70 था [c:01M1TNEW3NPVHPFYMJNCN9XS11]। एक घटना 2026-08-30 21:33 UTC पर हुई, जिसमें खाली अनुपात 0.71 था [c:01M1TNEW3NPVHPFYMJNCN9XS13]।"
     },
     {
       "id": "q8-ar",
@@ -1081,33 +1089,35 @@
       "citation_coverage": 1.0,
       "faithfulness": 1.0,
       "judge": {
-        "claims": 5,
-        "supported": 5,
-        "unsupported": [],
+        "claims": 2,
+        "supported": 2,
+        "unsupported": [
+          "كانت أحدث فجوة في 2026-08-28 الساعة 18:00 UTC"
+        ],
         "provider": "ollama",
         "model": "qwen3:8b"
       },
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 23794.0,
-      "tokens": 1704,
-      "citations": 4,
+      "latency_ms": 19764.9,
+      "tokens": 1783,
+      "citations": 2,
       "expected": [
-        "01M1TMQFFD309H0NSJ8YEDHMGF",
-        "01M1TMQFFD309H0NSJ8YEDHMGG",
-        "01M1TMQFFEGAGY0FQR043EV0JR",
-        "01M1TMQFFEGAGY0FQR043EV0JS",
-        "01M1TMQFFFDEH4FKCAKAJRWFXK"
+        "01M1TNEW2WJ5WARA1YAAXA9XNJ",
+        "01M1TNEW2XZAEVTZ588TJ587H0",
+        "01M1TNEW2YD41YVT84EDYZBP63",
+        "01M1TNEW2YD41YVT84EDYZBP64",
+        "01M1TNEW2YD41YVT84EDYZBP65"
       ],
       "top5": [
-        "01M1TMQFFV56M35Y92F44QJBPR",
-        "01M1TMQFFV56M35Y92F44QJBPP",
-        "01M1TMQFFV56M35Y92F44QJBPN",
-        "01M1TMQFFV56M35Y92F44QJBPQ",
-        "01M1TMQFFS8SDC9HNEZ1MJ6HJY"
+        "01M1TNEW3D13Z997PSBJSCN1T0",
+        "01M1TNEW3C0CJBX8P6KHGFZH61",
+        "01M1TNEW3C0CJBX8P6KHGFZH60",
+        "01M1TNEW3C0CJBX8P6KHGFZH62",
+        "01M1TNEW3ATSS49XK0JKC92T48"
       ],
-      "answer": "كانت الفجوة الأولى في الساعة 17:45 يوم الجمعة 2026-08-28 [c:01M1TMQFFV56M35Y92F44QJBPN]. ثم في الساعة 17:51 [c:01M1TMQFFV56M35Y92F44QJBPP]، وفي الساعة 17:59 [c:01M1TMQFFV56M35Y92F44QJBPQ]. كما تم تسجيل فجوة في الساعة 10:30 يوم الخميس 2026-08-27 [c:01M1TMQFFS8SDC9HNEZ1MJ6HJY]."
+      "answer": "كانت أحدث فجوة في 2026-08-28 الساعة 18:00 UTC، مع نسبة فراغ 0.77 [c:01M1TNEW3D13Z997PSBJSCN1T0]. كما تم تسجيل فجوة في 2026-08-27 الساعة 10:30 UTC، مع نسبة فراغ 0.70 [c:01M1TNEW3ATSS49XK0JKC92T48]."
     },
     {
       "id": "q9-en",
@@ -1127,7 +1137,7 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 2672.3,
+      "latency_ms": 2326.9,
       "tokens": 0,
       "citations": 0,
       "expected": [],
@@ -1152,7 +1162,7 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 3486.6,
+      "latency_ms": 2894.1,
       "tokens": 0,
       "citations": 0,
       "expected": [],
@@ -1177,7 +1187,7 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 2263.0,
+      "latency_ms": 2168.1,
       "tokens": 0,
       "citations": 0,
       "expected": [],
@@ -1204,15 +1214,17 @@
       "judge": {
         "claims": 1,
         "supported": 1,
-        "unsupported": [],
+        "unsupported": [
+          ""
+        ],
         "provider": "ollama",
         "model": "qwen3:8b"
       },
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 8732.1,
-      "tokens": 582,
+      "latency_ms": 7805.1,
+      "tokens": 706,
       "citations": 1,
       "expected": [
         "kpi-raqib_demo_store-20260905-day"
@@ -1251,8 +1263,8 @@
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 10169.5,
-      "tokens": 662,
+      "latency_ms": 9550.2,
+      "tokens": 790,
       "citations": 1,
       "expected": [
         "kpi-raqib_demo_store-20260905-day"
@@ -1260,7 +1272,7 @@
       "top5": [
         "kpi-raqib_demo_store-20260905-day"
       ],
-      "answer": "शनिवार को 762 ग्राहक आए [c:kpi-raqib_demo_store-20260905-day]।"
+      "answer": "शनिवार को 762 ग्राहक आए [c:kpi-raqib_demo_store-20260905-day]."
     },
     {
       "id": "q10-ar",
@@ -1282,15 +1294,17 @@
       "judge": {
         "claims": 1,
         "supported": 1,
-        "unsupported": [],
+        "unsupported": [
+          ""
+        ],
         "provider": "ollama",
         "model": "qwen3:8b"
       },
       "hallucination": false,
       "tripped": [],
       "must_say_ok": true,
-      "latency_ms": 7527.4,
-      "tokens": 605,
+      "latency_ms": 8076.5,
+      "tokens": 725,
       "citations": 1,
       "expected": [
         "kpi-raqib_demo_store-20260905-day"

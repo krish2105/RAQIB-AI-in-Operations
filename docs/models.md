@@ -31,6 +31,24 @@ Corpus: 416 chunks (319 simulated retail events, 70 daily/hourly footfall KPI ch
 
 **Consequence for the live deployment.** Render cannot embed queries with bge-m3 (no Ollama). Indexing runs on the Mac and pushes vectors to Supabase; on Render the semantic leg is skipped and `/ask` answers from SQL filters plus BM25, which cover the time- and kind-bounded questions that dominate operations. When a Gemini key is added the spike is re-run with `gemini-embedding-001` at 1024 dimensions; if it is competitive, `EMBED_MODEL` switches to it on both the indexer and Render so the live semantic leg comes back (re-indexing 416 chunks is five API calls).
 
+## Ask eval (Task 27), live local models
+
+30 cases (10 intents × EN/HI/AR) over the seeded store, `cloud/evals/ask/cases.yaml`, run with `qwen3:4b-instruct` (route), `qwen3:8b` (answer and judge), `bge-m3` (vectors). Raw data: `docs/results/ask_eval.json`; CI mode (no model, hashed vectors) in `docs/results/ask_eval_ci.json`.
+
+| Metric | Live models | CI mode | Gate |
+|---|---|---|---|
+| recall@5 | 1.00 | 1.00 | ≥ 0.80 |
+| faithfulness (judge, retrieved records + retrieval facts) | 0.93 | – | ≥ 0.90 |
+| citation coverage (deterministic, every factual sentence cited) | 1.00 | 1.00 | – |
+| citation precision | 0.93 | 0.56 (template cites top hits) | – |
+| language match | 1.00 | 1.00 | – |
+| hallucination tripwires | 0 | 0 | 0 |
+| latency mean / p95 | 18.1 s / 24.0 s | 7 ms | – |
+| tokens per query | 1488 | 0 | – |
+| answer paths | {'model': 27, 'template': 0, 'no_match': 3} | template 27, no_match 3 | – |
+
+Per language, faithfulness: EN 0.95, HI 0.90, AR 0.95. The judge's remaining disagreements are two Hindi superlative sentences, one Arabic paraphrase of "floor manager", and "400 days" restated as "13 months": all cited, none invented. A first pass without retrieval facts in the judge context scored 0.87 because a single record cannot prove "longest"; the ranking field and window are now part of both the answer prompt and the judge prompt.
+
 ## Free-tier API providers
 
 Requests per day are enforced by `Quota` (table `quota_counters`) below the published tiers so a burst never becomes a 429 storm; minute limits by a per-process bucket (`LLM_RPM`, default 10). Published numbers below are third-party summaries from September 2026 and are confirmed in each console once a key exists.
