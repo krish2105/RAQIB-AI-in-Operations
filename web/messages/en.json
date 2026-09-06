@@ -439,6 +439,19 @@
     "whatsapp": "WhatsApp Cloud API",
     "configured": "configured",
     "notConfigured": "not configured",
-    "envHint": "Set the variables in .env (see .env.example) and restart the API."
+    "envHint": "Set the variables in .env (see .env.example) and restart the API.",
+    "whatsappSub": "Approved templates only, in the recipient's language, to people who opted in. Free text is refused by design.",
+    "roster": "Opt-in roster",
+    "phone": "Phone (E.164)",
+    "role": "Role",
+    "lang": "Language",
+    "add": "Add opt-in",
+    "remove": "Remove",
+    "noOptins": "Nobody has opted in yet.",
+    "templates": "Templates",
+    "retries": "retries",
+    "breaker": "breaker after {n} failures, {s} s cooldown",
+    "webhook": "Alert webhook",
+    "stream": "Camera stream upstream"
   }
 }

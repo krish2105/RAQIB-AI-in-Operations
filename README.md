@@ -12,6 +12,7 @@ One engine, two site profiles, three languages (EN / HI / AR), faces blurred bef
 - **Dashboard:** https://raqib-orcin.vercel.app
 - **API:** https://raqib-backend-7qdg.onrender.com (docs at `/docs`)
 - **Repo:** https://github.com/krish2105/RAQIB-AI-in-Operations
+- **Integrations (v2, Phase I):** https://raqib-orcin.vercel.app/en/settings — POS CSV import with a POS-derived service rate, planogram diff and price-tag OCR on the edge (rules R14 and R15, shown on Shelves), WhatsApp approved-template alerts to an opt-in roster, and a Greenlam client with retries, idempotency and a circuit breaker.
 - **Twin (v2, Phase H):** https://raqib-orcin.vercel.app/en/twin — replay any day at one-minute resolution on the 3D floor, scrub at up to 600×, and re-run the queue model and staffing MILP under what-if sliders; save a scenario for Ask to cite.
 - **Crew (v2, Phase G):** https://raqib-orcin.vercel.app/en/crew — six narrow agents on one runtime: allow-listed tools, HMAC-signed messages, per-run budgets, an Auditor after every run, guarded memory, and a kill switch that returns 503 on agent routes while severity-3 escalation keeps flowing through the deterministic path.
 - **Watch (v2, Phase F):** https://raqib-orcin.vercel.app/en/watch — blurred camera wall with live detection boxes and zone overlays, caption ticker, and VLM second opinions that can request a review but never lower a severity. The live demo has no edge box attached, so tiles show detections only; run `raqib-edge run --stream 8554 --detections 1` on a LAN box and set `STREAM_UPSTREAM` to see the feed.
@@ -29,7 +30,8 @@ The API is a Render free-tier instance: it sleeps after 15 minutes idle (first r
 6. Open **Watch** → the camera wall (detections only without an edge box), the second-opinion list with agree/disagree and the rule severity that never changes; open any event → the **Second opinion** panel and "Request opinion".
 7. Open **Crew** → the roster with budgets, the live run graph and the signed message log; post a queue event (or approve one in Actions) and watch FloorOps light and the Auditor check it; type KILL to stop every agent and Resume to bring them back.
 8. Open **Twin** → pick yesterday, press Play, watch the floor breathe with the day; move the tills slider and read the before/after wait and staff-hours; Save as scenario.
-9. Open **Ask** → press `/`, type "Which till had the longest queue last Friday evening?" (or pick an example, in Hindi or Arabic) → a cited answer; click a citation chip to open the event or the SOP section it came from.
+9. Open **Settings** → download the labelled POS sample, import it, and watch the queue model's μ switch to POS; add a WhatsApp opt-in (templates only, nothing is sent until the Cloud API is configured). Open **Shelves** → planogram compliance and price-tag mismatches per shelf.
+10. Open **Ask** → press `/`, type "Which till had the longest queue last Friday evening?" (or pick an example, in Hindi or Arabic) → a cited answer; click a citation chip to open the event or the SOP section it came from.
 
 ## What it does
 
@@ -116,6 +118,15 @@ The spec targets (mAP50 ≥ 0.80, forecast ≥ 20 % better than naive, zone-brea
 | Ask latency (M4 Pro, qwen3:8b) | mean 18.1 s, p95 24.0 s, 1488 tokens per query | same |
 | Ask on the live API (no model) | 0.2 s, records-only cited answers | measured 2026-09-06 |
 | Inference spend | $0 | `docs/models.md` |
+
+### Integrations (v2 Phase I)
+
+| Measure | Value | Source |
+|---|---|---|
+| POS | CSV importer with per-site dedupe; μ labelled `pos` when transactions exist; forecast POS features only when they lower holdout MAE | `docs/results/integrations.json` |
+| Shelf intelligence | planogram diff (missing, misplaced, compliance); OCR reads "AED 5.50" at 1.0 confidence (Apple Vision 0.7 s, RapidOCR 0.4 s); rules R14, R15 | same |
+| WhatsApp | 6 approved templates × EN/HI/AR to an opt-in roster; free text refused | same |
+| Greenlam | 3 retries, idempotent ticket ids, circuit breaker (3 failures, 60 s) | `cloud/tests/test_integrations.py` |
 
 ### Twin (v2 Phase H)
 

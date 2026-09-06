@@ -1,0 +1,50 @@
+{
+  "date": "2026-09-06",
+  "pos": {
+    "importer": "CSV ts,till,txn_id,items,amount; validated; deduplicated per site on txn_id",
+    "mu_source": "pos when transactions exist in the slot, else estimated_from_video",
+    "forecast": "POS lag features kept only when holdout MAE <= video-only",
+    "adapters": {
+      "csv": "ready",
+      "odoo": "stub",
+      "shopify": "stub"
+    }
+  },
+  "shelf": {
+    "planogram_diff": "missing (empty cell) + misplaced (Lab distance to reference cell)",
+    "ocr": {
+      "default_macos": "apple_vision",
+      "portable": "rapidocr_onnxruntime",
+      "fixture_read": {
+        "printed": "AED 5.50",
+        "apple_vision": "AED 5.50 conf 1.0 0.7s",
+        "rapidocr": "AED: / 5.50 conf 1.0 0.4s"
+      }
+    },
+    "rules": {
+      "R14_price_mismatch": "severity 1, tolerance 0.05, debounced",
+      "R15_planogram_drift": "severity 1, drift >= 1, debounced"
+    }
+  },
+  "whatsapp": {
+    "templates": 6,
+    "languages": [
+      "en",
+      "hi",
+      "ar"
+    ],
+    "free_text": false,
+    "roster": "opt-in per site/role/language, phones masked in listings"
+  },
+  "greenlam": {
+    "retries": 3,
+    "backoff": "0.5s x 2^n",
+    "idempotency": "client id cache + 409 treated as raised",
+    "breaker": "opens after 3 failures, half-open after 60 s"
+  },
+  "tests": {
+    "cloud_total": 146,
+    "edge_total": 55,
+    "web": 31
+  }
+}

@@ -444,6 +444,22 @@ export interface ShelvesOut {
   totals: { drift_events: number; price_mismatches: number; gaps: number };
 }
 
+export interface IntegrationStatus {
+  whatsapp: { configured: boolean; templates: string[]; languages: string[]; free_text: boolean };
+  greenlam: { configured: boolean; retries: number; breaker: { failures: number; cooldown_s: number } };
+  webhook: { configured: boolean };
+  pos: { csv: boolean; odoo: boolean; shopify: boolean };
+  stream: { configured: boolean };
+}
+
+export interface OptIn {
+  id: number;
+  phone: string;
+  role: string;
+  lang: string;
+  opted_in_at: string;
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -534,6 +550,10 @@ export const api = {
     return res.json() as Promise<ApiDocument & { created: boolean }>;
   },
   shelves: (site: string, window_h = 24 * 7) => request<ShelvesOut>(`/shelves${q({ site, window_h })}`),
+  integrationStatus: () => request<IntegrationStatus>("/integrations/status"),
+  optins: (site: string) => request<OptIn[]>(`/notify/optins${q({ site })}`),
+  optIn: (body: { site: string; phone: string; role: string; lang: string }) => request<{ id: number; created: boolean }>("/notify/optins", { method: "POST", body: JSON.stringify(body) }),
+  optOut: (id: number) => request<{ id: number; opted_out: boolean }>(`/notify/optins/${id}`, { method: "DELETE" }),
   posSummary: (site: string) => request<PosSummary>(`/pos/summary${q({ site })}`),
   posSampleUrl: (site: string, days = 7) => `${API_URL}/pos/sample${q({ site, days })}`,
   posImport: async (site: string, file: File | Blob, filename = "pos.csv") => {
