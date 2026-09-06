@@ -1,0 +1,36 @@
+{
+  "date": "2026-09-06",
+  "agents": [
+    "FloorOps",
+    "ShelfOps",
+    "Workforce",
+    "Safety",
+    "Analyst",
+    "Auditor"
+  ],
+  "envelope": {
+    "bus": "HMAC-SHA256 per agent, JSON-schema payloads, nonce + 5 min replay window",
+    "budget_default": {
+      "max_tool_calls": 6,
+      "max_usd": 0.0,
+      "max_seconds": 60
+    },
+    "kill_switch": "AGENTS_ENABLED env + crew_flags.agents_enabled; POST /crew/kill needs typed KILL; routes 503; Phase B policy path keeps severity-3 escalation",
+    "memory_guard": "protected keys immutable, injection quarantined, secrets redacted, size and churn limits, snapshots + rollback"
+  },
+  "tests": {
+    "cloud_total": 127,
+    "bus": 3,
+    "budget": 3,
+    "killswitch": 3,
+    "crew": 5,
+    "memory_guard": 7,
+    "web": 27,
+    "playwright": 4
+  },
+  "measured": {
+    "floorops_run_seconds": 0.028,
+    "auditor_run_seconds": 0.005,
+    "cost_usd": 0.0
+  }
+}

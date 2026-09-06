@@ -12,6 +12,7 @@ One engine, two site profiles, three languages (EN / HI / AR), faces blurred bef
 - **Dashboard:** https://raqib-orcin.vercel.app
 - **API:** https://raqib-backend-7qdg.onrender.com (docs at `/docs`)
 - **Repo:** https://github.com/krish2105/RAQIB-AI-in-Operations
+- **Crew (v2, Phase G):** https://raqib-orcin.vercel.app/en/crew — six narrow agents on one runtime: allow-listed tools, HMAC-signed messages, per-run budgets, an Auditor after every run, guarded memory, and a kill switch that returns 503 on agent routes while severity-3 escalation keeps flowing through the deterministic path.
 - **Watch (v2, Phase F):** https://raqib-orcin.vercel.app/en/watch — blurred camera wall with live detection boxes and zone overlays, caption ticker, and VLM second opinions that can request a review but never lower a severity. The live demo has no edge box attached, so tiles show detections only; run `raqib-edge run --stream 8554 --detections 1` on a LAN box and set `STREAM_UPSTREAM` to see the feed.
 - **Ask (v2, Phase E):** https://raqib-orcin.vercel.app/en/ask — trilingual questions over events, KPIs and documents with a citation on every fact; `POST /ask` on the API. Model calls run through a zero-cost provider chain (`docs/models.md`); on the free-tier API with no model reachable, answers come from records only and stay cited.
 
@@ -25,7 +26,8 @@ The API is a Render free-tier instance: it sleeps after 15 minutes idle (first r
 4. Open **Forecast** → next-24h footfall vs seasonal-naive baseline (MAE table), and the **staffing plan** integer program.
 5. Open **Report** → the Monday report in English, Hindi, or Arabic. Print to PDF. The "What the records say" section is written by Ask and cites record ids.
 6. Open **Watch** → the camera wall (detections only without an edge box), the second-opinion list with agree/disagree and the rule severity that never changes; open any event → the **Second opinion** panel and "Request opinion".
-7. Open **Ask** → press `/`, type "Which till had the longest queue last Friday evening?" (or pick an example, in Hindi or Arabic) → a cited answer; click a citation chip to open the event or the SOP section it came from.
+7. Open **Crew** → the roster with budgets, the live run graph and the signed message log; post a queue event (or approve one in Actions) and watch FloorOps light and the Auditor check it; type KILL to stop every agent and Resume to bring them back.
+8. Open **Ask** → press `/`, type "Which till had the longest queue last Friday evening?" (or pick an example, in Hindi or Arabic) → a cited answer; click a citation chip to open the event or the SOP section it came from.
 
 ## What it does
 
@@ -112,6 +114,15 @@ The spec targets (mAP50 ≥ 0.80, forecast ≥ 20 % better than naive, zone-brea
 | Ask latency (M4 Pro, qwen3:8b) | mean 18.1 s, p95 24.0 s, 1488 tokens per query | same |
 | Ask on the live API (no model) | 0.2 s, records-only cited answers | measured 2026-09-06 |
 | Inference spend | $0 | `docs/models.md` |
+
+### Crew (v2 Phase G)
+
+| Measure | Value | Source |
+|---|---|---|
+| Agents | FloorOps, ShelfOps, Workforce, Safety, Analyst (no tools), Auditor (mandatory) | `docs/results/crew.json` |
+| Envelope | HMAC-signed bus with replay window, per-run budget (6 calls, $0, 60 s), kill switch, guarded memory with rollback | same |
+| Run cost | FloorOps 0.03 s, Auditor 0.005 s, $0 | same |
+| Tests | 21 crew tests (bus, budget, kill switch, crew, memory guard), Playwright crew flow | `cloud/tests/`, `web/e2e/` |
 
 ### Watch (v2 Phase F)
 
