@@ -148,3 +148,30 @@ test("twin: reduced motion disables auto-play", async ({ browser }) => {
   await expect(page.getByText(/reduced motion/)).toBeVisible();
   await ctx.close();
 });
+
+test("security: admin edits the till-proposal threshold, sees the diff, confirms; operator sees it read-only", async ({ page }) => {
+  await page.goto("/en/security");
+  await expect(page.getByTestId("asi-scorecard")).toBeVisible();
+  await expect(page.getByTestId("asi-summary")).toHaveText("10 of 10 passed");
+  const rho = page.getByTestId("policy-rho_threshold");
+  await expect(rho).toBeEnabled();
+  await rho.fill("0.9");
+  await page.getByTestId("policy-review").click();
+  await expect(page.getByTestId("diff-rho_threshold")).toContainText("0.9");
+  await page.getByTestId("policy-note").fill("e2e: peak season");
+  await page.getByTestId("policy-confirm").click();
+  await expect(page.getByTestId("policy-saved")).toBeVisible();
+  await expect(page.getByTestId("policy-diff")).toHaveCount(0);
+  // restore the default so the run is repeatable
+  await rho.fill("0.85");
+  await page.getByTestId("policy-review").click();
+  await page.getByTestId("policy-confirm").click();
+  await expect(page.getByTestId("policy-saved")).toBeVisible();
+
+  // an Operator: the API's dev principal is admin, so the browser's view of /auth/me is stubbed to the operator role
+  await page.route(`${API}/auth/me`, (route) => route.fulfill({ json: { id: "op", email: "op@raqib.local", role: "operator", site_ids: [], anonymous: false, auth_required: false, capabilities: { read: true, ask: true, approve: true, ingest: false, manage: false, policy: false } } }));
+  await page.reload();
+  await expect(page.getByTestId("policy-readonly")).toBeVisible();
+  await expect(page.getByTestId("policy-rho_threshold")).toBeDisabled();
+  await expect(page.getByTestId("policy-review")).toHaveCount(0);
+});

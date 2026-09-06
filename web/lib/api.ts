@@ -473,6 +473,71 @@ export interface Me {
   capabilities: Record<string, boolean>;
 }
 
+export interface AsiResult {
+  asi: string;
+  risk: string;
+  control: string;
+  test: string;
+  passed: boolean;
+  evidence: Record<string, unknown>;
+  error: string | null;
+}
+
+export interface Scorecard {
+  date: string | null;
+  passed: number;
+  failed: number;
+  total: number;
+  results: AsiResult[];
+  source: string;
+  mapping_doc: string;
+}
+
+export interface RedteamRun {
+  asi: string;
+  risk: string;
+  test: string;
+  passed: boolean;
+  seconds: number | null;
+  evidence: Record<string, unknown>;
+  error: string | null;
+}
+
+export interface PolicyValues {
+  rho_threshold: number;
+  review_confidence: number;
+  work_order_cooldown_h: number;
+  vlm_review_confidence: number;
+}
+
+export interface PolicyOut {
+  site: string;
+  values: PolicyValues;
+  defaults: PolicyValues;
+  updated_by: string | null;
+  updated_at: string | null;
+  note: string | null;
+}
+
+export interface PolicyDiff {
+  site: string;
+  values: PolicyValues;
+  diff: Record<string, { before: number; after: number }>;
+  updated_by: string;
+}
+
+export interface MemoryGuardOut {
+  site: string;
+  quarantined: Array<{ id: number; agent: string; key: string; reason: string | null; written_by: string; source: string; ts: string; preview: string }>;
+  quarantine_actions: Array<{ id: number; ts: string; agent: string | null; args: Record<string, unknown> }>;
+  snapshots: Array<{ id: number; ts: string; count: number; taken_by: string }>;
+}
+
+export interface AuditOut {
+  site: string;
+  flagged: Array<{ id: string; agent: string; trigger: string; started: string; flag: Record<string, unknown> | null }>;
+}
+
 export interface FleetStore {
   rank: number;
   id: string;
@@ -637,6 +702,12 @@ export const api = {
   fleetDrift: (site: string) => request<{ site: string; cameras: CameraDrift[] }>(`/fleet/drift${q({ site })}`),
   fleetHealth: (site: string) => request<{ site: string; boxes: EdgeBox[]; edge_offline_events: string[] }>(`/fleet/health${q({ site })}`),
   integrationStatus: () => request<IntegrationStatus>("/integrations/status"),
+  securityScorecard: () => request<Scorecard>("/security/scorecard"),
+  securityRedteam: () => request<{ date: string | null; runs: RedteamRun[]; command: string }>("/security/redteam"),
+  securityMemoryGuard: (site: string) => request<MemoryGuardOut>(`/security/memory-guard${q({ site })}`),
+  securityAudit: (site: string) => request<AuditOut>(`/security/audit${q({ site })}`),
+  policy: (site: string) => request<PolicyOut>(`/policy${q({ site })}`),
+  putPolicy: (site: string, values: PolicyValues, note: string) => request<PolicyDiff>(`/policy${q({ site, note })}`, { method: "PUT", body: JSON.stringify(values) }),
   optins: (site: string) => request<OptIn[]>(`/notify/optins${q({ site })}`),
   optIn: (body: { site: string; phone: string; role: string; lang: string }) => request<{ id: number; created: boolean }>("/notify/optins", { method: "POST", body: JSON.stringify(body) }),
   optOut: (id: number) => request<{ id: number; opted_out: boolean }>(`/notify/optins/${id}`, { method: "DELETE" }),
