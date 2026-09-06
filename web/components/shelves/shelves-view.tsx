@@ -9,12 +9,15 @@ import { useAppStore } from "@/lib/store";
 import { KpiTile } from "@/components/kpi/kpi-tile";
 import { EventStream } from "@/components/stream/event-stream";
 import { EmptyState, ErrorState, Panel, Skeleton } from "@/components/ui/panel";
+import { PlanogramDiff } from "./planogram-diff";
+import { PriceTagList } from "./price-tag-list";
 
 export function ShelvesView() {
   const t = useTranslations("shelves");
   const locale = useLocale();
   const { site, profile } = useAppStore();
   const kpis = useQuery({ queryKey: ["kpis", site], queryFn: () => api.kpis(site), enabled: !!site });
+  const detail = useQuery({ queryKey: ["shelves", site], queryFn: () => api.shelves(site), enabled: !!site, refetchInterval: 30_000 });
 
   if (profile !== "retail") return <div className="panel"><EmptyState title={t("retailOnly")} icon={<PackageOpen className="size-6" strokeWidth={1.5} />} /></div>;
   const osa = kpis.data?.osa ?? {};
@@ -60,6 +63,20 @@ export function ShelvesView() {
           </ul>
         )}
       </Panel>
+
+      {/* v2: planogram drift (R15) and price-tag mismatches (R14) per shelf */}
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <Panel eyebrow={t("planogram")} sub={t("planogramSub")} bodyClassName="divide-y divide-hairline">
+          {detail.isPending ? <Skeleton className="h-24 m-3" /> : detail.isError ? <ErrorState what={t("planogram").toLowerCase()} onRetry={() => detail.refetch()} /> : detail.data.shelves.map((sh) => (
+            <div key={sh.shelf_id}><div className="px-3 pt-2 font-mono text-[0.6875rem] text-ink-faint">{sh.shelf_id}</div><PlanogramDiff shelf={sh} /></div>
+          ))}
+        </Panel>
+        <Panel eyebrow={t("priceTags")} sub={t("priceTagsSub")} bodyClassName="divide-y divide-hairline">
+          {detail.isPending ? <Skeleton className="h-24 m-3" /> : detail.isError ? <ErrorState what={t("priceTags").toLowerCase()} onRetry={() => detail.refetch()} /> : detail.data.shelves.map((sh) => (
+            <div key={sh.shelf_id}><div className="px-3 pt-2 font-mono text-[0.6875rem] text-ink-faint">{sh.shelf_id}</div><PriceTagList shelf={sh} /></div>
+          ))}
+        </Panel>
+      </div>
 
       <Panel eyebrow={t("recent")} bodyClassName="max-h-[480px] overflow-y-auto">
         <ShelfGapStream />

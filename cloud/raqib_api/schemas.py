@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 
 EVENT_KINDS = (
     "ppe_violation", "zone_breach", "machine_stopped", "queue_over", "shelf_gap", "footfall_tick", "checkout_served",
+    "price_mismatch", "planogram_drift",  # v2 shelf intelligence (rules R14, R15)
 )
 
 

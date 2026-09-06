@@ -22,6 +22,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.6", "hypothesis>=6"]
 train = ["scikit-learn>=1.5", "matplotlib>=3.9", "pandas>=2.2"]
+ocr = ["rapidocr-onnxruntime>=1.4", "pyobjc-framework-Vision>=10; sys_platform == 'darwin'"]
 
 [project.scripts]
 raqib-edge = "raqib_edge.main:app"

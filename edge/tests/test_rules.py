@@ -191,3 +191,47 @@ def test_retail_profile_never_runs_factory_rules(retail):
     intruder = person(1, 800, 500)  # would be a breach if an exclusion zone existed
     out = evaluate([intruder], retail, "cam1", st, T0 + timedelta(seconds=10), WH)
     assert {e.kind for e in out} <= {"footfall_tick", "queue_over", "checkout_served", "shelf_gap"}
+
+
+# ---- v2 shelf intelligence rules -------------------------------------------------------
+
+def test_r14_price_mismatch_emits_once_and_debounces(site_retail=None):
+    from datetime import UTC, datetime, timedelta
+
+    from raqib_edge.rules import RuleState, evaluate
+    from raqib_edge.zones import load_site
+    from pathlib import Path
+
+    site = load_site(Path(__file__).resolve().parents[1] / "sites" / "retail_demo.yaml")
+    st = RuleState()
+    t0 = datetime(2026, 9, 6, 10, 0, tzinfo=UTC)
+    reads = {"A1-wafer": (5.5, 5.5), "A1-gum": (2.5, 2.0), "A1-unknown": (3.0, None)}
+    ev = evaluate([], site, "cam1", st, t0, price_reads=reads)
+    assert [e.kind for e in ev] == ["price_mismatch"] and ev[0].severity == 1 and ev[0].rule_id == "R14"
+    assert ev[0].payload["tag"] == "A1-gum" and ev[0].payload["delta"] == 0.5 and ev[0].payload["shelf_id"] == "A1"
+    assert evaluate([], site, "cam1", st, t0 + timedelta(seconds=30), price_reads=reads) == []  # debounced
+    assert evaluate([], site, "cam1", st, t0 + timedelta(seconds=400), price_reads=reads)[0].kind == "price_mismatch"  # re-emits after reemit_s
+    fixed = {"A1-gum": (2.0, 2.0)}
+    assert evaluate([], site, "cam1", st, t0 + timedelta(seconds=500), price_reads=fixed) == []
+
+
+def test_r15_planogram_drift_emits_once_and_debounces():
+    from datetime import UTC, datetime, timedelta
+    from pathlib import Path
+
+    from raqib_edge.planogram import PlanogramDiff
+    from raqib_edge.rules import RuleState, evaluate
+    from raqib_edge.zones import load_site
+
+    site = load_site(Path(__file__).resolve().parents[1] / "sites" / "retail_demo.yaml")
+    st = RuleState()
+    t0 = datetime(2026, 9, 6, 10, 0, tzinfo=UTC)
+    d = PlanogramDiff("A1", 9, 7, missing=[{"sku": "A1-mints"}], misplaced=[{"sku": "A1-cookies"}])
+    ok = PlanogramDiff("B3", 6, 6)
+    ev = evaluate([], site, "cam1", st, t0, planogram_diffs={"shelf_a1": d, "aisle_shelf_b3": ok})
+    assert [e.kind for e in ev] == ["planogram_drift"] and ev[0].rule_id == "R15" and ev[0].severity == 1
+    assert ev[0].payload["missing"] == ["A1-mints"] and ev[0].payload["misplaced"] == ["A1-cookies"] and ev[0].payload["compliance"] == round(7 / 9, 3)
+    assert evaluate([], site, "cam1", st, t0 + timedelta(seconds=10), planogram_diffs={"shelf_a1": d}) == []
+    assert evaluate([], site, "cam1", st, t0 + timedelta(seconds=400), planogram_diffs={"shelf_a1": d})[0].kind == "planogram_drift"
+    factory = load_site(Path(__file__).resolve().parents[1] / "sites" / "greenlam_unit1.yaml")
+    assert evaluate([], factory, "cam1", RuleState(), t0, planogram_diffs={"x": d}, price_reads={"t": (1.0, 2.0)}) == []  # retail-only rules

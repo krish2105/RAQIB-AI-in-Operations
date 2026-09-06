@@ -10,7 +10,9 @@ export type EventKind =
   | "queue_over"
   | "shelf_gap"
   | "footfall_tick"
-  | "checkout_served";
+  | "checkout_served"
+  | "price_mismatch"
+  | "planogram_drift";
 
 export interface ApiEvent {
   id: string;
@@ -425,6 +427,23 @@ export interface PosImportResult {
   errors: string[];
 }
 
+export interface ShelfRow {
+  shelf_id: string;
+  osa: number;
+  time_to_restock_min: number | null;
+  gaps: number;
+  planogram: { compliance: number | null; expected: number | null; present: number | null; missing: string[]; misplaced: string[]; events: number; last_ts: string | null; event_id: string | null };
+  price_tags: Array<{ tag: string; read_price: number; expected_price: number; delta: number; ts: string; event_id: string }>;
+}
+
+export interface ShelvesOut {
+  site: string;
+  window_h: number;
+  as_of: string;
+  shelves: ShelfRow[];
+  totals: { drift_events: number; price_mismatches: number; gaps: number };
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -514,6 +533,7 @@ export const api = {
     if (!res.ok) throw new ApiError(res.status, res.statusText);
     return res.json() as Promise<ApiDocument & { created: boolean }>;
   },
+  shelves: (site: string, window_h = 24 * 7) => request<ShelvesOut>(`/shelves${q({ site, window_h })}`),
   posSummary: (site: string) => request<PosSummary>(`/pos/summary${q({ site })}`),
   posSampleUrl: (site: string, days = 7) => `${API_URL}/pos/sample${q({ site, days })}`,
   posImport: async (site: string, file: File | Blob, filename = "pos.csv") => {

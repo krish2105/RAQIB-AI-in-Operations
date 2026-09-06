@@ -32,6 +32,8 @@ EVENT_KINDS: tuple[str, ...] = (
     "shelf_gap",
     "footfall_tick",
     "checkout_served",
+    "price_mismatch",
+    "planogram_drift",
 )
 
 SEVERITY_INFO = 1

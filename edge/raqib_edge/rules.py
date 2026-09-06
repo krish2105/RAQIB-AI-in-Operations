@@ -14,6 +14,8 @@ Rule ids match the spec table:
 
 from __future__ import annotations
 
+from typing import Any
+
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -325,6 +327,49 @@ def r03_machine_stopped(
 # --------------------------------------------------------------------------- dispatcher
 
 
+def r14_price_mismatch(
+    site: Site, camera: str, state: RuleState, now: datetime, price_reads: dict[str, tuple[float | None, float | None]]
+) -> list[Event]:
+    """v2. price_reads: tag -> (read_price, expected_price). Severity 1 when they differ beyond the tolerance."""
+    out: list[Event] = []
+    tol = site.threshold("price_tolerance") if "price_tolerance" in site.thresholds else 0.05
+    for tag, (read, expected) in sorted(price_reads.items()):
+        if read is None or expected is None:
+            continue
+        if abs(read - expected) <= tol:
+            state.last_emit.pop(f"R14:{tag}", None)
+            continue
+        key = f"R14:{tag}"
+        if state.debounced(key, now, site.threshold("reemit_s")):
+            continue
+        state.mark(key, now)
+        out.append(new_event(site.name, camera, now, "price_mismatch", 1,
+                             {"tag": tag, "shelf_id": tag.split("-")[0], "read_price": read, "expected_price": expected,
+                              "delta": round(read - expected, 2), "confidence": 0.7}, "R14"))
+    return out
+
+
+def r15_planogram_drift(
+    site: Site, camera: str, state: RuleState, now: datetime, diffs: dict[str, Any]
+) -> list[Event]:
+    """v2. diffs: shelf zone name -> PlanogramDiff. Severity 1 when missing + misplaced reaches the threshold."""
+    out: list[Event] = []
+    min_drift = int(site.threshold("planogram_drift_min")) if "planogram_drift_min" in site.thresholds else 1
+    for zone_name, d in sorted(diffs.items()):
+        key = f"R15:{zone_name}"
+        if d.drift < min_drift:
+            state.last_emit.pop(key, None)
+            continue
+        if state.debounced(key, now, site.threshold("reemit_s")):
+            continue
+        state.mark(key, now)
+        out.append(new_event(site.name, camera, now, "planogram_drift", 1,
+                             {"zone": zone_name, "shelf_id": d.shelf_id, "expected": d.expected, "present": d.present,
+                              "missing": [m["sku"] for m in d.missing], "misplaced": [m["sku"] for m in d.misplaced],
+                              "compliance": round(d.compliance, 3), "confidence": 0.7}, "R15"))
+    return out
+
+
 def evaluate(
     tracks: list[Track],
     site: Site,
@@ -334,6 +379,8 @@ def evaluate(
     frame_wh: tuple[int, int] = (1, 1),
     shelf_ratios: dict[str, float] | None = None,
     machine_states: dict[str, str] | None = None,
+    price_reads: dict[str, tuple[float | None, float | None]] | None = None,
+    planogram_diffs: dict[str, Any] | None = None,
 ) -> list[Event]:
     """Run the rules for the site's profile. Order is stable so output is reproducible."""
     events: list[Event] = []
@@ -343,6 +390,10 @@ def evaluate(
         events += r13_checkout_served(tracks, site, camera, state, now, frame_wh)
         if shelf_ratios:
             events += r11_shelf_gap(site, camera, state, now, shelf_ratios)
+        if price_reads:
+            events += r14_price_mismatch(site, camera, state, now, price_reads)
+        if planogram_diffs:
+            events += r15_planogram_drift(site, camera, state, now, planogram_diffs)
     elif site.profile == "factory":
         events += r02_zone_breach(tracks, site, camera, state, now, frame_wh)
         events += r01_no_helmet(tracks, site, camera, state, now, frame_wh)

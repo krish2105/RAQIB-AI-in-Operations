@@ -1,0 +1,10 @@
+{"shelf_id": "A1", "cols": 4, "rows": 2, "facings": [
+  {"sku": "A1-choc-bar", "col": 0, "row": 0, "facings": 2, "price": 3.5},
+  {"sku": "A1-gum", "col": 1, "row": 0, "facings": 1, "price": 2.0},
+  {"sku": "A1-mints", "col": 2, "row": 0, "facings": 1, "price": 4.25},
+  {"sku": "A1-wafer", "col": 3, "row": 0, "facings": 1, "price": 5.5},
+  {"sku": "A1-toffee", "col": 0, "row": 1, "facings": 1, "price": 6.0},
+  {"sku": "A1-jelly", "col": 1, "row": 1, "facings": 1, "price": 3.0},
+  {"sku": "A1-nuts", "col": 2, "row": 1, "facings": 1, "price": 8.75},
+  {"sku": "A1-cookies", "col": 3, "row": 1, "facings": 1, "price": 7.0}
+]}

@@ -53,7 +53,9 @@
     "queue_over": "Queue over limit",
     "shelf_gap": "Shelf gap",
     "footfall_tick": "Footfall",
-    "checkout_served": "Checkout served"
+    "checkout_served": "Checkout served",
+    "price_mismatch": "Price tag mismatch",
+    "planogram_drift": "Planogram drift"
   },
   "kpi": {
     "serviceLevel": "Service level",
@@ -184,7 +186,21 @@
     "gaps": "Gap signals",
     "recent": "Recent shelf gaps",
     "empty": "No shelf gaps in the last 24 hours.",
-    "retailOnly": "Shelf tracking is a retail profile feature. Switch to the demo store to see it."
+    "retailOnly": "Shelf tracking is a retail profile feature. Switch to the demo store to see it.",
+    "planogram": "Planogram",
+    "planogramSub": "Expected facings vs the shelf face, from rule R15",
+    "compliance": "compliance",
+    "expected": "expected",
+    "present": "present",
+    "missing": "Missing",
+    "misplaced": "Misplaced",
+    "noPlanogram": "No planogram declared for this shelf. Add meta.planogram to the shelf zone in the site YAML.",
+    "priceTags": "Price tags",
+    "priceTagsSub": "OCR reads vs the price list, from rule R14",
+    "noMismatch": "No price mismatches in the window.",
+    "read": "read",
+    "expectedPrice": "expected",
+    "delta": "Δ"
   },
   "forecast": {
     "title": "Forecast",

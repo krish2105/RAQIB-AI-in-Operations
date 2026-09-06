@@ -12,6 +12,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -88,6 +89,49 @@ class CameraWorker:
         self.last_frame: np.ndarray | None = None
         self.last_tracks: list = []
         self.last_events: list[Event] = []
+        # v2 shelf intelligence: planograms and price tags declared on shelf zones (meta.planogram / meta.price_tags)
+        self._planograms: dict[str, Any] = {}
+        self._price_list: dict[str, float] = {}
+        self._ocr = None
+        self._diff_cache: dict[str, Any] = {}
+        self._price_cache: dict[str, tuple[float | None, float | None]] = {}
+        self.ocr_every = 150
+        self._load_shelf_intel()
+
+    def _load_shelf_intel(self) -> None:
+        from .planogram import load_planogram
+
+        for z in self.site.zones_for(self.cam.name, "shelf"):
+            pg = z.meta.get("planogram")
+            if pg:
+                path = Path(pg) if Path(pg).is_absolute() else REPO_ROOT / pg
+                ref = z.meta.get("reference_photo")
+                if path.exists():
+                    self._planograms[z.name] = load_planogram(path, (REPO_ROOT / ref) if ref else None)
+        pl = getattr(self.site, "price_list", None) or self.site.thresholds.get("price_list")
+        if pl:
+            import csv
+
+            path = Path(pl) if Path(pl).is_absolute() else REPO_ROOT / pl
+            if path.exists():
+                with path.open() as fh:
+                    self._price_list = {r["tag"]: float(r["price"]) for r in csv.DictReader(fh)}
+        if any(z.meta.get("price_tags") for z in self.site.zones_for(self.cam.name, "shelf")):
+            from .ocr import make_ocr
+
+            self._ocr = make_ocr()
+
+    def _shelf_intel(self, safe: np.ndarray) -> None:
+        from .ocr import read_price_tags
+        from .planogram import diff
+
+        for z in self.site.zones_for(self.cam.name, "shelf"):
+            if z.name in self._planograms:
+                self._diff_cache[z.name] = diff(safe, z.polygon, self._planograms[z.name])
+            tags = z.meta.get("price_tags") or []
+            if tags and self._ocr is not None:
+                for r in read_price_tags(safe, tags, self._ocr):
+                    self._price_cache[r.tag] = (r.price, self._price_list.get(r.tag))
 
     def step(self, ts: datetime, frame: np.ndarray) -> list[Event]:
         self._n += 1
@@ -103,6 +147,8 @@ class CameraWorker:
                 self._shelf_cache[z.name] = shelf_empty_ratio(safe, z.polygon)
         if self._shelf_cache:
             shelf_ratios = dict(self._shelf_cache)
+        if self.site.profile == "retail" and (self._planograms or self._ocr is not None) and self._n % self.ocr_every == 1:
+            self._shelf_intel(safe)
 
         machine_states: dict[str, str] | None = None
         if self.site.profile == "factory":
@@ -120,6 +166,8 @@ class CameraWorker:
             frame_wh=wh,
             shelf_ratios=shelf_ratios,
             machine_states=machine_states,
+            price_reads=dict(self._price_cache) or None,
+            planogram_diffs=dict(self._diff_cache) or None,
         )
         for e in events:
             self.store.append(e)
