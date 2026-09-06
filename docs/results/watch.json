@@ -1,0 +1,32 @@
+{
+  "date": "2026-09-06",
+  "machine": "Apple M4 Pro",
+  "stream": {
+    "server_fps_cap": 12,
+    "client_fps_measured": 10.8,
+    "frames_published_in_run": 142,
+    "frame_size": "960x540 JPEG q75",
+    "blur": "head band of every person box, applied before the frame reaches the stream"
+  },
+  "opinion": {
+    "model": "qwen2.5vl:7b",
+    "cold_s": 29.6,
+    "warm_s": 2.7,
+    "tokens_in": 3406,
+    "frames": 3,
+    "agree_case": {
+      "event": "queue_over",
+      "agrees": true,
+      "confidence": 0.9,
+      "suggested_severity": 2
+    },
+    "disagree_case": {
+      "event": "ppe_violation on a checkout scene",
+      "agrees": false,
+      "confidence": 0.7,
+      "review_requested": false,
+      "severity_changed": false
+    }
+  },
+  "policy": "an opinion may add request_human_review at confidence >= 0.8; it can never lower severity or cancel an action (asserted after every write)"
+}

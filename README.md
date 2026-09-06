@@ -12,6 +12,7 @@ One engine, two site profiles, three languages (EN / HI / AR), faces blurred bef
 - **Dashboard:** https://raqib-orcin.vercel.app
 - **API:** https://raqib-backend-7qdg.onrender.com (docs at `/docs`)
 - **Repo:** https://github.com/krish2105/RAQIB-AI-in-Operations
+- **Watch (v2, Phase F):** https://raqib-orcin.vercel.app/en/watch — blurred camera wall with live detection boxes and zone overlays, caption ticker, and VLM second opinions that can request a review but never lower a severity. The live demo has no edge box attached, so tiles show detections only; run `raqib-edge run --stream 8554 --detections 1` on a LAN box and set `STREAM_UPSTREAM` to see the feed.
 - **Ask (v2, Phase E):** https://raqib-orcin.vercel.app/en/ask — trilingual questions over events, KPIs and documents with a citation on every fact; `POST /ask` on the API. Model calls run through a zero-cost provider chain (`docs/models.md`); on the free-tier API with no model reachable, answers come from records only and stay cited.
 
 The API is a Render free-tier instance: it sleeps after 15 minutes idle (first request wakes it, ~30–60 s) and runs a single worker, so the weekly report (which aggregates the full seeded history) can take 20–35 s under load — a real free-tier CPU constraint, not a bug; `/kpis`, `/forecast` and `/workforce` are bounded to the window they need and stay fast. A paid instance removes both limits.
@@ -23,7 +24,8 @@ The API is a Render free-tier instance: it sleeps after 15 minutes idle (first r
 3. Open **Actions** → approve a `propose_open_till` proposal → it executes, the audit table logs the tool call, and restock work orders raised autonomously for shelf gaps appear under *Executed*.
 4. Open **Forecast** → next-24h footfall vs seasonal-naive baseline (MAE table), and the **staffing plan** integer program.
 5. Open **Report** → the Monday report in English, Hindi, or Arabic. Print to PDF. The "What the records say" section is written by Ask and cites record ids.
-6. Open **Ask** → press `/`, type "Which till had the longest queue last Friday evening?" (or pick an example, in Hindi or Arabic) → a cited answer; click a citation chip to open the event or the SOP section it came from.
+6. Open **Watch** → the camera wall (detections only without an edge box), the second-opinion list with agree/disagree and the rule severity that never changes; open any event → the **Second opinion** panel and "Request opinion".
+7. Open **Ask** → press `/`, type "Which till had the longest queue last Friday evening?" (or pick an example, in Hindi or Arabic) → a cited answer; click a citation chip to open the event or the SOP section it came from.
 
 ## What it does
 
@@ -110,6 +112,14 @@ The spec targets (mAP50 ≥ 0.80, forecast ≥ 20 % better than naive, zone-brea
 | Ask latency (M4 Pro, qwen3:8b) | mean 18.1 s, p95 24.0 s, 1488 tokens per query | same |
 | Ask on the live API (no model) | 0.2 s, records-only cited answers | measured 2026-09-06 |
 | Inference spend | $0 | `docs/models.md` |
+
+### Watch (v2 Phase F)
+
+| Measure | Value | Source |
+|---|---|---|
+| Blurred MJPEG stream | 10.8 fps at the client (12 fps cap), 960×540 JPEG, head bands blurred before the stream | `docs/results/watch.json` |
+| VLM second opinion (qwen2.5vl:7b, 3 keyframes) | 2.7 s warm, 29.6 s cold; agreed 0.9 on a queue clip, disagreed 0.7 when the scene was labelled a PPE violation | same |
+| Policy | opinions can request review, never lower severity; tested on a severity-3 event with a suggested severity of 1 | `cloud/tests/test_vlm.py` |
 
 ## Term 4 artefacts
 
