@@ -42,7 +42,11 @@ def main() -> None:
     md("## 5. Before / after\n\nReplay the day with the agent's open-till proposals applied (tills = max(3, plan)). Closing tills off-peak is the staff-hour saving above and is not counted as a wait effect.")
     code("""def total_wait(lams, tills, mu):\n    tot = 0.0\n    for lam, c in zip(lams, tills):\n        m = mmc(lam, mu, c)\n        tot += (m.wq * 60 if m.stable else 30) * lam / 4  # customer-minutes per 15-min slot\n    return round(tot, 1)\nbase = total_wait(w['lam'], [3]*len(w['lam']), w['mu'])\nafter = total_wait(w['lam'], [max(3, c) for c in plan.tills], w['mu'])\nprint(f"customer-minutes waited: baseline {base}, with proposals {after}, reduction {0 if base == 0 else round((1-after/base)*100,1)}%")""")
 
-    md("## 6. Where the numbers go\n\n`scripts/export_results.py` writes these figures to `docs/results/`; `docs/term4/build_report.py` and `build_deck.py` read them. No number in the report or deck is typed by hand.")
+    md("## 7. v2: Ask quality and the security scorecard\n\nThe v2 evals are code (`cloud/evals/ask/run.py`, `cloud/security/run.py`) and write JSON; this cell reads the committed results so the notebook shows the same numbers as the README, the report and the Security tab.")
+    code("""a = json.load(open(RESULTS / 'ask_eval.json'))['summary']\nse = json.load(open(RESULTS / 'security_eval.json'))\nprint(f"Ask: {a['cases']} cases, recall@5 {a['recall_at_5']}, faithfulness {a['faithfulness']}, citation coverage {a['citation_coverage']}, language match {a['language_match']}, hallucinations {a['hallucinations']}")\nprint(f"Security: {se['passed']}/{se['total']} ASI attacks defended on {se['date'][:10]}")\npd.DataFrame([{'lang': l, **v} for l, v in a['by_lang'].items()])""")
+    code("""pd.DataFrame([{'asi': r['asi'], 'risk': r['risk'], 'test': r['test'], 'passed': r['passed']} for r in se['results']])""")
+
+    md("## 8. Where the numbers go\n\n`scripts/export_results.py` writes these figures to `docs/results/`; `docs/term4/build_report.py` and `build_deck.py` read them. No number in the report or deck is typed by hand.")
 
     nb["cells"] = cells
     nb["metadata"]["kernelspec"] = {"name": "python3", "display_name": "Python 3", "language": "python"}

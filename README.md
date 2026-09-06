@@ -12,6 +12,7 @@ One engine, two site profiles, three languages (EN / HI / AR), faces blurred bef
 - **Dashboard:** https://raqib-orcin.vercel.app
 - **API:** https://raqib-backend-7qdg.onrender.com (docs at `/docs`)
 - **Repo:** https://github.com/krish2105/RAQIB-AI-in-Operations
+- **Security (v2, Phase K):** https://raqib-orcin.vercel.app/en/security — the OWASP Top 10 for Agentic Applications (ASI01–ASI10) mapped to one control and one executable attack each, 10 of 10 defended and gated in CI (`docs/security/asi_mapping.md`); a policy editor that diffs, confirms and attributes every threshold change (read-only below Admin); the memory-guard log. Defensive headers and a CSP on the API and the web app, an SSRF guard on URL ingest, a weights hash pin on the edge, pip-audit, npm audit and a secret scan on every push.
 - **Fleet (v2, Phase J):** https://raqib-orcin.vercel.app/en/fleet — store leaderboard, per-camera model drift (PSI against a 7-day baseline with a suggested fix), edge box health from heartbeats; Supabase Auth with four roles and site scoping (`docs/rbac.md`), retention job, OpenTelemetry span per model call, and a cost-per-day tile that stays at $0.
 - **Integrations (v2, Phase I):** https://raqib-orcin.vercel.app/en/settings — POS CSV import with a POS-derived service rate, planogram diff and price-tag OCR on the edge (rules R14 and R15, shown on Shelves), WhatsApp approved-template alerts to an opt-in roster, and a Greenlam client with retries, idempotency and a circuit breaker.
 - **Twin (v2, Phase H):** https://raqib-orcin.vercel.app/en/twin — replay any day at one-minute resolution on the 3D floor, scrub at up to 600×, and re-run the queue model and staffing MILP under what-if sliders; save a scenario for Ask to cite.
@@ -34,6 +35,7 @@ The API is a Render free-tier instance: it sleeps after 15 minutes idle (first r
 9. Open **Settings** → download the labelled POS sample, import it, and watch the queue model's μ switch to POS; add a WhatsApp opt-in (templates only, nothing is sent until the Cloud API is configured). Open **Shelves** → planogram compliance and price-tag mismatches per shelf.
 10. Open **Fleet** → the leaderboard (switch the KPI), the drift panel (empty until an edge box posts samples), and edge health; the dashboard's new **Inference cost today** tile reads $0 on the free providers.
 11. Open **Ask** → press `/`, type "Which till had the longest queue last Friday evening?" (or pick an example, in Hindi or Arabic) → a cited answer; click a citation chip to open the event or the SOP section it came from.
+12. Open **Security** → the ASI scorecard with one cell per risk and the evidence of each attack; change the till-proposal threshold, read the diff, add a note, confirm, and see the attribution; the memory-guard log shows what was quarantined and which snapshots can be rolled back.
 
 ## What it does
 
@@ -59,7 +61,9 @@ cameras ─► edge/ (Python 3.12, uv)                cloud/ (FastAPI)          
 - **Cloud** (`cloud/raqib_api/`): SQLModel tables mirroring the edge `Event`, allow-listed agent tools with strict schemas, `Policy` that cannot be bypassed (severity 3 always escalates, no downgrades, 4-hour work-order cooldown, ρ > 0.85 for till proposals, low confidence → human review), `DryRunBackend` (deterministic) or `ClaudeBackend` (Anthropic tool use), `ops_theory.py` (Erlang-C), `forecast.py`, `workforce.py` (scipy `milp`), weekly report in three languages, labelled simulator.
 - **Web** (`web/`): Control Room design — graphite dark first with a "blueprint on paper" light theme, teal signal for retail / hazard amber for factory, IBM Plex (Sans, Arabic, Devanagari, Mono) + Archivo display, the 24-hour tape as the spine of every page, React Three Fiber floor with progressive fallback to SVG.
 
-Full design and decisions: `docs/superpowers/specs/2026-09-06-raqib-design.md`. Diagram: `docs/architecture.md`.
+- **v2 (Phases E–K)** adds, on the same Event and the same `Policy`: a zero-cost model provider chain (`llm/`, Ollama → Gemini free → Groq free, one OpenTelemetry span per call), Ask (`rag/`: deterministic trilingual router, hybrid retrieval, cited answers), Watch (`vlm/`, edge `stream.py`), a six-agent Crew (`crew/`: allow-lists, budgets, HMAC bus, Auditor, guarded memory, kill switch), the Twin (`twin/`), integrations (`integrations/`: POS, WhatsApp, Greenlam; edge `planogram.py`, `ocr.py`), auth and fleet (`auth/`, `fleet/`, edge `telemetry.py`), and a security layer (`cloud/security/` red-team harness, `routers/security.py`, edge `integrity.py`). Nothing gained a second way to execute a tool.
+
+Full design and decisions: `docs/superpowers/specs/2026-09-06-raqib-design.md` and the v2 addendum `docs/superpowers/specs/2026-09-06-raqib-v2-design.md`. Diagrams: `docs/architecture.md`.
 
 ## Run it
 
@@ -88,10 +92,11 @@ Docker (edge + API): `docker compose up --build`. Deploy: `render.yaml` (API), `
 ## Tests
 
 ```bash
-cd edge  && uv run pytest        # 47: rules with synthetic tracks, adapter on real frames, blur, store, sync, pipeline
-cd cloud && uv run pytest        # 44: routers, M/M/c textbook cases, policies (sev-3 cannot be downgraded), tools, forecast beats naive, MILP toy, report EN/HI/AR, session-safe tz normalisation
-cd web   && npm test             # 15: severity tokens, message catalogues complete in 3 languages, tape binning, live buffer
-cd web   && npm run e2e          # Playwright: event → clip → approve proposal → executed + audit; theme toggle + RTL
+cd edge  && uv run pytest        # 65: rules with synthetic tracks, adapter on real frames, blur, store, sync, pipeline, planogram, OCR, telemetry, weights pin
+cd cloud && uv run pytest        # 176: routers, M/M/c, policies (sev-3 cannot be downgraded), tools, forecast, MILP, report EN/HI/AR, provider chain, RAG, VLM, crew, twin, integrations, auth, fleet, retention, security
+cd web   && npm test             # 39: severity tokens, catalogues complete in 3 languages, tape, live buffer, ask, crew, twin, fleet, security
+cd web   && npm run e2e          # Playwright, 7 flows: grader path, theme + RTL, Ask, Crew, Twin ×2, Security (admin diff/confirm, operator read-only)
+cd cloud && uv run python security/run.py --gate --md   # the ten-attack OWASP ASI harness (also runs in CI)
 ```
 
 ## Measured results (this machine, `docs/results/`)
@@ -110,6 +115,14 @@ All numbers below are read from files produced by `edge/training/eval.py` and `s
 | PPE mAP50 | not run — needs SH17 (CC BY-NC-SA, manual download) and fine-tuning | `edge_eval.json` |
 
 The spec targets (mAP50 ≥ 0.80, forecast ≥ 20 % better than naive, zone-breach precision ≥ 0.90, human approval ≥ 60 %) are pilot deliverables that need site footage and ≥ 30 days of real events. The forecast figure above is on the labelled simulator and is reported as such.
+
+### Security (v2 Phase K)
+
+| Measure | Value | Source |
+|---|---|---|
+| OWASP ASI red team | 10 of 10 attacks defended (2026-09-06); each ASI has one control and one executable attack; CI fails on a regression | `docs/results/security_eval.json`, `docs/security/asi_mapping.md` |
+| Hardening | defensive headers + deny-all CSP on the API, CSP/HSTS/permissions policy on the web app, explicit CORS methods and headers, SSRF guard on `POST /documents/url`, evidence required on every proposal, weights hash pin (`RAQIB_WEIGHTS_SHA256`) | `cloud/tests/test_security.py`, `edge/tests/test_weights_pin.py` |
+| Supply chain | lockfiles, pip-audit and npm audit, gitleaks on every push and weekly | `.github/workflows/security.yml` |
 
 ### Ask (v2 Phase E)
 
@@ -167,7 +180,7 @@ The spec targets (mAP50 ≥ 0.80, forecast ≥ 20 % better than naive, zone-brea
 
 ## Term 4 artefacts
 
-`docs/AI218_RAQIB_report.docx`, `docs/AI218_RAQIB_deck.pptx`, `docs/term4_raqib.ipynb`, `docs/viva_qa.md`, `docs/demo_script.md` — generated by `docs/term4/build_*.py` from `docs/results/`.
+`docs/AI218_RAQIB_report.docx` (section 12 covers v2), `docs/AI218_RAQIB_deck.pptx` (slides 12–14 cover v2), `docs/term4_raqib.ipynb` (section 7 reads the Ask eval and the security scorecard), `docs/viva_qa.md` (questions 16–23 cover v2), `docs/demo_script.md` and `docs/demo_script_v2.md`, `docs/pitch/onepager_v2.md` — all generated by `docs/term4/build_*.py` from `docs/results/`.
 
 ```bash
 python3 scripts/export_results.py                      # pull numbers from the running API
@@ -182,6 +195,7 @@ grep -rEn "TODO|\bXX\b|\[insert" docs --exclude-dir=prompts --exclude-dir=superp
 - No identity recognition. Track ids are per-session integers and never leave as identity.
 - The agent never sees video. It receives Events and site context, and may call only the seven allow-listed tools. Severity-3 events always escalate and cannot be downgraded. Every call is logged with input, output, latency, and model cost.
 - Simulated history carries `payload.simulated = true` and is labelled in the UI and the report.
+- v2 posture: retrieved content and memories are data, never instructions; every new tool passes the same `Policy`; each crew agent has an allow-list, a budget and a signed identity; the Auditor runs after every run; a VLM opinion can request a review but never lowers a severity; policy edits need Admin and are diffed, confirmed and attributed; retention is enforced by a logged job; the OWASP ASI harness runs on every push. Threat model: `docs/security/threat_model.md`.
 
 ## Licences
 
@@ -196,3 +210,6 @@ Ultralytics (YOLO26, RT-DETR checkpoint) is **AGPL-3.0**: fine for this portfoli
 - Camera placement and lighting matter more than model choice.
 - Ask on the live API (Render free tier, no Ollama) answers from SQL filters and BM25 only: the semantic leg needs the same embedding model that indexed the corpus (`bge-m3` on the Mac). A Gemini key lets both sides use `gemini-embedding-001` and restores it; see `docs/models.md`.
 - Answer latency with local models is 9–20 s per question on an M4 Pro; the UI streams the stages so the wait is visible, not silent.
+- The live API runs on Render's ephemeral SQLite until `DATABASE_URL` points at Supabase, so a deploy resets the seed; the schema is already applied there with RLS on. `AUTH_REQUIRED` is off on the demo (signed-out dev admin) until Supabase Auth providers are configured; the Security tab's operator read-only view is exercised in Playwright.
+- The weights hash pin is enforced only where an operator sets `RAQIB_WEIGHTS_SHA256`; the hash is always reported in heartbeats.
+- The red-team suite is a regression gate with one representative attack per ASI risk, not a proof.

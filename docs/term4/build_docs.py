@@ -23,6 +23,112 @@ def pct(x: float | None, d: int = 1) -> str:
     return "n/a" if x is None else f"{x * 100:.{d}f}%"
 
 
+def v2_sections() -> dict[str, str]:
+    """v2 (Phases E-K) additions, all numbers read from docs/results/*.json."""
+    a = load("ask_eval.json")["summary"]
+    em = load("embed_spike.json")
+    c = load("crew.json")
+    tw = load("twin.json")
+    fl = load("fleet.json")
+    wa = load("watch.json")
+    ig = load("integrations.json")
+    se = load("security_eval.json")
+    best = max(em["results"], key=lambda m: m.get("recall_at_5", 0)) if isinstance(em.get("results"), list) else None
+    embed_line = f"{best['model']} (recall@5 {best['recall_at_5']:.2f})" if best else "bge-m3 (see embed_spike.json)"
+    asi_rows = "\n".join(f"| {r['asi']} | {r['risk']} | {r['test']} | {'pass' if r['passed'] else 'FAIL'} |" for r in se["results"])
+    viva = f"""
+
+# v2 questions (Phases E-K: Ask, Watch, Crew, Twin, integrations, fleet, security)
+
+## 16. How does Ask answer without making things up, and how do you know?
+
+Retrieval first: a deterministic router (EN/HI/AR) decides the record kind, time window and any superlative; SQL prefilters, then structured ranking, BM25 and a vector leg ({embed_line}) are fused with reciprocal rank fusion. The model only writes sentences, and every factual sentence must carry a `[c:ID]` citation to a retrieved chunk or it is trimmed; if nothing is citable the answer is a localized template. An eval of {a['cases']} trilingual cases scored recall@5 {a['recall_at_5']:.2f}, faithfulness {a['faithfulness']:.2f}, citation coverage {a['citation_coverage']:.2f}, language match {a['language_match']:.2f}, {a['hallucinations']} hallucinations (judge: a second local model). Latency on the laptop: mean {a['latency_mean_ms']/1000:.1f} s, p95 {a['latency_p95_ms']/1000:.1f} s.
+
+## 17. What does inference cost, and why is it zero?
+
+Every model call goes through one adapter with the order Ollama (on the laptop or site box) then Gemini free tier then Groq free tier; the Anthropic client stays in code but off. Quotas are request counters per provider per day; when a provider is exhausted or unreachable the chain moves on, and when none is reachable each feature degrades to its deterministic path (Ask answers from records, the crew uses rule-based plans, the VLM opinion is skipped). One OpenTelemetry span per call records model, tokens, latency, prompt hash and cost; the dashboard's cost tile is the sum of spans per site per day and reads ${c['measured']['cost_usd']:.2f}.
+
+## 18. Why a crew of six agents rather than one bigger agent?
+
+Each agent owns a narrow trigger and a short allow-list, so a compromised or confused agent has a small blast radius: FloorOps cannot raise a work order, Safety cannot open a till, Analyst has no tools at all. They share one runtime, so every call still passes the Phase B Policy and ToolRunner; nothing gained a second execution path. Messages between agents are typed, schema-validated and signed with a per-agent HMAC ({c['envelope']['bus']}). Each run has a budget ({c['envelope']['budget_default']['max_tool_calls']} calls, ${c['envelope']['budget_default']['max_usd']}, {c['envelope']['budget_default']['max_seconds']} s), and the Auditor runs after every run. A FloorOps run takes {c['measured']['floorops_run_seconds']} s.
+
+## 19. What can the vision-language model change?
+
+Nothing that matters for safety. It sees at most a few blurred keyframes per event and returns agree/disagree with a confidence and a suggested severity. The suggestion is stored as a metric; the event's severity is never written by that path, which is asserted after every write and tested on a severity-3 event with a suggested severity of 1. At disagreement confidence at or above {wa['policy'].split('>= ')[1].split(';')[0] if '>= ' in wa['policy'] else '0.8'} it may add a human-review request, which is the one thing a rule-agreeing opinion can do. Measured: qwen2.5vl:7b answers in {wa['opinion']['warm_s']} s warm on {wa['opinion']['frames']} frames.
+
+## 20. What is the digital twin for?
+
+Replay and counterfactuals on the same records. A day is binned into {tw['replay_bins']} one-minute bins from events alone and played on the 3D floor at up to 600x ({tw['playback_fps_headless_60x']} fps headless at 60x); what-if sliders re-run the M/M/c model and the staffing MILP on the day's real arrivals, so a manager sees the wait and staff-hour delta of one more till before opening it. Scenarios are saved as documents Ask can cite.
+
+## 21. What changed when POS data arrived?
+
+The service rate. With transactions in a slot, mu is throughput per open till and is labelled `pos`; otherwise it stays `estimated_from_video`. POS lag features enter the forecast only when they lower holdout MAE. Shelf intelligence added two deterministic rules on the edge: R14 price mismatch (OCR of the tag against the price list) and R15 planogram drift (missing and misplaced cells against a reference). WhatsApp sends approved templates only ({ig['whatsapp']['templates']} templates in {len(ig['whatsapp']['languages'])} languages) to an opt-in roster; free text is refused by design.
+
+## 22. How do you run many stores, and what tells you a model has gone stale?
+
+One API, sites scoped per user, four roles ({', '.join(fl['auth']['roles'])}) verified from Supabase JWTs server-side. Every edge box sends a heartbeat per minute and a detection-confidence sample every {fl['drift']['sample_every_s']} s; a population stability index over a {fl['drift']['window_h']}-hour window against a {fl['drift']['baseline_days']}-day baseline flags drift after {fl['drift']['hours_over']} hours over {fl['drift']['threshold_psi']} with a suggested fix (healthy PSI measured {fl['drift']['healthy_psi_measured']}, an injected confidence drop {fl['drift']['injected_confidence_drop_psi']}); five silent minutes raise `edge_offline`. Retention is enforced by a job (clips {fl['retention']['clips_days']} d, events {fl['retention']['events_days']} d, memories {fl['retention']['memories_days']} d unless pinned) that logs what it deleted.
+
+## 23. How do you know the agents are safe to run?
+
+By attacking them. The OWASP Top 10 for Agentic Applications maps one control and one executable attack to each risk, and CI fails on any regression ({se['passed']}/{se['total']} passing on {se['date'][:10]}):
+
+| ASI | Risk | Attack | Result |
+|---|---|---|---|
+{asi_rows}
+
+Also: defensive headers and a CSP on both the API and the web app, an SSRF guard on URL ingest, a weights hash pin that stops the edge box from starting on a mismatch, lockfiles with pip-audit, npm audit and a secret scan in CI. Full model: docs/security/threat_model.md.
+"""
+
+    demo = f"""# Demo video script v2 — 4 minutes, English, narrated
+
+Continues docs/demo_script.md (the three-minute v1 cut). Numbers are read from docs/results/ at build time.
+
+**0:00–0:25 · Ask.** Press `/`, type "Which till had the longest queue last Friday evening?" Watch the stages stream: route, retrieve, answer. Click a citation chip; the event page opens. Switch to Hindi, ask the same. "Every sentence cites a record. {a['cases']} trilingual cases, {a['hallucinations']} hallucinations, ${c['measured']['cost_usd']:.0f} of inference."
+
+**0:25–0:55 · Watch.** The camera wall, heads blurred before the stream ({wa['stream']['client_fps_measured']} fps at the client). Open a queue event, press Request opinion: the VLM agrees at 0.9. Open a severity-3 breach where it disagreed: the severity did not move. "A second opinion can ask for a human. It cannot lower a severity."
+
+**0:55–1:35 · Crew.** Roster with budgets, the run graph, the signed message log. Post a queue event: FloorOps lights, proposes till 2 with evidence, the Auditor checks it in {c['measured']['auditor_run_seconds']} s. Type KILL: every agent route returns 503, the deterministic path still escalates severity 3. Resume.
+
+**1:35–2:05 · Twin.** Pick yesterday, Play at 60x; the floor breathes with the day ({tw['replay_bins']} bins). Move the tills slider: the wait and staff-hour delta update. Save as scenario, then ask Ask about it.
+
+**2:05–2:35 · Settings, Shelves, Fleet.** Import the labelled POS sample; the queue model's mu switches to POS. Shelves: planogram compliance and a price-tag mismatch. Fleet: the leaderboard, a drift panel that suggests a fix, edge health from heartbeats.
+
+**2:35–3:20 · Security.** The ASI scorecard: {se['passed']} of {se['total']} attacks defended, each with its evidence. Edit the till-proposal threshold as Admin: the diff, the note, the confirmation, the attribution. Sign in as an Operator: read-only. The memory-guard log shows what was quarantined.
+
+**3:20–4:00 · Close.** "Same cameras, same events, same policy. v2 adds judgement in six narrow agents, a memory that can be rolled back, a twin to test decisions before making them, and a red-team gate that runs on every push. Cost of inference: zero. RAQIB."
+"""
+
+    onepager = f"""# RAQIB v2 — one page
+
+**What.** A vision-operations control room for supermarkets (RAQIB) and factories (MUSHRIF) that runs on the cameras a site already owns. Deterministic rules turn detections into events; queueing theory, a forecast and an integer program turn events into staffing decisions; a bounded crew of agents proposes or acts through one policy; people approve from a trilingual console.
+
+**What is new in v2.**
+- **Ask:** cited answers over events, KPIs and documents in EN/HI/AR. {a['cases']} eval cases: recall@5 {a['recall_at_5']:.2f}, faithfulness {a['faithfulness']:.2f}, {a['hallucinations']} hallucinations.
+- **Watch:** blurred camera wall with live boxes, captions, and VLM second opinions that can ask for a human but never lower a severity.
+- **Crew:** six narrow agents on one runtime with allow-lists, budgets, signed messages, an Auditor after every run, guarded memory with rollback, and a kill switch.
+- **Twin:** replay any day at one-minute resolution and test "one more till" before opening it.
+- **Integrations:** POS import (mu from POS), planogram and price-tag rules on the edge, WhatsApp templates to an opt-in roster, Greenlam tracker with a circuit breaker.
+- **Fleet and ops:** Supabase Auth with four roles and site scoping, drift detection (PSI) with a suggested fix, edge health, retention, one span per model call and a cost KPI.
+- **Security:** OWASP ASI01-ASI10 mapped to controls and executable attacks; {se['passed']}/{se['total']} defended; CI gate with pip-audit, npm audit and a secret scan.
+
+**Numbers that matter.**
+
+| | |
+|---|---|
+| Inference spend | ${c['measured']['cost_usd']:.2f} (Ollama, then Gemini and Groq free tiers) |
+| Ask latency (laptop, 8B model) | mean {a['latency_mean_ms']/1000:.1f} s, p95 {a['latency_p95_ms']/1000:.1f} s |
+| Crew run | FloorOps {c['measured']['floorops_run_seconds']} s, Auditor {c['measured']['auditor_run_seconds']} s |
+| Twin playback | {tw['playback_fps_headless_60x']} fps headless at 60x |
+| Drift alert | PSI > {fl['drift']['threshold_psi']} for {fl['drift']['hours_over']} h vs a {fl['drift']['baseline_days']}-day baseline |
+| Red team | {se['passed']} of {se['total']} ASI attacks defended |
+
+**Ask of a pilot site.** One entrance, one checkout bank, three shelves, an edge box the site owns, four weeks; gates: false alerts < 5 per camera per day, approval rate >= 60 %, then service level >= 90 % and OSA >= 98 %. Software stays under USD 50 a month; inference stays at zero on-prem.
+
+**Links.** Live: https://raqib-orcin.vercel.app · API: https://raqib-backend-7qdg.onrender.com/docs · Repo: https://github.com/krish2105/RAQIB-AI-in-Operations · Threat model: docs/security/threat_model.md
+"""
+    return {"viva": viva, "demo": demo, "onepager": onepager}
+
+
 def main() -> None:
     k = load("kpis_retail.json")
     kf = load("kpis_factory.json")
@@ -114,7 +220,11 @@ POS import and per-till μ; a labelled site dataset and fine-tuned PPE weights; 
 | Customer wait before / after / reduction | {ba.get('baseline_customer_wait_min', 'n/a')} / {ba.get('with_plan_customer_wait_min', 'n/a')} / {ba.get('reduction_pct', 'n/a')}% | report_retail_en.json |
 | Factory compliance / downtime / breaches (24 h) | {pct(kf['compliance'])} / {kf['downtime_min']} min / {kf['breaches']} | kpis_factory.json |
 """
-    (DOCS / "viva_qa.md").write_text(viva)
+    v2 = v2_sections()
+    (DOCS / "viva_qa.md").write_text(viva + v2["viva"])
+    (DOCS / "demo_script_v2.md").write_text(v2["demo"])
+    (DOCS / "pitch").mkdir(exist_ok=True)
+    (DOCS / "pitch" / "onepager_v2.md").write_text(v2["onepager"])
 
     demo = f"""# Demo video script — 3 minutes, English, narrated
 
@@ -135,7 +245,7 @@ Screen recording of the live dashboard with the edge preview window picture-in-p
 **2:40–3:00 · Numbers and close.** Edge runs at {p['fps_end_to_end']} fps end to end on a laptop, {p['frame_to_event_ms_p50']} ms from frame to event. "Existing cameras, an edge box, and a watcher that explains itself. RAQIB."
 """
     (DOCS / "demo_script.md").write_text(demo)
-    print("wrote docs/viva_qa.md and docs/demo_script.md")
+    print("wrote docs/viva_qa.md, docs/demo_script.md, docs/demo_script_v2.md, docs/pitch/onepager_v2.md")
 
 
 if __name__ == "__main__":

@@ -142,9 +142,27 @@ def main() -> None:
     s = slide(prs, "Business case", "One Dubai hypermarket, 90 days", "Pilot on existing cameras and an owned edge box. Software under USD 50 a month. Gates: false alerts under 5 per camera per day, approval rate over 60%, then service level 90% and OSA 98%. MUSHRIF factory profile shares the engine.", 11)
     body(s, 0.6, 2.4, 12, ["Weeks 1–4 · one entrance, one checkout bank, three shelves · gate: false alerts < 5/camera/day, approval ≥ 60%", "Weeks 5–8 · all tills, POS import for μ, staffing plan into rosters · gate: service level ≥ 90%, forecast ≥ 20% better on real data", "Weeks 9–13 · aisle shelves, second store · gate: OSA ≥ 98%, < USD 150/store/month", f"Factory profile today: compliance {pct(kf['compliance'])}, {kf['downtime_min']} min downtime, {kf['breaches']} breach in 24 h on the Greenlam demo site"], size=15)
 
-    s = slide(prs, "Limitations · next steps · thank you", "Data is the risk. Trust is the product.", "Say the limits plainly: public clips not a store; mu from video not POS; simulator history; AGPL. Next: POS import, labelled site footage, planogram checks, digital-twin playback, 24-hour soak. Thank you.", 12)
-    body(s, 0.6, 2.4, 6, ["Public clips, not a store · μ estimated from video · 21-day labelled simulator · COCO weights, PPE mAP not measured · AGPL detector"], size=15, color=MUTED)
-    body(s, 6.9, 2.4, 6, ["Next: POS import · two hours of labelled site footage · planogram check · digital-twin playback · 24-hour unattended soak", "شكرًا · धन्यवाद · Thank you"], size=15)
+    a = load("ask_eval.json")["summary"]
+    c = load("crew.json")
+    tw = load("twin.json")
+    se = load("security_eval.json")
+    s = slide(prs, "v2 · Ask and Watch", f"Cited answers in three languages · {a['hallucinations']} hallucinations on {a['cases']} cases", f"Ask: deterministic router, hybrid retrieval, a citation on every factual sentence or a template. Eval: recall@5 {a['recall_at_5']:.2f}, faithfulness {a['faithfulness']:.2f}, language match {a['language_match']:.2f}. Watch: blurred wall, VLM opinion that can ask for a human but never lowers severity. Inference cost zero: Ollama, then Gemini and Groq free tiers.", 12)
+    big_number(s, 0.6, 2.4, f"{a['recall_at_5']:.2f}", "recall@5, 30 EN/HI/AR questions")
+    big_number(s, 5.0, 2.4, f"{a['faithfulness']:.2f}", "faithfulness, judged by a second local model")
+    big_number(s, 9.2, 2.4, f"${c['measured']['cost_usd']:.0f}", "inference spend (Ollama → Gemini free → Groq free)", color=MUTED, size=44)
+    body(s, 0.6, 4.8, 12, ["Every factual sentence carries [c:ID]; uncited sentences are trimmed; nothing citable → localized template", "Watch: heads blurred before the stream; a VLM second opinion is a metric and a review request, never a severity"], size=15)
+
+    s = slide(prs, "v2 · Crew and Twin", "Six narrow agents, one policy, a twin to test decisions first", f"Crew: allow-lists before Policy, budgets, HMAC bus, Auditor after every run, guarded memory with rollback, kill switch with deterministic fallback. FloorOps runs in {c['measured']['floorops_run_seconds']} s. Twin: {tw['replay_bins']} one-minute bins, {tw['playback_fps_headless_60x']} fps at 60x, what-if re-runs M/M/c and the MILP.", 13)
+    body(s, 0.6, 2.4, 6, ["FloorOps · ShelfOps · Workforce · Safety · Analyst (no tools) · Auditor (mandatory)", f"Budget per run: {c['envelope']['budget_default']['max_tool_calls']} calls · ${c['envelope']['budget_default']['max_usd']} · {c['envelope']['budget_default']['max_seconds']} s", "Signed, typed messages; proposals must cite evidence; KILL returns 503 on agent routes, severity 3 still escalates"], size=15)
+    body(s, 6.9, 2.4, 6, [f"Replay any day in {tw['replay_bins']} bins on the 3D floor, scrub at up to 600x", "What-if: one more till → wait and staff-hour delta before opening it", "Fleet: four roles, site scoping, PSI drift with a suggested fix, edge heartbeats, retention job, cost per day"], size=15)
+
+    s = slide(prs, "v2 · Security", f"{se['passed']} of {se['total']} OWASP agentic attacks defended, gated in CI", "OWASP Top 10 for Agentic Applications: one control and one executable attack per risk. The harness runs against an in-process API on every push with pip-audit, npm audit and a secret scan. Policy edits are diffed, confirmed and attributed; Operators see them read-only.", 14)
+    body(s, 0.6, 2.3, 12, [f"{r['asi']} {r['risk']}: {r['test']}" for r in se["results"][:5]], size=13)
+    body(s, 0.6, 4.6, 12, [f"{r['asi']} {r['risk']}: {r['test']}" for r in se["results"][5:]], size=13)
+
+    s = slide(prs, "Limitations · next steps · thank you", "Data is the risk. Trust is the product.", "Say the limits plainly: public clips not a store; simulator history; AGPL; free-tier database is ephemeral until Supabase is wired; weights pin enforced only where set. Next: a real store, Supabase Auth providers on, Gemini key for the semantic leg on the free-tier API, 24-hour soak. Thank you.", 15)
+    body(s, 0.6, 2.4, 6, ["Public clips, not a store · 21-day labelled simulator · COCO weights, PPE mAP not measured · AGPL detector · free-tier API on ephemeral SQLite until the Supabase URL is set"], size=15, color=MUTED)
+    body(s, 6.9, 2.4, 6, ["Next: a pilot store · Supabase Auth providers on · a Gemini key for the semantic leg on the free tier · two hours of labelled site footage · 24-hour unattended soak", "شكرًا · धन्यवाद · Thank you"], size=15)
 
     prs.save(OUT)
     print("wrote", OUT)
