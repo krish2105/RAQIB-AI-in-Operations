@@ -1,0 +1,12 @@
+{
+  "date": "2026-09-06",
+  "replay_bins": 1440,
+  "playback_fps_headless_60x": 60.5,
+  "reduced_motion": "auto-play disabled, scrubber still works",
+  "whatif": "M/M/c + MILP re-run on the day's arrivals; +1 till in every slot cuts customer wait and adds 0.25 staff-hours per slot; identical inputs give identical outputs",
+  "tests": {
+    "cloud_twin": 5,
+    "web_twin": 6,
+    "playwright": 2
+  }
+}
