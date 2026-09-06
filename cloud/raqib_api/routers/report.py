@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import PlainTextResponse
 from sqlmodel import Session
 
-from ..agent.weekly_agent import build_report_data, recommend, render_markdown
+from ..agent.weekly_agent import build_report_data, narrative_sections, recommend, render_markdown
 from ..db import get_session
 from .sites import ensure_bundled_sites
 
@@ -20,6 +20,7 @@ def weekly(site: str, lang: str = Query("en", pattern="^(en|hi|ar)$"), format: s
     except ValueError as exc:
         raise HTTPException(404, str(exc)) from exc
     recs = recommend(data)
+    data["narrative"] = narrative_sections(site, session, lang)  # Ask-generated sections, cited; [] when nothing is indexed
     if format == "md":
         return PlainTextResponse(render_markdown(data, recs, lang), media_type="text/markdown; charset=utf-8")
     return {**data, "lang": lang, "recommendations": recs, "markdown": render_markdown(data, recs, lang)}

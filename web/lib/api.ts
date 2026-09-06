@@ -170,6 +170,98 @@ export interface ApiReport {
   markdown: string;
 }
 
+export interface AskCitation {
+  chunk_id: string;
+  kind: "event" | "kpi" | "document";
+  ts: string;
+  event_id: string | null;
+  clip_url: string | null;
+  doc_id: string | null;
+  doc_title: string | null;
+  span: string;
+  event_kind: string | null;
+  severity: number | null;
+}
+
+export interface AskHit {
+  chunk_id: string;
+  kind: string;
+  event_id: string | null;
+  doc_id: string | null;
+  ts: string;
+  score: number;
+  legs: Record<string, number>;
+  meta: Record<string, unknown>;
+  text: string;
+}
+
+export interface AskPlan {
+  q: string;
+  lang: string;
+  mode: string;
+  target: string;
+  kind: string | null;
+  time_label: string | null;
+  superlative: string | null;
+  source: string;
+  legs: string[];
+}
+
+export interface AskAnswer {
+  id?: string;
+  q: string;
+  lang: string;
+  text: string;
+  citations: AskCitation[];
+  confidence: number;
+  followups: string[];
+  plan: AskPlan;
+  provider: string;
+  model: string;
+  tokens_in: number;
+  tokens_out: number;
+  cost_usd: number;
+  latency_ms: number;
+  hits: number;
+  path: "model" | "template" | "no_match";
+  notes: string[];
+  hit_list?: AskHit[];
+}
+
+export interface AskHistoryRow {
+  id: string;
+  q: string;
+  lang: string;
+  answer: string;
+  citations: AskCitation[];
+  confidence: number;
+  hits: number;
+  provider: string;
+  model: string;
+  tokens: number;
+  cost_usd: number;
+  latency_ms: number;
+  ts: string;
+}
+
+export interface ApiDocument {
+  id: string;
+  site: string;
+  title: string;
+  kind: string;
+  lang: string;
+  ts: string;
+  chunks: number | null;
+  meta: Record<string, unknown>;
+}
+
+export interface ApiDocumentChunk {
+  id: string;
+  text: string;
+  meta: Record<string, unknown>;
+  embedded: boolean;
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -227,4 +319,10 @@ export const api = {
   report: (site: string, lang: string) => request<ApiReport>(`/report/weekly${q({ site, lang })}`),
   seed: (site: string, days = 21) => request<{ inserted: number; actions_created: number }>(`/admin/seed${q({ site, days })}`, { method: "POST" }),
   streamUrl: (site: string) => `${API_URL}/stream${q({ site })}`,
+  ask: (body: { q: string; site: string; lang?: string }) => request<AskAnswer>("/ask", { method: "POST", body: JSON.stringify(body) }),
+  askStreamUrl: (p: { q: string; site: string; lang?: string }) => `${API_URL}/ask/stream${q(p)}`,
+  askHistory: (site: string, limit = 20) => request<AskHistoryRow[]>(`/ask/history${q({ site, limit })}`),
+  documents: (site: string) => request<ApiDocument[]>(`/documents${q({ site })}`),
+  document: (id: string) => request<ApiDocument & { chunks: ApiDocumentChunk[] }>(`/documents/${id}`),
+  index: (site: string, days = 21) => request<{ chunks: number; embedded: number }>(`/admin/index${q({ site, days })}`, { method: "POST" }),
 };

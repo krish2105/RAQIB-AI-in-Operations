@@ -9,6 +9,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "floor": "Floor",
+    "ask": "Ask",
     "actions": "Actions",
     "shelves": "Shelves",
     "forecast": "Forecast",
@@ -211,5 +212,52 @@
     "simulated": "simulated",
     "live": "live",
     "unknown": "unknown"
+  },
+  "ask": {
+    "title": "Ask",
+    "sub": "Questions over events, clips, KPIs and documents. Every fact carries a citation.",
+    "placeholder": "Ask about queues, shelves, footfall, or what the SOP says",
+    "send": "Ask",
+    "asking": "Asking",
+    "stop": "Stop",
+    "shortcut": "Press / to focus",
+    "examplesTitle": "Try one of these",
+    "examples": [
+      "Which till had the longest queue last Friday evening?",
+      "Show me shelf gaps in the dairy aisle this week",
+      "What does the SOP say about opening a third till?",
+      "Which day had the highest footfall?",
+      "How long are clips kept?",
+      "When should a till be closed?"
+    ],
+    "planning": "Reading the question",
+    "retrieving": "Searching records",
+    "answering": "Writing the answer",
+    "citations": "Citations",
+    "openEvent": "Open event",
+    "openDocument": "Open document",
+    "clip": "Clip",
+    "followups": "Ask next",
+    "confidence": "confidence",
+    "path": {
+      "model": "Model answer",
+      "template": "Records only",
+      "no_match": "No match"
+    },
+    "provider": "via {provider}",
+    "latency": "{ms} ms",
+    "history": "Recent questions",
+    "historyEmpty": "Nothing asked yet.",
+    "error": "Could not get an answer",
+    "retry": "Retry",
+    "indexHint": "No records are indexed for this site yet. Index the last 21 days to enable search.",
+    "index": "Index records",
+    "indexing": "Indexing",
+    "indexed": "Indexed {chunks} records",
+    "document": "Document",
+    "chunk": "Section",
+    "back": "Back to Ask",
+    "citedSpan": "Cited section",
+    "sources": "Sources {n}"
   }
 }

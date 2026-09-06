@@ -68,3 +68,21 @@ def test_factory_seed_and_report(client):
         assert not escalate_actions
 
     assert client.get("/report/weekly", params={"site": "nope"}).status_code == 404
+
+
+def test_report_narrative_is_empty_without_index_and_cited_with_index(client, monkeypatch):
+    """Ask-generated sections appear only once records are indexed; each carries citations."""
+    from raqib_api.config import settings
+
+    monkeypatch.setattr(settings, "embed_model", "fake:64")
+    monkeypatch.setattr(settings, "llm_provider", "groq")
+    monkeypatch.setattr(settings, "llm_provider_order", "groq")
+    client.post("/admin/seed", params={"site": "raqib_demo_store", "days": 8, "run_agent_last_hours": 0})
+    r = client.get("/report/weekly", params={"site": "raqib_demo_store", "lang": "en"}).json()
+    assert r["narrative"] == []
+    ix = client.post("/admin/index", params={"site": "raqib_demo_store", "days": 8}).json()
+    assert ix["chunks"] > 0 and ix["embedded"] == ix["chunks"]
+    r = client.get("/report/weekly", params={"site": "raqib_demo_store", "lang": "hi"}).json()
+    assert len(r["narrative"]) == 3 and all(n["citations"] for n in r["narrative"]) and r["narrative"][0]["title"] == "कतारें"
+    assert "रिकॉर्ड क्या कहते हैं" in r["markdown"] and "[c:" in r["markdown"]
+    assert client.post("/admin/index", params={"site": "nope"}).status_code == 404

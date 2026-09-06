@@ -19,8 +19,8 @@ from ..config import settings
 from ..forecast import fit_predict, hourly_counts
 from ..kpis import summary
 from ..models import Action, Event, Site, ToolCall
-from ..tz import ensure_utc
 from ..ops_theory import mmc, slot_rates, tills_for_target_rho
+from ..tz import ensure_utc
 from ..workforce import staffing_plan
 
 TEMPLATES = Path(__file__).resolve().parents[1] / "templates" / "report"
@@ -112,6 +112,36 @@ def build_report_data(site: str, session: Session, now: datetime | None = None) 
                        "failed_calls": sum(1 for c in calls if not c.ok)},
         "data_quality": {"simulated_share": kp.get("simulated_share", 0.0), "mu_source": "estimated_from_video"},
     }
+
+
+NARRATIVE_QUESTIONS = {
+    "en": [("Queues", "Which till had the biggest queue this week?"), ("Shelves", "Show me shelf gaps this week"), ("Footfall", "Which day had the highest footfall?")],
+    "hi": [("कतारें", "इस हफ़्ते सबसे लंबी कतार कब थी?"), ("शेल्फ़", "इस हफ़्ते शेल्फ़ में कहाँ गैप थे?"), ("फुटफॉल", "किस दिन सबसे ज़्यादा footfall था?")],
+    "ar": [("الطوابير", "ما هي أطول فترة انتظار هذا الأسبوع؟"), ("الرفوف", "أين كانت فجوات الرفوف هذا الأسبوع؟"), ("الزوار", "في أي يوم كان عدد الزوار هو الأعلى؟")],
+}
+
+
+def narrative_sections(site: str, session: Session, lang: str = "en", now: datetime | None = None) -> list[dict[str, Any]]:
+    """Ask-generated report sections: each is a question, a cited answer and its citations. Empty when nothing is indexed."""
+    from sqlmodel import func
+
+    from ..models import Chunk
+    from ..rag.answer import answer
+    from ..rag.retriever import retrieve
+    from ..rag.router_query import route_query
+
+    now = now or datetime.now(UTC)
+    if not session.exec(select(func.count()).select_from(Chunk).where(Chunk.site == site)).one():
+        return []
+    out = []
+    for title, q in NARRATIVE_QUESTIONS.get(lang, NARRATIVE_QUESTIONS["en"]):
+        plan = route_query(q, now)
+        plan.lang = lang
+        hits = retrieve(plan, site, session, k=6)
+        a = answer(q, hits, lang, plan, now=now)
+        out.append({"title": title, "question": q, "answer": a.text, "citations": [c.__dict__ for c in a.citations], "path": a.path,
+                    "provider": a.provider, "confidence": a.confidence})
+    return out
 
 
 def recommend(data: dict[str, Any], backend: str | None = None) -> list[dict[str, Any]]:

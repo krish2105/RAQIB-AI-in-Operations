@@ -17,7 +17,8 @@ export default defineConfig({
   use: { baseURL: WEB, trace: "retain-on-failure", ...devices["Desktop Chrome"] },
   webServer: [
     {
-      command: `cd ../cloud && DATABASE_URL=sqlite:////tmp/raqib_e2e.db CLIPS_DIR=/tmp/raqib_e2e_clips CORS_ORIGINS=${WEB} uv run --no-sync uvicorn raqib_api.main:app --port 8011`,
+      // Ask runs its deterministic paths in e2e (no model provider, hashed embeddings) so the flow is fast and repeatable.
+      command: `cd ../cloud && DATABASE_URL=sqlite:////tmp/raqib_e2e.db CLIPS_DIR=/tmp/raqib_e2e_clips CORS_ORIGINS=${WEB} LLM_PROVIDER=groq LLM_PROVIDER_ORDER=groq EMBED_MODEL=fake:64 uv run --no-sync uvicorn raqib_api.main:app --port 8011`,
       url: `${API}/health`,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,

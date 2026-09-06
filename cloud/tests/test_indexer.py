@@ -174,3 +174,17 @@ def test_csv_planogram_chunks(db):
         c = s.exec(select(Chunk).where(Chunk.doc_id == doc.id)).one()
         assert "shelf: B3; sku: milk-1l; facings: 6; price: 5.50" in c.text and c.meta["columns"] == ["shelf", "sku", "facings", "price"]
         assert s.get(Document, doc.id).kind == "planogram"
+
+
+def test_seed_reset_removes_chunks_and_captions_before_events(client, monkeypatch):
+    monkeypatch.setattr(settings, "embed_model", "fake:8")
+    client.post("/admin/seed", params={"site": "raqib_demo_store", "days": 3, "run_agent_last_hours": 0})
+    assert client.post("/admin/index", params={"site": "raqib_demo_store", "days": 3}).json()["chunks"] > 0
+    r = client.post("/admin/seed", params={"site": "raqib_demo_store", "days": 2, "run_agent_last_hours": 0})
+    assert r.status_code == 200 and r.json()["inserted"] > 0
+    from raqib_api import db as dbmod
+
+    with Session(dbmod.engine) as s:
+        assert s.exec(select(Chunk).where(Chunk.kind == "event")).all() == []
+        assert client.post("/admin/reset", params={"site": "raqib_demo_store"}).json()["reset"]
+        assert s.exec(select(Event)).all() == []
