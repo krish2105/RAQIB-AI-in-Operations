@@ -16,7 +16,7 @@ from typing import Any
 
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, create_model
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from .. import greenlam
 from ..config import settings
@@ -316,7 +316,21 @@ class ToolRunner:
             r = self.http.post(settings.alert_webhook_url, json={"text": text, "channel": a["channel"], "lang": a["lang"], "site": self.site})
             r.raise_for_status()
             delivered.append(a["channel"])
-        return {"text": text, "delivered": delivered}
+        out: dict[str, Any] = {"text": text, "delivered": delivered}
+        if a["channel"] == "whatsapp":  # v2: approved templates only, to the opt-in roster (never the rendered text)
+            from ..integrations.whatsapp import Recipient, WhatsAppClient, send_alert_to_roster
+            from ..models import NotifyOptIn
+
+            wa = WhatsAppClient(http=self.http)
+            roster = [Recipient(r.phone, r.role, r.lang) for r in self.session.exec(
+                select(NotifyOptIn).where(NotifyOptIn.site == self.site, NotifyOptIn.opted_out_at.is_(None))).all()]
+            if wa.enabled and roster:
+                out["whatsapp"] = send_alert_to_roster(wa, roster, a["template"], a["lang"], a["vars"], role=ctx.get("role"))
+                if any("message_id" in x for x in out["whatsapp"]):
+                    delivered.append("whatsapp_template")
+            else:
+                out["whatsapp"] = {"skipped": "not configured" if not wa.enabled else "no opt-ins"}
+        return out
 
     def _do_log_downtime(self, a: dict, ctx: dict) -> dict:
         start = datetime.fromisoformat(a["start"].replace("Z", "+00:00"))

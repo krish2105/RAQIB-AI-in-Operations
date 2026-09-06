@@ -7,9 +7,9 @@ Create Date: 2026-09-06
 
 from __future__ import annotations
 
-from alembic import op
 from sqlmodel import SQLModel
 
+from alembic import op
 from raqib_api import models  # noqa: F401
 
 revision = "0005_pos"

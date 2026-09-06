@@ -356,5 +356,19 @@ class PosTransaction(SQLModel, table=True):
     imported_at: datetime = Field(default_factory=utcnow)
 
 
+class NotifyOptIn(SQLModel, table=True):
+    """WhatsApp opt-in roster: only people on this list ever receive a template, and only for their role."""
+
+    __tablename__ = "notify_optins"
+    id: int | None = Field(default=None, primary_key=True)
+    site: str = Field(index=True)
+    phone: str = Field(index=True)  # E.164 digits, no '+'
+    role: str = "floor_manager"
+    lang: str = "en"
+    opted_in_at: datetime = Field(default_factory=utcnow)
+    opted_out_at: datetime | None = None
+
+
 V2_TABLES = ("captions", "documents", "chunks", "memories", "agent_runs", "agent_messages", "users", "stores",
-             "drift_samples", "quota_counters", "ask_log", "opinions", "crew_flags", "memory_snapshots", "pos_transactions")
+             "drift_samples", "quota_counters", "ask_log", "opinions", "crew_flags", "memory_snapshots", "pos_transactions",
+             "notify_optins")

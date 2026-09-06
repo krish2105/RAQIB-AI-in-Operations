@@ -84,6 +84,13 @@ class Settings(BaseSettings):
     memory_max_value_chars: int = 2000
     memory_churn_per_hour: int = 30
 
+    # ---- v2: integrations ----
+    whatsapp_phone_id: str | None = None
+    whatsapp_token: str | None = None
+    greenlam_retries: int = 3
+    greenlam_breaker_failures: int = 3
+    greenlam_breaker_cooldown_s: float = 60.0
+
     # ---- v2: Watch camera wall ----
     stream_upstream: str | None = None  # edge MJPEG base, e.g. http://edge-box.lan:8554 ; empty = tiles show detections only
     stream_token: str | None = None  # token the edge box requires; never exposed to the browser

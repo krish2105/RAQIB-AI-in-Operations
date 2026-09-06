@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
 import pandas as pd
 import pytest
@@ -10,7 +10,15 @@ from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from raqib_api.forecast import FEATURES, POS_FEATURES, fit_predict, hourly_counts
-from raqib_api.integrations.pos import CsvAdapter, NotConfigured, OdooAdapter, ShopifyAdapter, import_rows, parse_csv, sample_csv
+from raqib_api.integrations.pos import (
+    CsvAdapter,
+    NotConfigured,
+    OdooAdapter,
+    ShopifyAdapter,
+    import_rows,
+    parse_csv,
+    sample_csv,
+)
 from raqib_api.models import Event, PosTransaction, Site
 from raqib_api.ops_theory import slot_rates
 from raqib_api.simulate import generate
