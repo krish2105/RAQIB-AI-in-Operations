@@ -10,6 +10,7 @@
     "dashboard": "Dashboard",
     "floor": "Floor",
     "ask": "Ask",
+    "watch": "Watch",
     "actions": "Actions",
     "shelves": "Shelves",
     "forecast": "Forecast",
@@ -125,7 +126,8 @@
     "payload": "Payload",
     "decision": "Agent decision",
     "noDecision": "The agent took no action on this event.",
-    "simulatedNote": "This event is simulated history, generated for the demo and labelled as such."
+    "simulatedNote": "This event is simulated history, generated for the demo and labelled as such.",
+    "opinion": "Second opinion"
   },
   "actions": {
     "title": "Actions",
@@ -259,5 +261,47 @@
     "back": "Back to Ask",
     "citedSpan": "Cited section",
     "sources": "Sources {n}"
+  },
+  "watch": {
+    "title": "Watch",
+    "sub": "Blurred camera wall with live detection boxes, zone overlays, captions and second opinions.",
+    "streamOff": "Stream off. Showing detections only.",
+    "streamHint": "Set STREAM_UPSTREAM on the API and run the edge box with --stream to see the blurred feed.",
+    "noDetections": "No detections yet",
+    "lastSeen": "last frame {ago}",
+    "boxes": "{n} boxes",
+    "captions": "Caption ticker",
+    "captionsEmpty": "No captions yet. Captions are written for severity 2 and 3 events when a clip exists.",
+    "opinions": "Second opinions",
+    "opinionsSub": "Advisory only: an opinion can ask for review, never lower severity.",
+    "opinionsEmpty": "No opinions yet.",
+    "agrees": "Agrees",
+    "disagrees": "Disagrees",
+    "unavailable": "Unavailable",
+    "suggested": "suggested severity {n}",
+    "rule": "rule severity {n}",
+    "reviewRequested": "Review requested",
+    "disagreementRate": "Disagreement rate",
+    "opinionsCount": "Opinions",
+    "available": "Available",
+    "requestOpinion": "Request opinion",
+    "requesting": "Requesting",
+    "observed": "Observed",
+    "reason": "Reason",
+    "trigger": {
+      "auto_sev3": "auto, severity 3",
+      "auto_low_conf": "auto, low confidence",
+      "on_demand": "on demand"
+    },
+    "status": {
+      "ok": "ok",
+      "no_frames": "no clip frames",
+      "unavailable": "no provider",
+      "quota_exhausted": "daily budget used",
+      "invalid_json": "model output rejected"
+    },
+    "zone": "zone",
+    "person": "person",
+    "confidence": "confidence"
   }
 }

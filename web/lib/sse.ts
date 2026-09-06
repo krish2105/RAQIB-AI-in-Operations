@@ -2,7 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
-import { api, type ApiEvent } from "./api";
+import { api, type ApiEvent, type DetectionFrame } from "./api";
 import { useAppStore } from "./store";
 
 /**
@@ -13,6 +13,7 @@ import { useAppStore } from "./store";
 export function useLiveStream(site: string) {
   const qc = useQueryClient();
   const pushEvent = useAppStore((s) => s.pushEvent);
+  const pushDetections = useAppStore((s) => s.pushDetections);
   const setLive = useAppStore((s) => s.setLive);
   const attempt = useRef(0);
 
@@ -52,6 +53,18 @@ export function useLiveStream(site: string) {
       });
       es.addEventListener("action", () => invalidateSoon());
       es.addEventListener("clip", () => qc.invalidateQueries({ queryKey: ["events", site] }));
+      // v2 Watch: boxes only (never frames) and VLM opinions
+      es.addEventListener("detections", (m) => {
+        try {
+          pushDetections(JSON.parse((m as MessageEvent).data) as DetectionFrame);
+        } catch {
+          /* ignore malformed */
+        }
+      });
+      es.addEventListener("opinion", () => {
+        qc.invalidateQueries({ queryKey: ["opinions", site] });
+        qc.invalidateQueries({ queryKey: ["actions", site] });
+      });
       es.onerror = () => {
         es?.close();
         setLive("reconnecting");
@@ -68,5 +81,5 @@ export function useLiveStream(site: string) {
       if (invalidateTimer) clearTimeout(invalidateTimer);
       setLive("off");
     };
-  }, [site, qc, pushEvent, setLive]);
+  }, [site, qc, pushEvent, pushDetections, setLive]);
 }

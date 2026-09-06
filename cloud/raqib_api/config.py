@@ -73,6 +73,10 @@ class Settings(BaseSettings):
     vlm_daily_requests: int = 100
     vlm_review_confidence: float = 0.8  # disagreement at or above this confidence asks a human to review
 
+    # ---- v2: Watch camera wall ----
+    stream_upstream: str | None = None  # edge MJPEG base, e.g. http://edge-box.lan:8554 ; empty = tiles show detections only
+    stream_token: str | None = None  # token the edge box requires; never exposed to the browser
+
     @property
     def cors_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { ApiEvent } from "./api";
+import type { ApiEvent, DetectionFrame } from "./api";
 
 export type Profile = "retail" | "factory";
 export type LiveState = "connecting" | "live" | "reconnecting" | "off";
@@ -27,6 +27,8 @@ export function pushLive(state: LiveEventState, incoming: ApiEvent): LiveEventSt
 }
 
 interface AppState {
+  detections: Record<string, DetectionFrame>;
+  pushDetections: (d: DetectionFrame) => void;
   site: string;
   profile: Profile;
   live: LiveState;
@@ -42,12 +44,14 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
+      detections: {},
+      pushDetections: (d) => set((s) => ({ detections: { ...s.detections, [d.camera]: d } })),
       site: DEFAULT_SITE.retail,
       profile: "retail",
       live: "connecting",
       buffer: { events: [], lastId: null },
       railCollapsed: false,
-      setSite: (site, profile) => set({ site, profile, buffer: { events: [], lastId: null } }),
+      setSite: (site, profile) => set({ site, profile, buffer: { events: [], lastId: null }, detections: {} }),
       setLive: (live) => set({ live }),
       pushEvent: (e) => set((s) => ({ buffer: pushLive(s.buffer, e) })),
       clearBuffer: () => set({ buffer: { events: [], lastId: null } }),

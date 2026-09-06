@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/api";
 import { fmtDateTime, fmtPct } from "@/lib/format";
 import { ProposalCard } from "@/components/actions/proposal-card";
+import { OpinionPanel } from "@/components/watch/opinion-panel";
 import { EmptyState, ErrorState, Panel, SevChip, Skeleton } from "@/components/ui/panel";
 
 const RULE_TEXT: Record<string, string> = {
@@ -78,6 +79,10 @@ export function EventDetail({ id }: { id: string }) {
 
         <Panel eyebrow={t("decision")} className="lg:col-span-12" bodyClassName="flex flex-col gap-2 p-3">
           {acts.isPending ? <Skeleton className="h-24" /> : acts.isError ? <ErrorState what={t("decision").toLowerCase()} onRetry={() => acts.refetch()} /> : acts.data.length === 0 ? <EmptyState title={t("noDecision")} /> : acts.data.map((a) => <ProposalCard key={a.id} action={a} />)}
+        </Panel>
+
+        <Panel eyebrow={t("opinion")} className="lg:col-span-12">
+          <OpinionPanel site={e.site} eventId={e.id} />
         </Panel>
       </div>
     </div>

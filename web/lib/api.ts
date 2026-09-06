@@ -262,6 +262,56 @@ export interface ApiDocumentChunk {
   embedded: boolean;
 }
 
+export interface ApiOpinion {
+  id: number;
+  event_id: string;
+  site: string;
+  rule_severity: number;
+  agrees: boolean | null;
+  confidence: number;
+  observed: string;
+  disagreement_reason: string | null;
+  suggested_severity: number | null;
+  disagreement: boolean;
+  review_action_id: number | null;
+  trigger: string;
+  status: string;
+  model: string;
+  provider: string;
+  frames: number;
+  tokens: number;
+  cost_usd: number;
+  latency_ms: number;
+  ts: string;
+}
+
+export interface ApiCaption {
+  id: number;
+  event_id: string;
+  camera: string;
+  ts: string;
+  text: string;
+  parsed: Record<string, unknown> | null;
+  model: string;
+}
+
+export interface DetectionBox {
+  id: number;
+  cls: string;
+  conf: number;
+  box: [number, number, number, number];
+}
+
+export interface DetectionFrame {
+  site: string;
+  camera: string;
+  ts: string;
+  w: number;
+  h: number;
+  boxes: DetectionBox[];
+  received?: number;
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -324,5 +374,12 @@ export const api = {
   askHistory: (site: string, limit = 20) => request<AskHistoryRow[]>(`/ask/history${q({ site, limit })}`),
   documents: (site: string) => request<ApiDocument[]>(`/documents${q({ site })}`),
   document: (id: string) => request<ApiDocument & { chunks: ApiDocumentChunk[] }>(`/documents/${id}`),
+  opinions: (site: string, eventId?: string) => request<ApiOpinion[]>(`/vlm/opinions${q({ site, event_id: eventId })}`),
+  requestOpinion: (eventId: string) => request<ApiOpinion>(`/vlm/opinion/${eventId}`, { method: "POST" }),
+  opinionSummary: (site: string) =>
+    request<{ opinions: number; available: number; agree: number; disagreements: number; disagreement_rate: number | null; tokens: number; cost_usd: number }>(`/vlm/summary${q({ site })}`),
+  captions: (site: string, limit = 30) => request<ApiCaption[]>(`/captions${q({ site, limit })}`),
+  detectionsLatest: (site: string) => request<DetectionFrame[]>(`/detections/latest${q({ site })}`),
+  cameraStreamUrl: (site: string, camera: string) => `${API_URL}/cameras/${encodeURIComponent(site)}/${encodeURIComponent(camera)}/stream`,
   index: (site: string, days = 21) => request<{ chunks: number; embedded: number }>(`/admin/index${q({ site, days })}`, { method: "POST" }),
 };

@@ -42,6 +42,8 @@ class Stats:
     latency_ms_p95: float = 0.0
     clips: int = 0
     synced: int = 0
+    stream_frames: int = 0
+    detections_posted: int = 0
 
     def as_dict(self) -> dict:
         return self.__dict__.copy()
@@ -149,6 +151,10 @@ def run_pipeline(
     source_override: str | None = None,
     cameras: list[str] | None = None,
     sync_every_s: float = 2.0,
+    stream_port: int | None = None,
+    stream_host: str = "127.0.0.1",
+    stream_token: str | None = None,
+    detections_every_s: float | None = None,
 ) -> Stats:
     site = load_site(site) if not isinstance(site, Site) else site
     data_dir = REPO_ROOT / "edge" / "data"
@@ -173,6 +179,17 @@ def run_pipeline(
         from .preview import PreviewWindow
 
         show = PreviewWindow()
+    # v2 Watch: blurred MJPEG stream (LAN) and a boxes-only detections feed to the cloud. Both optional.
+    stream = None
+    poster = None
+    if stream_port:
+        from .stream import MjpegServer
+
+        stream = MjpegServer(port=stream_port, host=stream_host, token=stream_token).start()
+    if detections_every_s and api:
+        from .stream import DetectionsPoster
+
+        poster = DetectionsPoster(api, site.name, every_s=detections_every_s)
     try:
         while True:
             for w, it in zip(workers, iters, strict=True):
@@ -190,6 +207,15 @@ def run_pipeline(
                     log.info("event %s sev%d %s %s", e.rule_id, e.severity, e.kind, e.payload)
                 if show is not None and w.last_frame is not None and not show.render(w, stats):
                     return stats
+                if (stream is not None or poster is not None) and w.last_frame is not None:
+                    from .stream import boxes_from_tracks
+
+                    wh = (w.last_frame.shape[1], w.last_frame.shape[0])
+                    boxes = boxes_from_tracks(w.last_tracks, wh)
+                    if stream is not None and stream.publish(w.cam.name, w.last_frame, boxes):
+                        stats.stream_frames += 1
+                    if poster is not None and poster.maybe_post(w.cam.name, ts, boxes, wh):
+                        stats.detections_posted += 1
             if syncer and time.perf_counter() - last_sync >= sync_every_s:
                 stats.synced += syncer.push_once()
                 last_sync = time.perf_counter()
@@ -209,4 +235,6 @@ def run_pipeline(
             w.source.release()
         if show is not None:
             show.close()
+        if stream is not None:
+            stream.close()
     return stats

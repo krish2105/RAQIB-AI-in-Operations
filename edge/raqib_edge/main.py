@@ -43,6 +43,10 @@ def run(
     preview: bool = typer.Option(False, help="show OpenCV window"),
     max_frames: int = typer.Option(None, help="stop after N frames (tests/benchmarks)"),
     camera: list[str] = typer.Option(None, help="only these cameras"),
+    stream: int = typer.Option(None, help="serve the blurred MJPEG stream on this port (e.g. 8554)"),
+    stream_host: str = typer.Option("127.0.0.1", help="bind address for --stream; 0.0.0.0 for the LAN"),
+    stream_token: str = typer.Option(os.environ.get("RAQIB_STREAM_TOKEN") or None, help="token required on stream requests"),
+    detections: float = typer.Option(None, help="post boxes-only detections to the API every N seconds"),
     verbose: bool = typer.Option(True),
 ) -> None:
     logging.basicConfig(level=logging.INFO if verbose else logging.WARNING, format="%(asctime)s %(levelname)s %(message)s")
@@ -54,6 +58,10 @@ def run(
         preview=preview,
         source_override=source,
         cameras=camera or None,
+        stream_port=stream,
+        stream_host=stream_host,
+        stream_token=stream_token,
+        detections_every_s=detections,
     )
     _print_stats(stats)
 
