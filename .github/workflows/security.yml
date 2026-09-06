@@ -28,8 +28,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - run: cd cloud && uv export --no-hashes --extra dev -o /tmp/cloud-req.txt && uvx pip-audit==2.10.1 -r /tmp/cloud-req.txt --strict --desc
-      - run: cd edge && uv export --no-hashes --extra dev -o /tmp/edge-req.txt && uvx pip-audit==2.10.1 -r /tmp/edge-req.txt --strict --desc
+      - run: cd cloud && uv export --no-hashes --no-emit-project --extra dev -o /tmp/cloud-req.txt && uvx pip-audit==2.10.1 -r /tmp/cloud-req.txt --strict --desc
+      - run: cd edge && uv export --no-hashes --no-emit-project --extra dev -o /tmp/edge-req.txt && uvx pip-audit==2.10.1 -r /tmp/edge-req.txt --strict --desc
       - uses: actions/setup-node@v4
         with:
           node-version: 22

@@ -1,0 +1,2 @@
+# gitleaks false positives (fingerprint = commit:file:rule:line)
+886a7295aed5a4fb41d675e2a38d9f433fc504b1:README.md:generic-api-key:124

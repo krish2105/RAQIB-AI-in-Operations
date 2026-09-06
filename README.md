@@ -121,7 +121,7 @@ The spec targets (mAP50 ≥ 0.80, forecast ≥ 20 % better than naive, zone-brea
 | Measure | Value | Source |
 |---|---|---|
 | OWASP ASI red team | 10 of 10 attacks defended (2026-09-06); each ASI has one control and one executable attack; CI fails on a regression | `docs/results/security_eval.json`, `docs/security/asi_mapping.md` |
-| Hardening | defensive headers + deny-all CSP on the API, CSP/HSTS/permissions policy on the web app, explicit CORS methods and headers, SSRF guard on `POST /documents/url`, evidence required on every proposal, weights hash pin (`RAQIB_WEIGHTS_SHA256`) | `cloud/tests/test_security.py`, `edge/tests/test_weights_pin.py` |
+| Hardening | defensive headers and a deny-all content security policy on the backend; on the web app a content security policy, HSTS and a permissions policy; explicit CORS methods and headers; SSRF guard on `POST /documents/url`; evidence required on every proposal; weights hash pin (`RAQIB_WEIGHTS_SHA256`) | `cloud/tests/test_security.py`, `edge/tests/test_weights_pin.py` |
 | Supply chain | lockfiles, pip-audit and npm audit, gitleaks on every push and weekly | `.github/workflows/security.yml` |
 
 ### Ask (v2 Phase E)
