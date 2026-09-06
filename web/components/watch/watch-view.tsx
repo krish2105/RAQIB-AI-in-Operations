@@ -19,7 +19,7 @@ export function WatchView() {
   const siteQ = useQuery({ queryKey: ["site", site], queryFn: () => api.site(site), enabled: !!site, staleTime: 5 * 60_000 });
   const latest = useQuery({ queryKey: ["detections-latest", site], queryFn: () => api.detectionsLatest(site), enabled: !!site });
   const summary = useQuery({ queryKey: ["opinion-summary", site], queryFn: () => api.opinionSummary(site), enabled: !!site, refetchInterval: 30_000 });
-  const streamOn = useQuery({ queryKey: ["stream-on", site], queryFn: async () => (await fetch(api.cameraStreamUrl(site, "probe"), { method: "HEAD" }).catch(() => null))?.status !== 503, staleTime: 60_000 });
+  const streamOn = useQuery({ queryKey: ["stream-on"], queryFn: async () => (await api.cameraStatus().catch(() => ({ configured: false }))).configured, staleTime: 60_000 });
   useEffect(() => {
     latest.data?.forEach(pushDetections);
   }, [latest.data, pushDetections]);

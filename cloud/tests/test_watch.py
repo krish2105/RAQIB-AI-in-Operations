@@ -35,9 +35,11 @@ def test_detections_accept_boxes_only_and_publish(client):
 
 def test_stream_proxy_503_when_not_configured_and_forwards_when_configured(client, monkeypatch):
     monkeypatch.setattr(settings, "stream_upstream", None)
+    assert client.get("/cameras/status").json() == {"configured": False, "token": False}
     assert client.get("/cameras/s1/cam1/stream").status_code == 503
     monkeypatch.setattr(settings, "stream_upstream", "http://edge.lan:8554")
     monkeypatch.setattr(settings, "stream_token", "secret")
+    assert client.get("/cameras/status").json() == {"configured": True, "token": True}
     with respx.mock(assert_all_called=True) as mock:
         route = mock.get("http://edge.lan:8554/stream/cam1", params={"token": "secret"}).mock(
             return_value=httpx.Response(200, headers={"content-type": "multipart/x-mixed-replace; boundary=frame"},

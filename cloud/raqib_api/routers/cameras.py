@@ -62,6 +62,12 @@ def latest(site: str = Query(...)) -> list[dict]:
     return [v for (s, _c), v in _LATEST.items() if s == site]
 
 
+@router.get("/cameras/status")
+def stream_status() -> dict:
+    """Cheap probe for the wall: is a blurred upstream configured at all? (Never opens the stream.)"""
+    return {"configured": bool(settings.stream_upstream), "token": bool(settings.stream_token)}
+
+
 @router.get("/cameras/{site}/{camera}/stream")
 async def stream_proxy(site: str, camera: str):
     """Proxy the edge box's blurred MJPEG stream. The edge token never reaches the browser."""

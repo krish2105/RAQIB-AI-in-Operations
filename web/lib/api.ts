@@ -380,6 +380,7 @@ export const api = {
     request<{ opinions: number; available: number; agree: number; disagreements: number; disagreement_rate: number | null; tokens: number; cost_usd: number }>(`/vlm/summary${q({ site })}`),
   captions: (site: string, limit = 30) => request<ApiCaption[]>(`/captions${q({ site, limit })}`),
   detectionsLatest: (site: string) => request<DetectionFrame[]>(`/detections/latest${q({ site })}`),
+  cameraStatus: () => request<{ configured: boolean; token: boolean }>("/cameras/status"),
   cameraStreamUrl: (site: string, camera: string) => `${API_URL}/cameras/${encodeURIComponent(site)}/${encodeURIComponent(camera)}/stream`,
   index: (site: string, days = 21) => request<{ chunks: number; embedded: number }>(`/admin/index${q({ site, days })}`, { method: "POST" }),
 };
