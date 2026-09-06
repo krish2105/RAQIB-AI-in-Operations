@@ -31,3 +31,6 @@ runs/
 .DS_Store
 .vercel
 .env*
+
+# uploaded documents (runtime data)
+cloud/documents/

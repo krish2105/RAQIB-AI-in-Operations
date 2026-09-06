@@ -70,7 +70,6 @@ def build_corpus() -> tuple[list[dict], dict[str, set[str]]]:
     fri_evening = [c for c in chunks if c["ekind"] == "queue_over" and c["ts"].date() == last_friday and 17 <= c["ts"].hour < 21]
     top_fri = {max(fri_evening, key=lambda c: c["payload"]["count"])["id"]} if fri_evening else set()
     week_ago = END - timedelta(days=7)
-    yesterday = (END - timedelta(days=1)).date()
     busiest_day = {max((c for c in chunks if c["ekind"] == "footfall_day"), key=lambda c: c["payload"]["footfall"])["id"]}
     longest_dwell = {max((c for c in chunks if c["ekind"] == "checkout_served"), key=lambda c: c["payload"]["dwell_s"])["id"]}
     biggest_queue_week = {max((c for c in chunks if c["ekind"] == "queue_over" and c["ts"] >= week_ago), key=lambda c: c["payload"]["count"])["id"]}

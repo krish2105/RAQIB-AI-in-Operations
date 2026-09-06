@@ -1,0 +1,36 @@
+# 30 Ask eval cases over the seeded retail store (simulate.generate, seed 7, 21 days, now = 2026-09-07 09:00 UTC).
+# Expectations are selectors resolved against the indexed chunks, so they survive re-seeding:
+#   event: kind + window + rank(max_count|max_empty|any) [+ shelf]      doc: heading/text contains
+#   kpi: period + rank(max_footfall) | window(last_saturday)             none: no hits expected
+# must_not_say strings are hallucination tripwires; lang is the language the answer must be in.
+cases:
+  - {id: q1-en, q: "Which till had the longest queue last Friday evening?", lang: en, expect: {type: event, kind: queue_over, window: last_friday_evening, rank: max_count}}
+  - {id: q1-hi, q: "पिछले शुक्रवार शाम को किस टिल पर सबसे लंबी कतार थी?", lang: hi, expect: {type: event, kind: queue_over, window: last_friday_evening, rank: max_count}}
+  - {id: q1-ar, q: "أي صندوق دفع كان فيه أطول طابور مساء الجمعة الماضية؟", lang: ar, expect: {type: event, kind: queue_over, window: last_friday_evening, rank: max_count}}
+  - {id: q2-en, q: "Show me shelf gaps in the dairy aisle this week", lang: en, expect: {type: event, kind: shelf_gap, window: this_week, shelf: B3, rank: any}}
+  - {id: q2-hi, q: "इस हफ़्ते डेयरी शेल्फ़ में कहाँ गैप थे?", lang: hi, expect: {type: event, kind: shelf_gap, window: this_week, shelf: B3, rank: any}}
+  - {id: q2-ar, q: "أين كانت فجوات الرفوف في قسم الألبان هذا الأسبوع؟", lang: ar, expect: {type: event, kind: shelf_gap, window: this_week, shelf: B3, rank: any}}
+  - {id: q3-en, q: "What does the SOP say about opening a third till?", lang: en, expect: {type: doc, contains: "Opening a third till"}, must_say_any: ["0.85", "three customers", "two minutes"]}
+  - {id: q3-hi, q: "तीसरा टिल खोलने के बारे में SOP क्या कहता है?", lang: hi, expect: {type: doc, contains: "Opening a third till"}}
+  - {id: q3-ar, q: "ماذا يقول دليل الإجراءات عن فتح صندوق دفع ثالث؟", lang: ar, expect: {type: doc, contains: "Opening a third till"}}
+  - {id: q4-en, q: "How long are clips kept?", lang: en, expect: {type: doc, contains: "Clips are kept for 30 days"}, must_say_any: ["30"]}
+  - {id: q4-hi, q: "क्लिप कितने दिन रखी जाती हैं?", lang: hi, expect: {type: doc, contains: "Clips are kept for 30 days"}, must_say_any: ["30", "३०"]}
+  - {id: q4-ar, q: "كم يوماً يتم الاحتفاظ بالمقاطع؟", lang: ar, expect: {type: doc, contains: "Clips are kept for 30 days"}, must_say_any: ["30", "٣٠"]}
+  - {id: q5-en, q: "Which day had the highest footfall?", lang: en, expect: {type: kpi, period: day, rank: max_footfall}}
+  - {id: q5-hi, q: "किस दिन सबसे ज़्यादा footfall था?", lang: hi, expect: {type: kpi, period: day, rank: max_footfall}}
+  - {id: q5-ar, q: "في أي يوم كان عدد الزوار هو الأعلى؟", lang: ar, expect: {type: kpi, period: day, rank: max_footfall}}
+  - {id: q6-en, q: "Biggest queue this week", lang: en, expect: {type: event, kind: queue_over, window: this_week, rank: max_count}}
+  - {id: q6-hi, q: "इस हफ़्ते सबसे लंबी कतार कब थी?", lang: hi, expect: {type: event, kind: queue_over, window: this_week, rank: max_count}}
+  - {id: q6-ar, q: "ما هي أطول فترة انتظار هذا الأسبوع؟", lang: ar, expect: {type: event, kind: queue_over, window: this_week, rank: max_count}}
+  - {id: q7-en, q: "When should a till be closed?", lang: en, expect: {type: doc, contains: "Closing a till"}, must_say_any: ["0.6", "ten", "10", "two or fewer"]}
+  - {id: q7-hi, q: "टिल कब बंद करना चाहिए?", lang: hi, expect: {type: doc, contains: "Closing a till"}}
+  - {id: q7-ar, q: "متى يجب إغلاق صندوق الدفع؟", lang: ar, expect: {type: doc, contains: "Closing a till"}}
+  - {id: q8-en, q: "Shelf gaps in confectionery shelf A1 last week", lang: en, expect: {type: event, kind: shelf_gap, window: last_week, shelf: A1, rank: any}}
+  - {id: q8-hi, q: "पिछले हफ़्ते शेल्फ़ A1 (कन्फ़ेक्शनरी) में गैप", lang: hi, expect: {type: event, kind: shelf_gap, window: last_week, shelf: A1, rank: any}}
+  - {id: q8-ar, q: "فجوات الرف A1 (الحلويات) الأسبوع الماضي", lang: ar, expect: {type: event, kind: shelf_gap, window: last_week, shelf: A1, rank: any}}
+  - {id: q9-en, q: "Which machine stopped for the longest yesterday?", lang: en, expect: {type: none}, must_not_say: ["press 1", "stopped for", "minutes of downtime"]}
+  - {id: q9-hi, q: "कल कौन सी मशीन सबसे ज़्यादा देर रुकी रही?", lang: hi, expect: {type: none}, must_not_say: ["प्रेस", "मिनट"]}
+  - {id: q9-ar, q: "أي آلة توقفت لأطول فترة أمس؟", lang: ar, expect: {type: none}, must_not_say: ["المكبس", "دقيقة"]}
+  - {id: q10-en, q: "How many customers entered on Saturday?", lang: en, expect: {type: kpi, period: day, window: last_saturday}}
+  - {id: q10-hi, q: "शनिवार को कितने ग्राहक आए?", lang: hi, expect: {type: kpi, period: day, window: last_saturday}}
+  - {id: q10-ar, q: "كم زائراً دخل المتجر يوم السبت؟", lang: ar, expect: {type: kpi, period: day, window: last_saturday}}

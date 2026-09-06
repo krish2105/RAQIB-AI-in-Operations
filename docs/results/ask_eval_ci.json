@@ -1,0 +1,1083 @@
+{
+  "date": "2026-09-06T05:57:56.661507+00:00",
+  "embed_model": "fake:64",
+  "llm_provider": "groq",
+  "answer_model": "qwen3:8b",
+  "summary": {
+    "cases": 30,
+    "recall_at_5": 1.0,
+    "citation_precision": 0.557,
+    "citation_coverage": 1.0,
+    "faithfulness": 1.0,
+    "language_match": 1.0,
+    "must_say_ok": 0.833,
+    "hallucinations": 0,
+    "latency_p95_ms": 6.6,
+    "latency_mean_ms": 3.2,
+    "tokens_per_query": 0,
+    "paths": {
+      "model": 0,
+      "template": 27,
+      "no_match": 3
+    },
+    "judged": 0,
+    "by_lang": {
+      "en": {
+        "recall_at_5": 1.0,
+        "faithfulness": 1.0,
+        "language_match": 1.0
+      },
+      "hi": {
+        "recall_at_5": 1.0,
+        "faithfulness": 1.0,
+        "language_match": 1.0
+      },
+      "ar": {
+        "recall_at_5": 1.0,
+        "faithfulness": 1.0,
+        "language_match": 1.0
+      }
+    },
+    "gate": {
+      "recall_at_5": true,
+      "faithfulness": true,
+      "hallucinations": true,
+      "pass": true
+    }
+  },
+  "cases": [
+    {
+      "id": "q1-en",
+      "q": "Which till had the longest queue last Friday evening?",
+      "lang": "en",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.5,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 5.3,
+      "tokens": 0,
+      "citations": 2,
+      "expected": [
+        "01M1TMPYYTSFJ539TWFYF2E9Q7"
+      ],
+      "top5": [
+        "01M1TMPYYTSFJ539TWFYF2E9Q7",
+        "01M1TMPYYTSFJ539TWFYF2E9Q8"
+      ],
+      "answer": "Top matches: Queue over limit on 2026-09-04 18:47, till 1, 7 people waiting, severity 2 [c:01M1TMPYYTSFJ539TWFYF2E9Q7]. Queue over limit on 2026-09-04 19:11, till 1, 6 people waiting, severity 2 [c:01M1TMPYYTSFJ539TWFYF2E9Q8]. These records are simulated demo history [c:01M1TMPYYTSFJ539TWFYF2E9Q7]."
+    },
+    {
+      "id": "q1-hi",
+      "q": "पिछले शुक्रवार शाम को किस टिल पर सबसे लंबी कतार थी?",
+      "lang": "hi",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.5,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 1.4,
+      "tokens": 0,
+      "citations": 2,
+      "expected": [
+        "01M1TMPYYTSFJ539TWFYF2E9Q7"
+      ],
+      "top5": [
+        "01M1TMPYYTSFJ539TWFYF2E9Q7",
+        "01M1TMPYYTSFJ539TWFYF2E9Q8"
+      ],
+      "answer": "सबसे मिलते-जुलते रिकॉर्ड: सीमा से लंबी कतार को 2026-09-04 18:47, टिल 1, 7 लोग इंतज़ार में, गंभीरता 2 [c:01M1TMPYYTSFJ539TWFYF2E9Q7]. सीमा से लंबी कतार को 2026-09-04 19:11, टिल 1, 6 लोग इंतज़ार में, गंभीरता 2 [c:01M1TMPYYTSFJ539TWFYF2E9Q8]. ये रिकॉर्ड सिम्युलेटेड डेमो इतिहास हैं [c:01M1TMPYYTSFJ539TW"
+    },
+    {
+      "id": "q1-ar",
+      "q": "أي صندوق دفع كان فيه أطول طابور مساء الجمعة الماضية؟",
+      "lang": "ar",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.5,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 1.2,
+      "tokens": 0,
+      "citations": 2,
+      "expected": [
+        "01M1TMPYYTSFJ539TWFYF2E9Q7"
+      ],
+      "top5": [
+        "01M1TMPYYTSFJ539TWFYF2E9Q7",
+        "01M1TMPYYTSFJ539TWFYF2E9Q8"
+      ],
+      "answer": "أقرب السجلات: طابور فوق الحد في 2026-09-04 18:47, صندوق 1, 7 أشخاص ينتظرون, الخطورة 2 [c:01M1TMPYYTSFJ539TWFYF2E9Q7]. طابور فوق الحد في 2026-09-04 19:11, صندوق 1, 6 أشخاص ينتظرون, الخطورة 2 [c:01M1TMPYYTSFJ539TWFYF2E9Q8]. هذه السجلات هي بيانات عرض توضيحي محاكاة [c:01M1TMPYYTSFJ539TWFYF2E9Q7]."
+    },
+    {
+      "id": "q2-en",
+      "q": "Show me shelf gaps in the dairy aisle this week",
+      "lang": "en",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured",
+        "bm25",
+        "vector"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 1.0,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 6.1,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "01M1TMPYYBYR3BYKY0ZGWFEVC7",
+        "01M1TMPYYBYR3BYKY0ZGWFEVC8",
+        "01M1TMPYYBYR3BYKY0ZGWFEVC9",
+        "01M1TMPYYBYR3BYKY0ZGWFEVCA",
+        "01M1TMPYYBYR3BYKY0ZGWFEVCB"
+      ],
+      "top5": [
+        "01M1TMPYYZZKEPE0Q5E9JYFGH9",
+        "01M1TMPYYYBPW9Z7RBKE8EGDMN",
+        "01M1TMPYYYBPW9Z7RBKE8EGDMK",
+        "01M1TMPYYWFT51XVN326C6PBZP",
+        "01M1TMPYYWFT51XVN326C6PBZM"
+      ],
+      "answer": "Top matches: Shelf gap on 2026-09-06 19:20, zone shelf_b3, shelf B3, empty ratio 0.77, severity 1 [c:01M1TMPYYZZKEPE0Q5E9JYFGH9]. Shelf gap on 2026-09-06 18:03, zone shelf_b3, shelf B3, empty ratio 0.48, severity 1 [c:01M1TMPYYYBPW9Z7RBKE8EGDMN]. Shelf gap on 2026-09-06 17:54, zone shelf_b3, shelf B"
+    },
+    {
+      "id": "q2-hi",
+      "q": "इस हफ़्ते डेयरी शेल्फ़ में कहाँ गैप थे?",
+      "lang": "hi",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured",
+        "bm25"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 1.0,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 5.7,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "01M1TMPYYBYR3BYKY0ZGWFEVC7",
+        "01M1TMPYYBYR3BYKY0ZGWFEVC8",
+        "01M1TMPYYBYR3BYKY0ZGWFEVC9",
+        "01M1TMPYYBYR3BYKY0ZGWFEVCA",
+        "01M1TMPYYBYR3BYKY0ZGWFEVCB"
+      ],
+      "top5": [
+        "01M1TMPYYZZKEPE0Q5E9JYFGH9",
+        "01M1TMPYYZZKEPE0Q5E9JYFGH8",
+        "01M1TMPYYZZKEPE0Q5E9JYFGH7",
+        "01M1TMPYYZZKEPE0Q5E9JYFGH6",
+        "01M1TMPYYYBPW9Z7RBKE8EGDMT"
+      ],
+      "answer": "सबसे मिलते-जुलते रिकॉर्ड: शेल्फ़ गैप को 2026-09-06 19:20, ज़ोन shelf_b3, शेल्फ़ B3, खाली अनुपात 0.77, गंभीरता 1 [c:01M1TMPYYZZKEPE0Q5E9JYFGH9]. शेल्फ़ गैप को 2026-09-06 19:19, ज़ोन shelf_b3, शेल्फ़ B3, खाली अनुपात 0.42, गंभीरता 1 [c:01M1TMPYYZZKEPE0Q5E9JYFGH8]. शेल्फ़ गैप को 2026-09-06 19:14, ज़ोन s"
+    },
+    {
+      "id": "q2-ar",
+      "q": "أين كانت فجوات الرفوف في قسم الألبان هذا الأسبوع؟",
+      "lang": "ar",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured",
+        "bm25"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 1.0,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 5.9,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "01M1TMPYYBYR3BYKY0ZGWFEVC7",
+        "01M1TMPYYBYR3BYKY0ZGWFEVC8",
+        "01M1TMPYYBYR3BYKY0ZGWFEVC9",
+        "01M1TMPYYBYR3BYKY0ZGWFEVCA",
+        "01M1TMPYYBYR3BYKY0ZGWFEVCB"
+      ],
+      "top5": [
+        "01M1TMPYYZZKEPE0Q5E9JYFGH9",
+        "01M1TMPYYZZKEPE0Q5E9JYFGH8",
+        "01M1TMPYYZZKEPE0Q5E9JYFGH7",
+        "01M1TMPYYZZKEPE0Q5E9JYFGH6",
+        "01M1TMPYYYBPW9Z7RBKE8EGDMT"
+      ],
+      "answer": "أقرب السجلات: فجوة رف في 2026-09-06 19:20, منطقة shelf_b3, رف B3, نسبة الفراغ 0.77, الخطورة 1 [c:01M1TMPYYZZKEPE0Q5E9JYFGH9]. فجوة رف في 2026-09-06 19:19, منطقة shelf_b3, رف B3, نسبة الفراغ 0.42, الخطورة 1 [c:01M1TMPYYZZKEPE0Q5E9JYFGH8]. فجوة رف في 2026-09-06 19:14, منطقة shelf_b3, رف B3, نسبة الفرا"
+    },
+    {
+      "id": "q3-en",
+      "q": "What does the SOP say about opening a third till?",
+      "lang": "en",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "bm25",
+        "vector"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.2,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": false,
+      "latency_ms": 2.5,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "01M1TMPZ272S34SGXT1EV59CPS"
+      ],
+      "top5": [
+        "01M1TMPZ272S34SGXT1EV59CPS",
+        "01M1TMPZ272S34SGXT1EV59CPR",
+        "01M1TMPZ272S34SGXT1EV59CPZ",
+        "01M1TMPZ2DVXR3QR39TCWE0QGA",
+        "01M1TMPZ2DVXR3QR39TCWE0QGD"
+      ],
+      "answer": "Top matches: Document \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store › 1. Opening a third till\" [c:01M1TMPZ272S34SGXT1EV59CPS]. Document \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store\" [c:01M1TMPZ272S34SGXT1EV59CPR]. Document \"Retail checkout SOP › R"
+    },
+    {
+      "id": "q3-hi",
+      "q": "तीसरा टिल खोलने के बारे में SOP क्या कहता है?",
+      "lang": "hi",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "bm25"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.2,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 2.1,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "01M1TMPZ272S34SGXT1EV59CPS"
+      ],
+      "top5": [
+        "01M1TMPZ272S34SGXT1EV59CPS",
+        "01M1TMPZ272S34SGXT1EV59CPT",
+        "01M1TMPZ272S34SGXT1EV59CPX",
+        "01M1TMPZ272S34SGXT1EV59CPR",
+        "01M1TMPZ2BBKC926XQT5P5NF9V"
+      ],
+      "answer": "सबसे मिलते-जुलते रिकॉर्ड: दस्तावेज़ \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store › 1. Opening a third till\" [c:01M1TMPZ272S34SGXT1EV59CPS]. दस्तावेज़ \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store › 2. Closing a till\" [c:01M1TMPZ272S34SGXT1EV59CPT]"
+    },
+    {
+      "id": "q3-ar",
+      "q": "ماذا يقول دليل الإجراءات عن فتح صندوق دفع ثالث؟",
+      "lang": "ar",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "bm25"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.2,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 2.1,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "01M1TMPZ272S34SGXT1EV59CPS"
+      ],
+      "top5": [
+        "01M1TMPZ272S34SGXT1EV59CPS",
+        "01M1TMPZ272S34SGXT1EV59CPR",
+        "01M1TMPZ2BBKC926XQT5P5NF9N",
+        "01M1TMPZ272S34SGXT1EV59CPT",
+        "01M1TMPZ272S34SGXT1EV59CPX"
+      ],
+      "answer": "أقرب السجلات: مستند \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store › 1. Opening a third till\" [c:01M1TMPZ272S34SGXT1EV59CPS]. مستند \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store\" [c:01M1TMPZ272S34SGXT1EV59CPR]. مستند \"Pilot SOP › Pilot SOP — one cam"
+    },
+    {
+      "id": "q4-en",
+      "q": "How long are clips kept?",
+      "lang": "en",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "bm25"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.2,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": false,
+      "latency_ms": 2.0,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "01M1TMPZ272S34SGXT1EV59CPY"
+      ],
+      "top5": [
+        "01M1TMPZ272S34SGXT1EV59CPY",
+        "01M1TMPZ2DVXR3QR39TCWE0QGE",
+        "01M1TMPZ2DVXR3QR39TCWE0QGB",
+        "01M1TMPZ2DVXR3QR39TCWE0QGF",
+        "01M1TMPZ2DVXR3QR39TCWE0QGC"
+      ],
+      "answer": "Top matches: Document \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store › 6. Privacy on the floor\" [c:01M1TMPZ272S34SGXT1EV59CPY]. Document \"Privacy notice › Privacy notice — RAQIB / MUSHRIF camera analytics › Retention\" [c:01M1TMPZ2DVXR3QR39TCWE0QGE]. Document \"Privacy notice "
+    },
+    {
+      "id": "q4-hi",
+      "q": "क्लिप कितने दिन रखी जाती हैं?",
+      "lang": "hi",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "bm25"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.2,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": false,
+      "latency_ms": 2.0,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "01M1TMPZ272S34SGXT1EV59CPY"
+      ],
+      "top5": [
+        "01M1TMPZ2DVXR3QR39TCWE0QGE",
+        "01M1TMPZ272S34SGXT1EV59CPY",
+        "01M1TMPZ2BBKC926XQT5P5NF9R",
+        "01M1TMPZ2DVXR3QR39TCWE0QGC",
+        "01M1TMPZ2DVXR3QR39TCWE0QGG"
+      ],
+      "answer": "सबसे मिलते-जुलते रिकॉर्ड: दस्तावेज़ \"Privacy notice › Privacy notice — RAQIB / MUSHRIF camera analytics › Retention\" [c:01M1TMPZ2DVXR3QR39TCWE0QGE]. दस्तावेज़ \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store › 6. Privacy on the floor\" [c:01M1TMPZ272S34SGXT1EV59CPY]. दस्तावेज़ "
+    },
+    {
+      "id": "q4-ar",
+      "q": "كم يوماً يتم الاحتفاظ بالمقاطع؟",
+      "lang": "ar",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "bm25"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.2,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": false,
+      "latency_ms": 2.0,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "01M1TMPZ272S34SGXT1EV59CPY"
+      ],
+      "top5": [
+        "01M1TMPZ2DVXR3QR39TCWE0QGE",
+        "01M1TMPZ272S34SGXT1EV59CPY",
+        "01M1TMPZ2BBKC926XQT5P5NF9R",
+        "01M1TMPZ2DVXR3QR39TCWE0QGC",
+        "01M1TMPZ2DVXR3QR39TCWE0QGG"
+      ],
+      "answer": "أقرب السجلات: مستند \"Privacy notice › Privacy notice — RAQIB / MUSHRIF camera analytics › Retention\" [c:01M1TMPZ2DVXR3QR39TCWE0QGE]. مستند \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store › 6. Privacy on the floor\" [c:01M1TMPZ272S34SGXT1EV59CPY]. مستند \"Pilot SOP › Pilot SOP —"
+    },
+    {
+      "id": "q5-en",
+      "q": "Which day had the highest footfall?",
+      "lang": "en",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured",
+        "bm25"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.2,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 7.3,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "kpi-raqib_demo_store-20260904-day"
+      ],
+      "top5": [
+        "kpi-raqib_demo_store-20260904-day",
+        "kpi-raqib_demo_store-20260905-day",
+        "kpi-raqib_demo_store-20260828-day",
+        "kpi-raqib_demo_store-20260821-day",
+        "kpi-raqib_demo_store-20260829-day"
+      ],
+      "answer": "Top matches: 2026-09-04: footfall 767 customers [c:kpi-raqib_demo_store-20260904-day]. 2026-09-05: footfall 762 customers [c:kpi-raqib_demo_store-20260905-day]. 2026-08-28: footfall 760 customers [c:kpi-raqib_demo_store-20260828-day]. 2026-08-21: footfall 760 customers [c:kpi-raqib_demo_store-202608"
+    },
+    {
+      "id": "q5-hi",
+      "q": "किस दिन सबसे ज़्यादा footfall था?",
+      "lang": "hi",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured",
+        "bm25"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.2,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 6.6,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "kpi-raqib_demo_store-20260904-day"
+      ],
+      "top5": [
+        "kpi-raqib_demo_store-20260904-day",
+        "kpi-raqib_demo_store-20260905-day",
+        "kpi-raqib_demo_store-20260828-day",
+        "kpi-raqib_demo_store-20260821-day",
+        "kpi-raqib_demo_store-20260829-day"
+      ],
+      "answer": "सबसे मिलते-जुलते रिकॉर्ड: 2026-09-04: फुटफॉल 767 ग्राहक [c:kpi-raqib_demo_store-20260904-day]. 2026-09-05: फुटफॉल 762 ग्राहक [c:kpi-raqib_demo_store-20260905-day]. 2026-08-28: फुटफॉल 760 ग्राहक [c:kpi-raqib_demo_store-20260828-day]. 2026-08-21: फुटफॉल 760 ग्राहक [c:kpi-raqib_demo_store-20260821-day]"
+    },
+    {
+      "id": "q5-ar",
+      "q": "في أي يوم كان عدد الزوار هو الأعلى؟",
+      "lang": "ar",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured",
+        "bm25"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.2,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 6.7,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "kpi-raqib_demo_store-20260904-day"
+      ],
+      "top5": [
+        "kpi-raqib_demo_store-20260904-day",
+        "kpi-raqib_demo_store-20260905-day",
+        "kpi-raqib_demo_store-20260828-day",
+        "kpi-raqib_demo_store-20260821-day",
+        "kpi-raqib_demo_store-20260829-day"
+      ],
+      "answer": "أقرب السجلات: 2026-09-04: زوار 767 زائر [c:kpi-raqib_demo_store-20260904-day]. 2026-09-05: زوار 762 زائر [c:kpi-raqib_demo_store-20260905-day]. 2026-08-28: زوار 760 زائر [c:kpi-raqib_demo_store-20260828-day]. 2026-08-21: زوار 760 زائر [c:kpi-raqib_demo_store-20260821-day]. 2026-08-29: زوار 708 زائر "
+    },
+    {
+      "id": "q6-en",
+      "q": "Biggest queue this week",
+      "lang": "en",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.25,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 3.6,
+      "tokens": 0,
+      "citations": 4,
+      "expected": [
+        "01M1TMPYYVX86CHEYG08KPKR12"
+      ],
+      "top5": [
+        "01M1TMPYYVX86CHEYG08KPKR12",
+        "01M1TMPYYTSFJ539TWFYF2E9Q7",
+        "01M1TMPYYTSFJ539TWFYF2E9Q8",
+        "01M1TMPYYVX86CHEYG08KPKR11"
+      ],
+      "answer": "Top matches: Queue over limit on 2026-09-05 19:55, till 1, 9 people waiting, severity 2 [c:01M1TMPYYVX86CHEYG08KPKR12]. Queue over limit on 2026-09-04 18:47, till 1, 7 people waiting, severity 2 [c:01M1TMPYYTSFJ539TWFYF2E9Q7]. Queue over limit on 2026-09-04 19:11, till 1, 6 people waiting, severity "
+    },
+    {
+      "id": "q6-hi",
+      "q": "इस हफ़्ते सबसे लंबी कतार कब थी?",
+      "lang": "hi",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.25,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 3.6,
+      "tokens": 0,
+      "citations": 4,
+      "expected": [
+        "01M1TMPYYVX86CHEYG08KPKR12"
+      ],
+      "top5": [
+        "01M1TMPYYVX86CHEYG08KPKR12",
+        "01M1TMPYYTSFJ539TWFYF2E9Q7",
+        "01M1TMPYYTSFJ539TWFYF2E9Q8",
+        "01M1TMPYYVX86CHEYG08KPKR11"
+      ],
+      "answer": "सबसे मिलते-जुलते रिकॉर्ड: सीमा से लंबी कतार को 2026-09-05 19:55, टिल 1, 9 लोग इंतज़ार में, गंभीरता 2 [c:01M1TMPYYVX86CHEYG08KPKR12]. सीमा से लंबी कतार को 2026-09-04 18:47, टिल 1, 7 लोग इंतज़ार में, गंभीरता 2 [c:01M1TMPYYTSFJ539TWFYF2E9Q7]. सीमा से लंबी कतार को 2026-09-04 19:11, टिल 1, 6 लोग इंतज़ार "
+    },
+    {
+      "id": "q6-ar",
+      "q": "ما هي أطول فترة انتظار هذا الأسبوع؟",
+      "lang": "ar",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.25,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 3.6,
+      "tokens": 0,
+      "citations": 4,
+      "expected": [
+        "01M1TMPYYVX86CHEYG08KPKR12"
+      ],
+      "top5": [
+        "01M1TMPYYVX86CHEYG08KPKR12",
+        "01M1TMPYYTSFJ539TWFYF2E9Q7",
+        "01M1TMPYYTSFJ539TWFYF2E9Q8",
+        "01M1TMPYYVX86CHEYG08KPKR11"
+      ],
+      "answer": "أقرب السجلات: طابور فوق الحد في 2026-09-05 19:55, صندوق 1, 9 أشخاص ينتظرون, الخطورة 2 [c:01M1TMPYYVX86CHEYG08KPKR12]. طابور فوق الحد في 2026-09-04 18:47, صندوق 1, 7 أشخاص ينتظرون, الخطورة 2 [c:01M1TMPYYTSFJ539TWFYF2E9Q7]. طابور فوق الحد في 2026-09-04 19:11, صندوق 1, 6 أشخاص ينتظرون, الخطورة 2 [c:01M"
+    },
+    {
+      "id": "q7-en",
+      "q": "When should a till be closed?",
+      "lang": "en",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "bm25",
+        "vector"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.2,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": false,
+      "latency_ms": 2.0,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "01M1TMPZ272S34SGXT1EV59CPT"
+      ],
+      "top5": [
+        "01M1TMPZ272S34SGXT1EV59CPS",
+        "01M1TMPZ272S34SGXT1EV59CPT",
+        "01M1TMPZ2BBKC926XQT5P5NF9W",
+        "01M1TMPZ272S34SGXT1EV59CPR",
+        "01M1TMPZ272S34SGXT1EV59CPV"
+      ],
+      "answer": "Top matches: Document \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store › 1. Opening a third till\" [c:01M1TMPZ272S34SGXT1EV59CPS]. Document \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store › 2. Closing a till\" [c:01M1TMPZ272S34SGXT1EV59CPT]. Document \"Pil"
+    },
+    {
+      "id": "q7-hi",
+      "q": "टिल कब बंद करना चाहिए?",
+      "lang": "hi",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "bm25"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.25,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 1.9,
+      "tokens": 0,
+      "citations": 4,
+      "expected": [
+        "01M1TMPZ272S34SGXT1EV59CPT"
+      ],
+      "top5": [
+        "01M1TMPZ272S34SGXT1EV59CPT",
+        "01M1TMPZ272S34SGXT1EV59CPS",
+        "01M1TMPZ272S34SGXT1EV59CPR",
+        "01M1TMPZ272S34SGXT1EV59CPV"
+      ],
+      "answer": "सबसे मिलते-जुलते रिकॉर्ड: दस्तावेज़ \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store › 2. Closing a till\" [c:01M1TMPZ272S34SGXT1EV59CPT]. दस्तावेज़ \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store › 1. Opening a third till\" [c:01M1TMPZ272S34SGXT1EV59CPS]"
+    },
+    {
+      "id": "q7-ar",
+      "q": "متى يجب إغلاق صندوق الدفع؟",
+      "lang": "ar",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "bm25",
+        "vector"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 0.2,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 2.0,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "01M1TMPZ272S34SGXT1EV59CPT"
+      ],
+      "top5": [
+        "01M1TMPZ272S34SGXT1EV59CPT",
+        "01M1TMPZ2DVXR3QR39TCWE0QGC",
+        "01M1TMPZ272S34SGXT1EV59CPS",
+        "01M1TMPZ272S34SGXT1EV59CPR",
+        "01M1TMPZ272S34SGXT1EV59CPV"
+      ],
+      "answer": "أقرب السجلات: مستند \"Retail checkout SOP › Retail checkout and shelf SOP — RAQIB demo store › 2. Closing a till\" [c:01M1TMPZ272S34SGXT1EV59CPT]. مستند \"Privacy notice › Privacy notice — RAQIB / MUSHRIF camera analytics › What leaves the camera\" [c:01M1TMPZ2DVXR3QR39TCWE0QGC]. مستند \"Retail checkout "
+    },
+    {
+      "id": "q8-en",
+      "q": "Shelf gaps in confectionery shelf A1 last week",
+      "lang": "en",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured",
+        "bm25",
+        "vector"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 1.0,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 5.1,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "01M1TMPYXJN39EXN9DYK2EYYXK",
+        "01M1TMPYXK47MYBH63S59X72KT",
+        "01M1TMPYXMM0ZV6DQQWN62ETES",
+        "01M1TMPYXMM0ZV6DQQWN62ETET",
+        "01M1TMPYXMM0ZV6DQQWN62ETEV"
+      ],
+      "top5": [
+        "01M1TMPYY9A5HRBRNYF8GTJFF2",
+        "01M1TMPYY9A5HRBRNYF8GTJFEZ",
+        "01M1TMPYY8644Q26FE3CY1M204",
+        "01M1TMPYY8644Q26FE3CY1M205",
+        "01M1TMPYY8644Q26FE3CY1M203"
+      ],
+      "answer": "Top matches: Shelf gap on 2026-08-30 21:37, zone shelf_a1, shelf A1, empty ratio 0.51, severity 1 [c:01M1TMPYY9A5HRBRNYF8GTJFF2]. Shelf gap on 2026-08-30 21:33, zone shelf_a1, shelf A1, empty ratio 0.71, severity 1 [c:01M1TMPYY9A5HRBRNYF8GTJFEZ]. Shelf gap on 2026-08-30 21:16, zone shelf_a1, shelf A"
+    },
+    {
+      "id": "q8-hi",
+      "q": "पिछले हफ़्ते शेल्फ़ A1 (कन्फ़ेक्शनरी) में गैप",
+      "lang": "hi",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured",
+        "bm25"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 1.0,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 5.0,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "01M1TMPYXJN39EXN9DYK2EYYXK",
+        "01M1TMPYXK47MYBH63S59X72KT",
+        "01M1TMPYXMM0ZV6DQQWN62ETES",
+        "01M1TMPYXMM0ZV6DQQWN62ETET",
+        "01M1TMPYXMM0ZV6DQQWN62ETEV"
+      ],
+      "top5": [
+        "01M1TMPYYA05W0VB7S0F7Q7MKN",
+        "01M1TMPYY9A5HRBRNYF8GTJFF3",
+        "01M1TMPYY9A5HRBRNYF8GTJFF2",
+        "01M1TMPYY9A5HRBRNYF8GTJFEZ",
+        "01M1TMPYY9A5HRBRNYF8GTJFEX"
+      ],
+      "answer": "सबसे मिलते-जुलते रिकॉर्ड: शेल्फ़ गैप को 2026-08-30 21:47, ज़ोन shelf_a1, शेल्फ़ A1, खाली अनुपात 0.70, गंभीरता 1 [c:01M1TMPYYA05W0VB7S0F7Q7MKN]. शेल्फ़ गैप को 2026-08-30 21:43, ज़ोन shelf_a1, शेल्फ़ A1, खाली अनुपात 0.77, गंभीरता 1 [c:01M1TMPYY9A5HRBRNYF8GTJFF3]. शेल्फ़ गैप को 2026-08-30 21:37, ज़ोन s"
+    },
+    {
+      "id": "q8-ar",
+      "q": "فجوات الرف A1 (الحلويات) الأسبوع الماضي",
+      "lang": "ar",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured",
+        "bm25"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 1.0,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 5.1,
+      "tokens": 0,
+      "citations": 5,
+      "expected": [
+        "01M1TMPYXJN39EXN9DYK2EYYXK",
+        "01M1TMPYXK47MYBH63S59X72KT",
+        "01M1TMPYXMM0ZV6DQQWN62ETES",
+        "01M1TMPYXMM0ZV6DQQWN62ETET",
+        "01M1TMPYXMM0ZV6DQQWN62ETEV"
+      ],
+      "top5": [
+        "01M1TMPYYA05W0VB7S0F7Q7MKN",
+        "01M1TMPYY9A5HRBRNYF8GTJFF3",
+        "01M1TMPYY9A5HRBRNYF8GTJFF2",
+        "01M1TMPYY9A5HRBRNYF8GTJFEZ",
+        "01M1TMPYY9A5HRBRNYF8GTJFEX"
+      ],
+      "answer": "أقرب السجلات: فجوة رف في 2026-08-30 21:47, منطقة shelf_a1, رف A1, نسبة الفراغ 0.70, الخطورة 1 [c:01M1TMPYYA05W0VB7S0F7Q7MKN]. فجوة رف في 2026-08-30 21:43, منطقة shelf_a1, رف A1, نسبة الفراغ 0.77, الخطورة 1 [c:01M1TMPYY9A5HRBRNYF8GTJFF3]. فجوة رف في 2026-08-30 21:37, منطقة shelf_a1, رف A1, نسبة الفرا"
+    },
+    {
+      "id": "q9-en",
+      "q": "Which machine stopped for the longest yesterday?",
+      "lang": "en",
+      "expected_lang_ok": true,
+      "path": "no_match",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [],
+      "recall_at_5": 1.0,
+      "citation_precision": 1.0,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 1.0,
+      "tokens": 0,
+      "citations": 0,
+      "expected": [],
+      "top5": [],
+      "answer": "No matching data for that question. Try a different time range (today, this week, last Friday), an event kind (queue, shelf gap, footfall), or a document (SOP, policy)."
+    },
+    {
+      "id": "q9-hi",
+      "q": "कल कौन सी मशीन सबसे ज़्यादा देर रुकी रही?",
+      "lang": "hi",
+      "expected_lang_ok": true,
+      "path": "no_match",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [],
+      "recall_at_5": 1.0,
+      "citation_precision": 1.0,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 1.0,
+      "tokens": 0,
+      "citations": 0,
+      "expected": [],
+      "top5": [],
+      "answer": "इस प्रश्न के लिए कोई मिलता-जुलता डेटा नहीं मिला। कोई और समय-सीमा (आज, इस हफ़्ते, पिछले शुक्रवार), घटना का प्रकार (कतार, शेल्फ़ गैप, फुटफॉल) या दस्तावेज़ (SOP, नीति) आज़माएँ।"
+    },
+    {
+      "id": "q9-ar",
+      "q": "أي آلة توقفت لأطول فترة أمس؟",
+      "lang": "ar",
+      "expected_lang_ok": true,
+      "path": "no_match",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [],
+      "recall_at_5": 1.0,
+      "citation_precision": 1.0,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 1.0,
+      "tokens": 0,
+      "citations": 0,
+      "expected": [],
+      "top5": [],
+      "answer": "لا توجد بيانات مطابقة لهذا السؤال. جرّب نطاقاً زمنياً آخر (اليوم، هذا الأسبوع، الجمعة الماضية) أو نوع حدث (طابور، فجوة رف، زوار) أو مستنداً (دليل الإجراءات، السياسة)."
+    },
+    {
+      "id": "q10-en",
+      "q": "How many customers entered on Saturday?",
+      "lang": "en",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 1.0,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 1.1,
+      "tokens": 0,
+      "citations": 1,
+      "expected": [
+        "kpi-raqib_demo_store-20260905-day"
+      ],
+      "top5": [
+        "kpi-raqib_demo_store-20260905-day"
+      ],
+      "answer": "Top matches: 2026-09-05: footfall 762 customers [c:kpi-raqib_demo_store-20260905-day]."
+    },
+    {
+      "id": "q10-hi",
+      "q": "शनिवार को कितने ग्राहक आए?",
+      "lang": "hi",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 1.0,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 1.1,
+      "tokens": 0,
+      "citations": 1,
+      "expected": [
+        "kpi-raqib_demo_store-20260905-day"
+      ],
+      "top5": [
+        "kpi-raqib_demo_store-20260905-day"
+      ],
+      "answer": "सबसे मिलते-जुलते रिकॉर्ड: 2026-09-05: फुटफॉल 762 ग्राहक [c:kpi-raqib_demo_store-20260905-day]."
+    },
+    {
+      "id": "q10-ar",
+      "q": "كم زائراً دخل المتجر يوم السبت؟",
+      "lang": "ar",
+      "expected_lang_ok": true,
+      "path": "template",
+      "provider": "none",
+      "model": "",
+      "plan_source": "regex",
+      "legs": [
+        "structured"
+      ],
+      "recall_at_5": 1.0,
+      "citation_precision": 1.0,
+      "citation_coverage": 1.0,
+      "faithfulness": 1.0,
+      "judge": null,
+      "hallucination": false,
+      "tripped": [],
+      "must_say_ok": true,
+      "latency_ms": 1.1,
+      "tokens": 0,
+      "citations": 1,
+      "expected": [
+        "kpi-raqib_demo_store-20260905-day"
+      ],
+      "top5": [
+        "kpi-raqib_demo_store-20260905-day"
+      ],
+      "answer": "أقرب السجلات: 2026-09-05: زوار 762 زائر [c:kpi-raqib_demo_store-20260905-day]."
+    }
+  ]
+}

@@ -17,6 +17,9 @@ from ..config import settings
 from ..models import QuotaCounter
 
 
+_READY: set = set()
+
+
 def _today() -> str:
     return datetime.now(UTC).strftime("%Y-%m-%d")
 
@@ -36,8 +39,12 @@ class Quota:
 
     @classmethod
     def default(cls) -> Quota:
-        from ..db import engine
+        from .. import db as dbmod
 
+        engine = dbmod.engine
+        if engine not in _READY:  # scripts and fresh deploys: make sure the counter table exists
+            QuotaCounter.__table__.create(engine, checkfirst=True)
+            _READY.add(engine)
         return cls(lambda: Session(engine))
 
     def limit(self, provider: str) -> int:

@@ -1,0 +1,44 @@
+name: ask-evals
+
+on:
+  pull_request:
+    paths:
+      - "cloud/raqib_api/rag/**"
+      - "cloud/raqib_api/prompts/**"
+      - "cloud/raqib_api/llm/**"
+      - "cloud/evals/**"
+      - "docs/sop/**"
+  workflow_dispatch:
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: cd cloud && uv sync --extra dev
+      - name: Run the 30-case Ask eval (CI mode: fake embeddings, no model providers)
+        env:
+          EMBED_MODEL: fake:64
+          LLM_PROVIDER: groq
+          LLM_PROVIDER_ORDER: groq
+          DATABASE_URL: sqlite://
+        run: |
+          cd cloud
+          uv run python evals/ask/run.py --gate --no-judge --md --out /tmp/ask_eval.json | tee /tmp/ask_eval.txt
+      - name: Comment the table on the PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const txt = fs.readFileSync('/tmp/ask_eval.txt', 'utf8');
+            const table = txt.slice(txt.indexOf('| Metric'));
+            const body = `### Ask eval (CI mode)\n\n${table}\n\n_Retrieval and citation gates only; faithfulness with the local judge is reported in docs/results/ask_eval.json._`;
+            const { data: comments } = await github.rest.issues.listComments({ ...context.repo, issue_number: context.issue.number });
+            const mine = comments.find(c => c.body.startsWith('### Ask eval'));
+            if (mine) await github.rest.issues.updateComment({ ...context.repo, comment_id: mine.id, body });
+            else await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body });

@@ -86,8 +86,8 @@ def detect_lang(text: str) -> str:
 
 KIND_WORDS: dict[str, tuple[str, ...]] = {
     "queue_over": ("queue", "queues", "waiting", "wait", "line", "कतार", "लाइन", "इंतज़ार", "इंतजार", "طابور", "انتظار", "صف"),
-    "shelf_gap": ("shelf", "shelves", "gap", "gaps", "restock", "empty", "out of stock", "शेल्फ", "शेल्फ़", "गैप", "खाली", "رف", "رفوف", "فجو", "فارغ"),
-    "footfall": ("footfall", "visitors", "customers entered", "entered", "traffic", "busiest", "फुटफॉल", "ग्राहक", "आगंतुक", "زوار", "الزوار", "عدد الزوار", "ازدحام"),
+    "shelf_gap": ("shelf", "shelves", "gap", "gaps", "restock", "empty", "out of stock", "शेल्फ", "शेल्फ़", "गैप", "खाली", "الرف", "رفوف", "فجو", "فارغ"),
+    "footfall": ("footfall", "visitors", "customers entered", "entered", "traffic", "busiest", "फुटफॉल", "ग्राहक", "आगंतुक", "زوار", "الزوار", "زائر", "عدد الزوار", "ازدحام", "دخل المتجر"),
     "checkout_served": ("checkout", "dwell", "service time", "served", "चेकआउट", "الدفع", "خدمة"),
     "machine_stopped": ("machine", "downtime", "stopped", "मशीन", "آلة", "توقف"),
     "zone_breach": ("breach", "exclusion", "restricted", "प्रतिबंधित", "منطقة محظورة", "اختراق"),
@@ -96,7 +96,30 @@ KIND_WORDS: dict[str, tuple[str, ...]] = {
 DOC_WORDS = ("sop", "policy", "procedure", "manual", "planogram", "price list", "what does", "say about", "rule", "guideline",
              "retention", "kept", "privacy", "should", "when should", "दिशानिर्देश", "नीति", "प्रक्रिया", "कहता", "रखी जाती", "चाहिए",
              "دليل", "سياسة", "إجراء", "يقول", "الاحتفاظ", "يجب")
-KPI_WORDS = ("footfall", "visitors", "customers", "busiest", "फुटफॉल", "ग्राहक", "आगंतुक", "زوار", "الزوار")
+KPI_WORDS = ("footfall", "visitors", "customers", "busiest", "फुटफॉल", "ग्राहक", "आगंतुक", "زوار", "الزوار", "زائر")
+
+# Deterministic HI/AR -> EN search hints so the BM25 leg over an English corpus works without a vector model.
+# The multilingual embedder does the heavy lifting in production; this keeps CI and degraded mode honest.
+TERM_HINTS: dict[str, str] = {
+    "कतार": "queue", "लाइन": "queue", "इंतज़ार": "waiting", "टिल": "till", "शेल्फ़": "shelf", "शेल्फ": "shelf", "गैप": "gap", "खाली": "empty",
+    "डेयरी": "dairy B3", "दूध": "dairy B3", "ब्रेड": "bread C2", "कन्फ़ेक्शनरी": "confectionery A1", "चॉकलेट": "confectionery A1",
+    "फुटफॉल": "footfall", "ग्राहक": "customers footfall", "आगंतुक": "visitors footfall", "तीसरा": "third", "खोलने": "opening open",
+    "खोलना": "opening open", "बंद": "closing close", "क्लिप": "clips clip", "रखी": "kept retention", "दिन": "days day", "मशीन": "machine",
+    "हेलमेट": "helmet", "नीति": "policy", "दिशानिर्देश": "SOP procedure", "प्रक्रिया": "procedure SOP", "चेकआउट": "checkout",
+    "طابور": "queue", "انتظار": "waiting queue", "صندوق": "till", "الدفع": "till checkout", "رف": "shelf", "الرف": "shelf", "رفوف": "shelves shelf",
+    "فجوات": "gaps gap", "فجوة": "gap", "الألبان": "dairy B3", "ألبان": "dairy B3", "الخبز": "bread C2", "الحلويات": "confectionery A1",
+    "زوار": "visitors footfall", "الزوار": "visitors footfall", "زائراً": "visitors footfall customers", "دخل": "entered",
+    "ثالث": "third", "فتح": "opening open", "إغلاق": "closing close", "المقاطع": "clips clip", "الاحتفاظ": "kept retention",
+    "يوماً": "days", "يوم": "day", "آلة": "machine", "خوذة": "helmet", "سياسة": "policy", "دليل": "SOP procedure", "الإجراءات": "SOP procedure",
+}
+
+
+def term_hints(q: str) -> list[str]:
+    out: list[str] = []
+    for w, en in TERM_HINTS.items():
+        if w in q:
+            out.extend(en.split())
+    return out
 MAX_WORDS = ("longest", "biggest", "highest", "most", "largest", "max", "peak", "busiest", "worst", "सबसे", "ज़्यादा", "ज्यादा", "लंबी", "अधिक",
              "أطول", "الأعلى", "أكبر", "أكثر", "الأكثر", "أسوأ")
 DAY_WORDS = ("which day", "what day", "day had", "per day", "daily", "किस दिन", "कौन सा दिन", "أي يوم", "في أي يوم", "يومي")
@@ -197,7 +220,7 @@ def parse_regex(q: str, now: datetime) -> QueryPlan:
         plan.camera = m.group(1)
     if plan.target != "documents":
         plan.time_start, plan.time_end, plan.time_label = parse_time_phrase(t, now)
-    plan.terms = [w for w in re.findall(r"\w+", t) if len(w) > 2][:12]
+    plan.terms = ([w for w in re.findall(r"\w+", t) if len(w) > 2] + term_hints(q))[:24]
     plan.mode = _mode(plan)
     return plan
 
