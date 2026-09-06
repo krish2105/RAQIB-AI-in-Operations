@@ -156,6 +156,10 @@ def retrieve(plan: QueryPlan, site: str, session: Session, k: int = 12) -> list[
                 event_id=by_id[cid].event_id, doc_id=by_id[cid].doc_id, score=score, legs=ranks)
             for cid, (score, ranks) in fused.items() if cid in by_id]
     hits.sort(key=lambda h: h.score, reverse=True)
+    if plan.superlative and legs.get("structured"):
+        # "longest", "busiest": the numeric ranking is the answer; text legs only order what it did not rank.
+        pos = {cid: i for i, cid in enumerate(legs["structured"])}
+        hits.sort(key=lambda h: (pos.get(h.chunk_id, len(pos)), -h.score))
     hits = hits[: max(k, 30)]
     if settings.rerank_enabled and len(hits) > 1:
         hits = _rerank(plan.q, hits)

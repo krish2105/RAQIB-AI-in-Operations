@@ -161,6 +161,26 @@ def test_retrieval_busiest_day_kpi(session):
     assert hits[0].meta["footfall_tick"] == max(h.meta["footfall_tick"] for h in hits)
 
 
+def test_superlative_order_is_the_numeric_ranking_not_text_similarity(session):
+    """A day chunk that merely mentions the query words must not outrank the true maximum."""
+    from raqib_api.models import Chunk
+
+    decoy = Chunk(id="kpi-decoy-day", site=SITE, kind="kpi", ts=NOW - timedelta(days=3),
+                  text="Daily KPI: which day had the highest footfall footfall footfall highest day customers entered", meta={"period": "day", "footfall_tick": 5})
+    session.add(decoy)
+    session.commit()
+    try:
+        plan = parse_regex("Which day had the highest footfall?", NOW)
+        hits = retrieve(plan, SITE, session, k=5)
+        assert hits[0].chunk_id != "kpi-decoy-day"
+        assert hits[0].meta["footfall_tick"] == max(h.meta["footfall_tick"] for h in hits)
+        vals = [h.meta["footfall_tick"] for h in hits]
+        assert vals == sorted(vals, reverse=True)
+    finally:
+        session.delete(decoy)
+        session.commit()
+
+
 def test_retrieval_no_hits_for_empty_window(session):
     plan = parse_regex("machine downtime yesterday", NOW)  # retail seed has no machines
     assert retrieve(plan, SITE, session) == []
