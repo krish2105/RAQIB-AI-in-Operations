@@ -73,6 +73,17 @@ class Settings(BaseSettings):
     vlm_daily_requests: int = 100
     vlm_review_confidence: float = 0.8  # disagreement at or above this confidence asks a human to review
 
+    # ---- v2: Crew (multi-agent with a security envelope) ----
+    agents_enabled: bool = True  # global kill switch (env); POST /crew/kill flips the DB flag too
+    crew_enabled: bool = True  # route events to the crew runtime; false = Phase B agent path only
+    crew_hmac_secret: str = "dev-only-change-me"  # per-agent keys are derived from this; set in prod
+    crew_max_tool_calls: int = 6
+    crew_max_usd: float = 0.0  # zero-cost: any paid provider call breaches the budget
+    crew_max_seconds: int = 60
+    memory_protected_keys: str = "policy_thresholds,site_profile,escalation_roles"
+    memory_max_value_chars: int = 2000
+    memory_churn_per_hour: int = 30
+
     # ---- v2: Watch camera wall ----
     stream_upstream: str | None = None  # edge MJPEG base, e.g. http://edge-box.lan:8554 ; empty = tiles show detections only
     stream_token: str | None = None  # token the edge box requires; never exposed to the browser

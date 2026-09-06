@@ -55,6 +55,8 @@ class ActionOut(BaseModel):
     created_at: datetime
     decided_at: datetime | None
     decided_by: str | None
+    agent: str | None = None  # v2 crew attribution
+    run_id: str | None = None
 
 
 class Decide(BaseModel):

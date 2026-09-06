@@ -85,6 +85,9 @@ class Action(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utcnow)
     decided_at: datetime | None = None
     decided_by: str | None = None
+    # v2 crew attribution (additive, nullable): which agent and run produced this action
+    agent: str | None = Field(default=None, index=True)
+    run_id: str | None = Field(default=None, index=True)
 
 
 class ToolCall(SQLModel, table=True):
@@ -318,5 +321,26 @@ class Opinion(SQLModel, table=True):
     ts: datetime = Field(default_factory=utcnow, index=True)
 
 
+class CrewFlag(SQLModel, table=True):
+    """Operator-set switches checked before every agent run. `agents_enabled=false` is the kill switch."""
+
+    __tablename__ = "crew_flags"
+    key: str = Field(primary_key=True)
+    value: str = "true"
+    updated_by: str = ""
+    note: str = ""
+    updated_at: datetime = Field(default_factory=utcnow)
+
+
+class MemorySnapshot(SQLModel, table=True):
+    __tablename__ = "memory_snapshots"
+    id: int | None = Field(default=None, primary_key=True)
+    site: str = Field(index=True)
+    taken_at: datetime = Field(default_factory=utcnow, index=True)
+    taken_by: str = "scheduler"
+    entries: int = 0
+    data: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON))
+
+
 V2_TABLES = ("captions", "documents", "chunks", "memories", "agent_runs", "agent_messages", "users", "stores",
-             "drift_samples", "quota_counters", "ask_log", "opinions")
+             "drift_samples", "quota_counters", "ask_log", "opinions", "crew_flags", "memory_snapshots")

@@ -42,6 +42,8 @@ export interface ApiAction {
   created_at: string;
   decided_at: string | null;
   decided_by: string | null;
+  agent?: string | null;
+  run_id?: string | null;
 }
 
 export interface ApiToolCall {
