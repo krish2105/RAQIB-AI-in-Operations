@@ -71,7 +71,7 @@ export function SevChip({ level, label }: { level: number; label?: string }) {
   );
 }
 
-export function Chip({ children, tone = "neutral", className }: { children: React.ReactNode; tone?: "neutral" | "signal" | "ok" | "warn" | "critical"; className?: string }) {
+export function Chip({ children, tone = "neutral", className, ...rest }: { children: React.ReactNode; tone?: "neutral" | "signal" | "ok" | "warn" | "critical"; className?: string } & React.HTMLAttributes<HTMLSpanElement>) {
   const tones = {
     neutral: "bg-raised text-ink-muted border-hairline",
     signal: "bg-signal-soft text-signal border-signal/30",
@@ -79,5 +79,5 @@ export function Chip({ children, tone = "neutral", className }: { children: Reac
     warn: "bg-warn-soft text-warn border-warn/30",
     critical: "bg-critical-soft text-critical border-critical/30",
   };
-  return <span className={cn("inline-flex h-[1.375rem] items-center gap-1.5 rounded-full border px-2 font-mono text-[0.6875rem] tracking-wide", tones[tone], className)}>{children}</span>;
+  return <span className={cn("inline-flex h-[1.375rem] items-center gap-1.5 rounded-full border px-2 font-mono text-[0.6875rem] tracking-wide", tones[tone], className)} {...rest}>{children}</span>;
 }

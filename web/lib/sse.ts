@@ -61,6 +61,10 @@ export function useLiveStream(site: string) {
           /* ignore malformed */
         }
       });
+      es.addEventListener("crew", () => {
+        qc.invalidateQueries({ queryKey: ["crew", site] });
+        qc.invalidateQueries({ queryKey: ["actions", site] });
+      });
       es.addEventListener("opinion", () => {
         qc.invalidateQueries({ queryKey: ["opinions", site] });
         qc.invalidateQueries({ queryKey: ["actions", site] });

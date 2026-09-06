@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const API = process.env.API_URL || "http://localhost:8011";
 const SITE = "raqib_demo_store";
+const ulid = (i: number) => (Date.now() + i).toString(36).toUpperCase().padStart(26, "0").slice(-26);
 
 /** Event appears → open it → clip/overlay visible → approve a proposal → executed + tool call logged. */
 test("grader path: event → clip → approve proposal → restock task", async ({ page, request }) => {
@@ -11,7 +12,6 @@ test("grader path: event → clip → approve proposal → restock task", async 
 
   // A live-looking queue event with heavy arrivals in the same hour so rho > 0.85 → propose_open_till.
   const now = new Date();
-  const ulid = (i: number) => (Date.now() + i).toString(36).toUpperCase().padStart(26, "0").slice(-26);
   // 150 arrivals spread over the last 50 minutes, dense enough that the slot holding the queue event has rho > 0.85.
   // ρ is computed per 15-minute slot, so the queue event sits at the last second of the most recent
   // complete slot and the arrivals fill that slot: the fixture is then independent of the wall clock.
@@ -55,8 +55,8 @@ test("grader path: event → clip → approve proposal → restock task", async 
   await expect(executed.getByText("Executed")).toBeVisible();
   await expect(executed.getByText("by operator")).toBeVisible();
 
-  // Restock work orders raised autonomously for shelf gaps in the seeded history
-  await expect(page.locator("article").filter({ hasText: "Create work order" }).first()).toBeVisible();
+  // Restock tickets raised autonomously for shelf gaps in the seeded history (ShelfOps restock task, or the Phase B work order)
+  await expect(page.locator("article").filter({ hasText: /Create restock task|Create work order/ }).first()).toBeVisible();
 
   // Audit table registered calls
   await expect(page.getByText("propose_open_till")).toBeVisible();
@@ -89,4 +89,30 @@ test("ask: cited answer, chip opens the event page", async ({ page, request }) =
   await chips.first().click();
   await expect(page).toHaveURL(/\/events\//);
   await expect(page.getByRole("heading", { level: 1, name: "Queue over limit" })).toBeVisible();
+});
+
+test("crew: queue event lights FloorOps, proposal carries the agent chip, Auditor checked", async ({ page, request }) => {
+  // a queue event with utilisation over 0.85 (slot-aligned like the grader path) goes through the crew runtime
+  const now = new Date();
+  const slotStart = new Date(Math.floor(now.getTime() / 900_000) * 900_000);
+  const prevSlot = new Date(slotStart.getTime() - 900_000);
+  const arrivals = Array.from({ length: 150 }, (_, i) => ({
+    id: ulid(5000 + i), site: SITE, camera: "cam1", ts: new Date(prevSlot.getTime() + i * 6_000).toISOString(), kind: "footfall_tick", severity: 1, payload: { zone: "entrance", track_id: 5000 + i }, clip_path: null, rule_id: "R12",
+  }));
+  const queueId = ulid(7777);
+  const queue = { id: queueId, site: SITE, camera: "cam1", ts: new Date(slotStart.getTime() - 500).toISOString(), kind: "queue_over", severity: 2, payload: { zone: "queue_till_1", till: 1, count: 8, sustained_s: 120, confidence: 0.9 }, clip_path: null, rule_id: "R10" };
+  const batch = await request.post(`${API}/events/batch`, { data: { events: [...arrivals, queue] } });
+  expect(batch.ok()).toBeTruthy();
+
+  await page.goto("/en/crew");
+  await expect(page.getByTestId("agent-FloorOps")).toHaveAttribute("data-lit", "true");
+  await expect(page.getByTestId("agent-Auditor")).toBeVisible();
+  await expect(page.getByTestId("agent-Auditor").getByText("ok")).toBeVisible(); // Auditor ran after FloorOps and found nothing
+  await expect(page.getByTestId("run-graph")).toBeVisible();
+  await expect(page.getByTestId("message-log").getByText("verified").first()).toBeVisible();
+
+  await page.goto("/en/actions");
+  const card = page.locator("article").filter({ hasText: "Propose opening a till" }).filter({ has: page.getByTestId("agent-chip") }).first();
+  await expect(card).toBeVisible();
+  await expect(card.getByTestId("agent-chip")).toHaveText("FloorOps");
 });

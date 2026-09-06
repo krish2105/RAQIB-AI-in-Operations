@@ -314,6 +314,50 @@ export interface DetectionFrame {
   received?: number;
 }
 
+export interface CrewAgent {
+  name: string;
+  role: string;
+  allowed_tools: string[];
+  triggers: string[];
+  budget: { max_tool_calls: number; max_usd: number; max_seconds: number };
+  runs: number;
+  flagged: number;
+  mandatory: boolean;
+  last_run: { id: string; status: string; started: string; tool_calls: number; cost_usd: number; seconds: number | null } | null;
+}
+
+export interface CrewRun {
+  id: string;
+  agent: string;
+  trigger: string;
+  status: string;
+  started: string;
+  ended: string | null;
+  tool_calls: number;
+  tokens: number;
+  cost_usd: number;
+  meta: Record<string, unknown> | null;
+}
+
+export interface CrewMessage {
+  id: string;
+  run_id: string;
+  from: string;
+  to: string;
+  schema: string;
+  payload: Record<string, unknown>;
+  hmac: string;
+  verified: boolean;
+  ts: string;
+}
+
+export interface CrewStatus {
+  agents_enabled: boolean;
+  env_enabled: boolean;
+  crew_enabled: boolean;
+  flag: { value: string; updated_by: string; note: string; updated_at: string } | null;
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -384,5 +428,11 @@ export const api = {
   detectionsLatest: (site: string) => request<DetectionFrame[]>(`/detections/latest${q({ site })}`),
   cameraStatus: () => request<{ configured: boolean; token: boolean }>("/cameras/status"),
   cameraStreamUrl: (site: string, camera: string) => `${API_URL}/cameras/${encodeURIComponent(site)}/${encodeURIComponent(camera)}/stream`,
+  crewStatus: () => request<CrewStatus>("/crew/status"),
+  crewRoster: (site: string) => request<CrewAgent[]>(`/crew/roster${q({ site })}`),
+  crewRuns: (site: string, limit = 50) => request<CrewRun[]>(`/crew/runs${q({ site, limit })}`),
+  crewMessages: (site: string, limit = 100) => request<CrewMessage[]>(`/crew/messages${q({ site, limit })}`),
+  crewKill: (by: string, note: string, confirm: string) => request<{ agents_enabled: boolean }>("/crew/kill", { method: "POST", body: JSON.stringify({ by, note, confirm }) }),
+  crewResume: (by: string) => request<{ agents_enabled: boolean }>("/crew/resume", { method: "POST", body: JSON.stringify({ by }) }),
   index: (site: string, days = 21) => request<{ chunks: number; embedded: number }>(`/admin/index${q({ site, days })}`, { method: "POST" }),
 };

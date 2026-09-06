@@ -9,7 +9,18 @@ from sqlmodel import Session, delete, select
 
 from ..agent.ops_agent import handle_event
 from ..db import get_session
-from ..models import Action, AgentMessage, AgentRun, AskLog, Caption, Chunk, Event, Opinion, Site, ToolCall
+from ..models import (
+    Action,
+    AgentMessage,
+    AgentRun,
+    AskLog,
+    Caption,
+    Chunk,
+    Event,
+    Opinion,
+    Site,
+    ToolCall,
+)
 from ..simulate import generate
 from .sites import ensure_bundled_sites
 
@@ -36,14 +47,18 @@ def seed(site: str = "raqib_demo_store", days: int = Query(21, ge=1, le=90), see
             inserted += 1
     session.commit()
     # Let the agent handle only the recent actionable events so the actions queue is realistic, not thousands deep.
-    cutoff = now.timestamp() - run_agent_last_hours * 3600
+    # The window is anchored to the LATEST actionable event, not the wall clock: seeding while the simulated store is
+    # closed (23:00-08:00 UTC) still yields the previous evening's decisions, so demos and e2e runs do not depend on the hour.
     actionable = session.exec(select(Event).where(Event.site == site, Event.severity >= 1,
                                                   Event.kind.in_(["queue_over", "shelf_gap", "machine_stopped", "zone_breach", "ppe_violation"]))
                               .order_by(Event.ts)).all()
     created = 0
-    for e in actionable:
-        if e.ts.replace(tzinfo=UTC).timestamp() >= cutoff:
-            created += len(handle_event(e, session))
+    if actionable and run_agent_last_hours > 0:
+        anchor = actionable[-1].ts.replace(tzinfo=UTC).timestamp()
+        cutoff = anchor - run_agent_last_hours * 3600
+        for e in actionable:
+            if e.ts.replace(tzinfo=UTC).timestamp() >= cutoff:
+                created += len(handle_event(e, session))
     return {"site": site, "days": days, "inserted": inserted, "actions_created": created, "simulated": True}
 
 

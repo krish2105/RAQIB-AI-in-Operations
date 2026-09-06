@@ -131,6 +131,13 @@ class Runtime:
         self.session.add(run)
         self.session.commit()
         self.session.refresh(run)
+        try:  # live graph: one SSE message per finished run (never a tool call, never pixels)
+            from ..bus import bus as sse_bus
+
+            sse_bus.publish(site, "crew", {"run_id": run.id, "agent": ident.name, "trigger": trigger, "status": run.status,
+                                           "tool_calls": run.tool_calls, "denied": denied, "actions": [a.id for a in actions]})
+        except Exception:  # noqa: BLE001
+            pass
         if run.status != "killed":
             try:
                 self.bus.send(Message(run_id=run.id, from_agent=ident.name, to_agent="Auditor", schema="run_report",

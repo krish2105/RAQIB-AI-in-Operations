@@ -44,6 +44,7 @@ export function ProposalCard({ action, compact = false }: { action: ApiAction; c
         <h3 className="text-[0.9375rem] font-medium text-ink">{toolLabel}</h3>
         <Chip tone={STATUS_TONE[action.status]}>{t(action.status)}</Chip>
         <Chip tone="neutral">{proposal ? t("proposal") : t("autonomous")}</Chip>
+        {action.agent && <Chip tone="signal" data-testid="agent-chip">{action.agent}</Chip>}
         <span className="ms-auto font-mono text-[0.6875rem] text-ink-faint">
           {fmtDateTime(locale, action.created_at)} · {t("confidence")} {fmtPct(locale, action.confidence, 0)}
         </span>

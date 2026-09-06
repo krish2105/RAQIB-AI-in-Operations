@@ -46,9 +46,14 @@ def import_site_yaml(session: Session, raw: dict) -> Site:
 
 
 def ensure_bundled_sites(session: Session) -> None:
+    from sqlalchemy.exc import IntegrityError
+
     for name, path in BUNDLED.items():
         if session.get(Site, name) is None and path.exists():
-            import_site_yaml(session, yaml.safe_load(Path(path).read_text()))
+            try:
+                import_site_yaml(session, yaml.safe_load(Path(path).read_text()))
+            except IntegrityError:  # two first requests raced on a fresh database; the other one won
+                session.rollback()
 
 
 def site_out(session: Session, site: Site) -> SiteOut:

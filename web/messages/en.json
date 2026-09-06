@@ -12,6 +12,7 @@
     "ask": "Ask",
     "watch": "Watch",
     "actions": "Actions",
+    "crew": "Crew",
     "shelves": "Shelves",
     "forecast": "Forecast",
     "report": "Report",
@@ -164,7 +165,12 @@
       "propose_open_till": "Propose opening a till",
       "propose_maintenance_window": "Propose maintenance window",
       "escalate": "Escalate",
-      "request_human_review": "Request human review"
+      "request_human_review": "Request human review",
+      "create_restock_task": "Create restock task",
+      "flag_merchandising": "Flag merchandising check",
+      "propose_staffing_plan": "Propose staffing plan",
+      "quarantine_memory": "Quarantine memory",
+      "flag_run": "Flag agent run"
     }
   },
   "shelves": {
@@ -303,5 +309,50 @@
     "zone": "zone",
     "person": "person",
     "confidence": "confidence"
+  },
+  "crew": {
+    "title": "Crew",
+    "sub": "Six narrow agents on one runtime: allow-listed tools, signed messages, per-run budgets, an Auditor after every run, and a kill switch.",
+    "roster": "Roster",
+    "graph": "Live run graph",
+    "graphSub": "Nodes are agents; edges are signed messages from the last runs. A node lights when it ran in the last minute.",
+    "messages": "Message log",
+    "messagesSub": "Every inter-agent message with its schema and HMAC check.",
+    "runs": "runs",
+    "flagged": "flagged",
+    "lastRun": "Last run",
+    "never": "never",
+    "tools": "Tools",
+    "noTools": "no tools (read-only)",
+    "triggers": "Triggers",
+    "budget": "Budget per run",
+    "calls": "calls",
+    "seconds": "s",
+    "mandatory": "Mandatory",
+    "kill": "Kill switch",
+    "killSub": "Stops every agent at its next tool boundary and returns 503 on agent routes. Events keep flowing through the deterministic policy path, so severity-3 escalation still happens.",
+    "killConfirm": "Type KILL to confirm",
+    "killButton": "Kill all agents",
+    "killing": "Killing",
+    "killed": "Agents disabled",
+    "resume": "Resume agents",
+    "resuming": "Resuming",
+    "enabled": "Agents enabled",
+    "disabled": "Agents disabled",
+    "by": "by {who}",
+    "envLocked": "AGENTS_ENABLED=false in the environment; the flag cannot override it.",
+    "verified": "verified",
+    "tampered": "HMAC failed",
+    "status": {
+      "ok": "ok",
+      "running": "running",
+      "flagged": "flagged",
+      "budget_exceeded": "budget exceeded",
+      "killed": "killed",
+      "error": "error"
+    },
+    "checked": "checked",
+    "empty": "No runs yet. Post a queue event or seed demo history.",
+    "agentChip": "Agent {agent}"
   }
 }
