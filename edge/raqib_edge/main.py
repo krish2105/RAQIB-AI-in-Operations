@@ -47,6 +47,8 @@ def run(
     stream_host: str = typer.Option("127.0.0.1", help="bind address for --stream; 0.0.0.0 for the LAN"),
     stream_token: str = typer.Option(os.environ.get("RAQIB_STREAM_TOKEN") or None, help="token required on stream requests"),
     detections: float = typer.Option(None, help="post boxes-only detections to the API every N seconds"),
+    telemetry: bool = typer.Option(True, help="heartbeat every minute and drift samples every hour to the API"),
+    box_id: str = typer.Option(None, help="edge box id in heartbeats (default: hostname)"),
     verbose: bool = typer.Option(True),
 ) -> None:
     logging.basicConfig(level=logging.INFO if verbose else logging.WARNING, format="%(asctime)s %(levelname)s %(message)s")
@@ -62,6 +64,8 @@ def run(
         stream_host=stream_host,
         stream_token=stream_token,
         detections_every_s=detections,
+        telemetry=telemetry,
+        box_id=box_id,
     )
     _print_stats(stats)
 

@@ -13,7 +13,9 @@ export type EventKind =
   | "footfall_tick"
   | "checkout_served"
   | "price_mismatch"
-  | "planogram_drift";
+  | "planogram_drift"
+  | "model_drift"
+  | "edge_offline";
 
 export interface ApiEvent {
   id: string;
@@ -471,6 +473,52 @@ export interface Me {
   capabilities: Record<string, boolean>;
 }
 
+export interface FleetStore {
+  rank: number;
+  id: string;
+  name: string;
+  region: string;
+  site_ids: string[];
+  service_level: number | null;
+  osa: number | null;
+  compliance: number | null;
+  agent_cost_usd: number;
+  events: number;
+  actions: number;
+  footfall: number;
+  edge: { boxes: number; online: number; offline: number };
+}
+
+export interface CameraDrift {
+  site: string;
+  camera: string;
+  psi: number;
+  psi_det: number;
+  psi_conf: number;
+  hours_over: number;
+  baseline_n: number;
+  current_n: number;
+  suggestion: string | null;
+  threshold: number;
+  hourly: Array<{ hour: string; psi: number; samples: number }>;
+}
+
+export interface EdgeBox {
+  box_id: string;
+  status: "online" | "degraded" | "offline" | "unknown";
+  last_seen: string | null;
+  gap_s: number | null;
+  fps: number | null;
+  temp_c: number | null;
+  queue_depth: number | null;
+  model_hash: string | null;
+  detector: string | null;
+  version: string | null;
+  cameras: string[];
+  heartbeats_24h: number;
+  fps_24h: Array<{ ts: string; fps: number; queue_depth: number }>;
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -562,6 +610,9 @@ export const api = {
   },
   shelves: (site: string, window_h = 24 * 7) => request<ShelvesOut>(`/shelves${q({ site, window_h })}`),
   me: () => request<Me>("/auth/me"),
+  fleetLeaderboard: (kpi: string, window_h = 24) => request<{ kpi: string; window_h: number; stores: FleetStore[] }>(`/fleet/leaderboard${q({ kpi, window_h })}`),
+  fleetDrift: (site: string) => request<{ site: string; cameras: CameraDrift[] }>(`/fleet/drift${q({ site })}`),
+  fleetHealth: (site: string) => request<{ site: string; boxes: EdgeBox[]; edge_offline_events: string[] }>(`/fleet/health${q({ site })}`),
   integrationStatus: () => request<IntegrationStatus>("/integrations/status"),
   optins: (site: string) => request<OptIn[]>(`/notify/optins${q({ site })}`),
   optIn: (body: { site: string; phone: string; role: string; lang: string }) => request<{ id: number; created: boolean }>("/notify/optins", { method: "POST", body: JSON.stringify(body) }),

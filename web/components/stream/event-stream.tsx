@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Cog, Footprints, HardHat, LayoutGrid, PackageOpen, Receipt, ShieldAlert, Tag, Users, Video } from "lucide-react";
+import { Activity, Cog, Footprints, HardHat, LayoutGrid, PackageOpen, Receipt, ShieldAlert, Tag, Users, Video, WifiOff } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
@@ -24,6 +24,8 @@ const ICONS: Record<EventKind, React.ComponentType<{ className?: string; strokeW
   shelf_gap: PackageOpen,
   price_mismatch: Tag,
   planogram_drift: LayoutGrid,
+  model_drift: Activity,
+  edge_offline: WifiOff,
   footfall_tick: Footprints,
   checkout_served: Receipt,
 };

@@ -16,6 +16,7 @@
     "shelves": "Shelves",
     "twin": "Twin",
     "forecast": "Forecast",
+    "fleet": "Fleet",
     "report": "Report",
     "collapse": "Collapse menu",
     "expand": "Expand menu",
@@ -55,7 +56,9 @@
     "footfall_tick": "Footfall",
     "checkout_served": "Checkout served",
     "price_mismatch": "Price tag mismatch",
-    "planogram_drift": "Planogram drift"
+    "planogram_drift": "Planogram drift",
+    "model_drift": "Model drift",
+    "edge_offline": "Edge box offline"
   },
   "kpi": {
     "serviceLevel": "Service level",
@@ -468,5 +471,49 @@
     "role": "role",
     "required": "Sign in required",
     "requiredSub": "This API requires a signed-in user for every route."
+  },
+  "fleet": {
+    "title": "Fleet",
+    "sub": "Every store on one board, model drift per camera, and edge box health.",
+    "leaderboard": "Leaderboard",
+    "leaderboardSub": "Stores ranked by the chosen KPI over the window",
+    "kpi": "KPI",
+    "kpis": {
+      "service_level": "Service level",
+      "osa": "On-shelf availability",
+      "compliance": "PPE compliance",
+      "agent_cost_usd": "Agent cost",
+      "events": "Events",
+      "actions": "Agent runs"
+    },
+    "store": "Store",
+    "region": "Region",
+    "edge": "Edge",
+    "drift": "Model drift",
+    "driftSub": "PSI of detection count and confidence per camera vs the last 7 days; an alert after 3 hours over 0.2",
+    "psi": "PSI",
+    "hoursOver": "hours over",
+    "baseline": "baseline samples",
+    "suggestion": {
+      "relabel": "Relabel: confidence dropped while the scene did not change",
+      "clean_lens": "Clean the lens: blur rose sharply",
+      "check_lighting": "Check lighting: brightness moved",
+      "re_aim": "Re-aim the camera: detections fell with steady light"
+    },
+    "noDrift": "No drift samples yet. Run the edge box with telemetry on.",
+    "health": "Edge boxes",
+    "healthSub": "Heartbeats every minute: fps, queue depth, model hash. Offline after 5 minutes of silence.",
+    "status": {
+      "online": "online",
+      "degraded": "degraded",
+      "offline": "offline",
+      "unknown": "unknown"
+    },
+    "lastSeen": "last seen",
+    "fps": "fps",
+    "queue": "queue depth",
+    "model": "model",
+    "noBoxes": "No heartbeats yet for this site.",
+    "window": "Window"
   }
 }

@@ -45,6 +45,8 @@ class Stats:
     synced: int = 0
     stream_frames: int = 0
     detections_posted: int = 0
+    heartbeats: int = 0
+    drift_posts: int = 0
 
     def as_dict(self) -> dict:
         return self.__dict__.copy()
@@ -203,6 +205,8 @@ def run_pipeline(
     stream_host: str = "127.0.0.1",
     stream_token: str | None = None,
     detections_every_s: float | None = None,
+    telemetry: bool = True,
+    box_id: str | None = None,
 ) -> Stats:
     site = load_site(site) if not isinstance(site, Site) else site
     data_dir = REPO_ROOT / "edge" / "data"
@@ -238,6 +242,11 @@ def run_pipeline(
         from .stream import DetectionsPoster
 
         poster = DetectionsPoster(api, site.name, every_s=detections_every_s)
+    tele = None
+    if telemetry and api:
+        from .telemetry import Telemetry
+
+        tele = Telemetry(api, site.name, box_id=box_id, weights=getattr(det, "weights", None), detector=det.name)
     try:
         while True:
             for w, it in zip(workers, iters, strict=True):
@@ -255,6 +264,8 @@ def run_pipeline(
                     log.info("event %s sev%d %s %s", e.rule_id, e.severity, e.kind, e.payload)
                 if show is not None and w.last_frame is not None and not show.render(w, stats):
                     return stats
+                if tele is not None and w.last_frame is not None:
+                    tele.observe(w.cam.name, w.last_tracks, w.last_frame)
                 if (stream is not None or poster is not None) and w.last_frame is not None:
                     from .stream import boxes_from_tracks
 
@@ -267,6 +278,11 @@ def run_pipeline(
             if syncer and time.perf_counter() - last_sync >= sync_every_s:
                 stats.synced += syncer.push_once()
                 last_sync = time.perf_counter()
+            if tele is not None:
+                elapsed = time.perf_counter() - t_start
+                sent = tele.maybe_send(stats.frames / elapsed if elapsed > 0 else 0.0, len(store.unsynced(1000)), cam_names)
+                stats.heartbeats += int(sent["heartbeat"])
+                stats.drift_posts += int(sent["drift"])
             if max_frames is not None and stats.frames >= max_frames:
                 break
     finally:
@@ -285,4 +301,9 @@ def run_pipeline(
             show.close()
         if stream is not None:
             stream.close()
+        if tele is not None and stats.frames:
+            elapsed = time.perf_counter() - t_start
+            sent = tele.maybe_send(stats.frames / elapsed if elapsed > 0 else 0.0, len(store.unsynced(1000)), cam_names, force=True)
+            stats.heartbeats += int(sent["heartbeat"])
+            stats.drift_posts += int(sent["drift"])
     return stats

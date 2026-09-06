@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { BarChart3, ChevronsLeft, ChevronsRight, FileText, Eye, LayoutDashboard, ListChecks, Map, MessageSquareText, PackageOpen, Settings, Timer, Users } from "lucide-react";
+import { BarChart3, ChevronsLeft, ChevronsRight, FileText, Eye, LayoutDashboard, ListChecks, Map, MessageSquareText, Network, PackageOpen, Settings, Timer, Users } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ const ITEMS = [
   { href: "/shelves", key: "shelves", Icon: PackageOpen, profiles: ["retail"] },
   { href: "/twin", key: "twin", Icon: Timer, profiles: ["retail", "factory"] },
   { href: "/forecast", key: "forecast", Icon: BarChart3, profiles: ["retail", "factory"] },
+  { href: "/fleet", key: "fleet", Icon: Network, profiles: ["retail", "factory"] },
   { href: "/report", key: "report", Icon: FileText, profiles: ["retail", "factory"] },
   { href: "/settings", key: "settings", Icon: Settings, profiles: ["retail", "factory"] },
 ] as const;

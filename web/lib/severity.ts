@@ -20,7 +20,7 @@ export function severityMeta(level: number): SeverityMeta {
 }
 
 /** Which event kinds are "operational signals" worth a tick on the tape (footfall is the trace itself). */
-export const TICK_KINDS: EventKind[] = ["ppe_violation", "zone_breach", "machine_stopped", "queue_over", "shelf_gap", "price_mismatch", "planogram_drift"];
+export const TICK_KINDS: EventKind[] = ["ppe_violation", "zone_breach", "machine_stopped", "queue_over", "shelf_gap", "price_mismatch", "planogram_drift", "model_drift", "edge_offline"];
 
 export const KIND_ICON: Record<EventKind, string> = {
   ppe_violation: "HardHat",
@@ -32,6 +32,8 @@ export const KIND_ICON: Record<EventKind, string> = {
   checkout_served: "Receipt",
   price_mismatch: "Tag",
   planogram_drift: "LayoutGrid",
+  model_drift: "Activity",
+  edge_offline: "WifiOff",
 };
 
 export function isProposal(tool: string): boolean {

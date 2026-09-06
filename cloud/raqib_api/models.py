@@ -369,6 +369,24 @@ class NotifyOptIn(SQLModel, table=True):
     opted_out_at: datetime | None = None
 
 
+class EdgeHeartbeat(SQLModel, table=True):
+    """One row per heartbeat from an edge box: fps, temperature, sync queue depth, model hash, cameras."""
+
+    __tablename__ = "edge_heartbeats"
+    id: int | None = Field(default=None, primary_key=True)
+    site: str = Field(index=True)
+    box_id: str = Field(index=True)
+    ts: datetime = Field(default_factory=utcnow, index=True)
+    fps: float = 0.0
+    temp_c: float | None = None
+    queue_depth: int = 0
+    model_hash: str = ""
+    detector: str = ""
+    version: str = ""
+    cameras: list[str] = Field(default_factory=list, sa_column=Column(JSON))
+    meta: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
+
+
 V2_TABLES = ("captions", "documents", "chunks", "memories", "agent_runs", "agent_messages", "users", "stores",
              "drift_samples", "quota_counters", "ask_log", "opinions", "crew_flags", "memory_snapshots", "pos_transactions",
-             "notify_optins")
+             "notify_optins", "edge_heartbeats")

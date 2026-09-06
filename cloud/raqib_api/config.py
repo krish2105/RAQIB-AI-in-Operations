@@ -93,6 +93,12 @@ class Settings(BaseSettings):
     rate_ask_per_min: int = 20
     rate_vlm_per_min: int = 10
 
+    # ---- v2: fleet, drift, health ----
+    drift_psi_threshold: float = 0.2
+    drift_hours: int = 3  # consecutive hours over the threshold before a model_drift event
+    drift_baseline_days: int = 7
+    heartbeat_offline_s: int = 300
+
     # ---- v2: integrations ----
     whatsapp_phone_id: str | None = None
     whatsapp_token: str | None = None
