@@ -1,4 +1,5 @@
 /** Typed client for the RAQIB API. All fetches go through here. */
+import { authHeaders } from "./auth";
 
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
@@ -460,6 +461,16 @@ export interface OptIn {
   opted_in_at: string;
 }
 
+export interface Me {
+  id: string;
+  email: string;
+  role: "viewer" | "operator" | "manager" | "admin";
+  site_ids: string[];
+  anonymous: boolean;
+  auth_required: boolean;
+  capabilities: Record<string, boolean>;
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -470,7 +481,7 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, { ...init, headers: { "content-type": "application/json", ...(init?.headers || {}) } });
+  const res = await fetch(`${API_URL}${path}`, { ...init, headers: authHeaders({ "content-type": "application/json", ...(init?.headers || {}) }) });
   if (!res.ok) {
     let detail = res.statusText;
     try {
@@ -545,11 +556,12 @@ export const api = {
     fd.append("kind", kind);
     fd.append("title", title);
     fd.append("file", new Blob([text], { type: "text/markdown" }), filename);
-    const res = await fetch(`${API_URL}/documents`, { method: "POST", body: fd });
+    const res = await fetch(`${API_URL}/documents`, { method: "POST", body: fd, headers: authHeaders(undefined) });
     if (!res.ok) throw new ApiError(res.status, res.statusText);
     return res.json() as Promise<ApiDocument & { created: boolean }>;
   },
   shelves: (site: string, window_h = 24 * 7) => request<ShelvesOut>(`/shelves${q({ site, window_h })}`),
+  me: () => request<Me>("/auth/me"),
   integrationStatus: () => request<IntegrationStatus>("/integrations/status"),
   optins: (site: string) => request<OptIn[]>(`/notify/optins${q({ site })}`),
   optIn: (body: { site: string; phone: string; role: string; lang: string }) => request<{ id: number; created: boolean }>("/notify/optins", { method: "POST", body: JSON.stringify(body) }),
@@ -560,7 +572,7 @@ export const api = {
     const fd = new FormData();
     fd.append("site", site);
     fd.append("file", file, filename);
-    const res = await fetch(`${API_URL}/pos/import`, { method: "POST", body: fd });
+    const res = await fetch(`${API_URL}/pos/import`, { method: "POST", body: fd, headers: authHeaders(undefined) });
     if (!res.ok) {
       let detail = res.statusText;
       try {

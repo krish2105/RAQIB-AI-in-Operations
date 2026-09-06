@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 
 from ..agent.ops_agent import approve_action, reject_action
+from ..auth.deps import current_principal, require, scope_site
+from ..auth.rbac import Principal
 from ..bus import bus
 from ..db import get_session
 from ..models import Action, ToolCall
@@ -13,8 +15,9 @@ router = APIRouter(tags=["actions"])
 
 
 @router.get("/actions", response_model=list[ActionOut])
-def list_actions(site: str | None = None, status: str | None = None, tool: str | None = None,
+def list_actions(site: str | None = None, status: str | None = None, tool: str | None = None, p: Principal = Depends(current_principal),
                  limit: int = Query(100, ge=1, le=1000), session: Session = Depends(get_session)) -> list[Action]:
+    scope_site(p, site)
     q = select(Action)
     if site:
         q = q.where(Action.site == site)
@@ -34,10 +37,11 @@ def get_action(action_id: int, session: Session = Depends(get_session)) -> Actio
 
 
 @router.post("/actions/{action_id}/approve", response_model=ActionOut)
-def approve(action_id: int, body: Decide | None = None, session: Session = Depends(get_session)) -> Action:
+def approve(action_id: int, body: Decide | None = None, p: Principal = Depends(require("approve")), session: Session = Depends(get_session)) -> Action:
     a = session.get(Action, action_id)
     if a is None:
         raise HTTPException(404, "action not found")
+    scope_site(p, a.site)
     if a.status != "proposed":
         raise HTTPException(409, f"action is {a.status}, only proposed actions can be approved")
     body = body or Decide()
@@ -47,10 +51,11 @@ def approve(action_id: int, body: Decide | None = None, session: Session = Depen
 
 
 @router.post("/actions/{action_id}/reject", response_model=ActionOut)
-def reject(action_id: int, body: Decide | None = None, session: Session = Depends(get_session)) -> Action:
+def reject(action_id: int, body: Decide | None = None, p: Principal = Depends(require("approve")), session: Session = Depends(get_session)) -> Action:
     a = session.get(Action, action_id)
     if a is None:
         raise HTTPException(404, "action not found")
+    scope_site(p, a.site)
     if a.status != "proposed":
         raise HTTPException(409, f"action is {a.status}, only proposed actions can be rejected")
     body = body or Decide()

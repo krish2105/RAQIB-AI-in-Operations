@@ -11,6 +11,8 @@ from pydantic import BaseModel, Field
 from sqlmodel import Session, select
 from ulid import ULID
 
+from ..auth.deps import ASK_LIMIT, rate_limited, scope_site
+from ..auth.rbac import Principal
 from ..db import get_session
 from ..models import AskLog
 from ..rag.answer import answer
@@ -45,13 +47,15 @@ def run_ask(body: AskIn, session: Session, now: datetime | None = None) -> dict:
 
 
 @router.post("/ask")
-def ask(body: AskIn, session: Session = Depends(get_session)) -> dict:
+def ask(body: AskIn, p: Principal = Depends(rate_limited(ASK_LIMIT, "ask")), session: Session = Depends(get_session)) -> dict:
+    scope_site(p, body.site)
     return run_ask(body, session)
 
 
 @router.get("/ask/stream")
 def ask_stream(q: str = Query(min_length=2, max_length=500), site: str = Query(...), lang: str | None = Query(None, pattern="^(en|hi|ar)$"),
-               session: Session = Depends(get_session)) -> StreamingResponse:
+               p: Principal = Depends(rate_limited(ASK_LIMIT, "ask")), session: Session = Depends(get_session)) -> StreamingResponse:
+    scope_site(p, site)
     """Server-sent stages: plan → hits → answer text in word groups → done. Lets the UI render progressively."""
 
     def gen():

@@ -8,6 +8,8 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Upload
 from fastapi.responses import PlainTextResponse
 from sqlmodel import Session, func, select
 
+from ..auth.deps import require
+from ..auth.rbac import Principal
 from ..db import get_session
 from ..integrations.pos import CsvAdapter, import_rows, sample_csv, transactions
 from ..models import Event, PosTransaction, Site
@@ -18,7 +20,7 @@ router = APIRouter(prefix="/pos", tags=["pos"])
 
 
 @router.post("/import", status_code=201)
-async def import_csv(site: str = Form(...), file: UploadFile = File(...), session: Session = Depends(get_session)) -> dict:
+async def import_csv(site: str = Form(...), file: UploadFile = File(...), p: Principal = Depends(require("manage")), session: Session = Depends(get_session)) -> dict:
     if not (file.filename or "").lower().endswith(".csv"):
         raise HTTPException(415, "upload a .csv with columns ts, till, txn_id, items, amount")
     text = (await file.read()).decode("utf-8", errors="replace")

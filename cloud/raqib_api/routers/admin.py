@@ -8,6 +8,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, delete, select
 
 from ..agent.ops_agent import handle_event
+from ..auth.deps import require
+from ..auth.rbac import Principal
 from ..db import get_session
 from ..models import (
     Action,
@@ -29,7 +31,7 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 
 @router.post("/seed")
 def seed(site: str = "raqib_demo_store", days: int = Query(21, ge=1, le=90), seed: int = 7, run_agent_last_hours: int = Query(6, ge=0, le=48),
-         reset: bool = True, session: Session = Depends(get_session)) -> dict:
+         reset: bool = True, p: Principal = Depends(require("manage")), session: Session = Depends(get_session)) -> dict:
     ensure_bundled_sites(session)
     s = session.get(Site, site)
     if s is None:
@@ -64,7 +66,7 @@ def seed(site: str = "raqib_demo_store", days: int = Query(21, ge=1, le=90), see
 
 @router.post("/index")
 def index(site: str = "raqib_demo_store", days: float = Query(21, ge=0.01, le=400), embed: bool = True, captions: bool = False,
-          session: Session = Depends(get_session)) -> dict:
+          p: Principal = Depends(require("manage")), session: Session = Depends(get_session)) -> dict:
     """Chunk (and embed when an embedder is reachable) the last `days` of events and KPIs so Ask can answer.
     Captions are off by default here: the indexer with a VLM runs on the Mac / edge box (`raqib-api index`)."""
     from datetime import timedelta
@@ -89,6 +91,6 @@ def _reset_site(site: str, session: Session) -> None:
 
 
 @router.post("/reset")
-def reset(site: str, session: Session = Depends(get_session)) -> dict:
+def reset(site: str, p: Principal = Depends(require("manage")), session: Session = Depends(get_session)) -> dict:
     _reset_site(site, session)
     return {"site": site, "reset": True}

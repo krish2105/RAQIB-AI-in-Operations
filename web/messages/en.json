@@ -453,5 +453,20 @@
     "breaker": "breaker after {n} failures, {s} s cooldown",
     "webhook": "Alert webhook",
     "stream": "Camera stream upstream"
+  },
+  "auth": {
+    "title": "Sign in",
+    "sub": "RAQIB uses Supabase Auth. A magic link by email, or Google. Roles are assigned by an admin on the API side.",
+    "email": "Email",
+    "sendLink": "Send magic link",
+    "sending": "Sending",
+    "sent": "Check your inbox for the sign-in link.",
+    "google": "Continue with Google",
+    "notConfigured": "Sign-in is not configured for this deployment (NEXT_PUBLIC_SUPABASE_URL). The demo runs signed out.",
+    "signedInAs": "Signed in as",
+    "signOut": "Sign out",
+    "role": "role",
+    "required": "Sign in required",
+    "requiredSub": "This API requires a signed-in user for every route."
   }
 }

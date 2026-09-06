@@ -5,6 +5,8 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from sqlmodel import Session, select
 
+from ..auth.deps import require
+from ..auth.rbac import Principal
 from ..db import get_session
 from ..models import Chunk, Document
 from ..rag.indexer import DOC_KINDS, ingest_document
@@ -20,7 +22,7 @@ def _out(d: Document, chunks: int | None = None) -> dict:
 
 @router.post("/documents", status_code=201)
 async def upload_document(site: str = Form(...), kind: str = Form(...), title: str = Form(""), lang: str = Form("en"),
-                          file: UploadFile = File(...), session: Session = Depends(get_session)) -> dict:
+                          file: UploadFile = File(...), p: Principal = Depends(require("manage")), session: Session = Depends(get_session)) -> dict:
     if kind not in DOC_KINDS:
         raise HTTPException(422, f"kind must be one of {DOC_KINDS}")
     name = file.filename or "document"

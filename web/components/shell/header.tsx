@@ -12,6 +12,7 @@ import { api } from "@/lib/api";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Wordmark } from "./rail";
+import { UserChip } from "@/components/auth/user-chip";
 
 const LOCALE_LABEL: Record<string, string> = { en: "EN", hi: "हिं", ar: "ع" };
 
@@ -55,6 +56,7 @@ export function Header() {
       </label>
 
       <LivePill state={live} labels={{ live: t("live"), connecting: t("connecting"), reconnecting: t("reconnecting"), off: t("offline") }} />
+      <UserChip />
 
       {kpis.data && kpis.data.simulated_share > 0 && (
         <span className="hidden items-center gap-1.5 rounded-full border border-hairline px-2 py-0.5 font-mono text-[0.6875rem] text-ink-muted md:inline-flex" title={t("simulated")}>

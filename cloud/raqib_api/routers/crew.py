@@ -6,6 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlmodel import Session, func, select
 
+from ..auth.deps import require
+from ..auth.rbac import Principal
 from ..config import settings
 from ..crew.killswitch import KEY, enabled, set_enabled
 from ..db import get_session
@@ -42,7 +44,7 @@ class Kill(BaseModel):
 
 
 @router.post("/kill")
-def kill(body: Kill, session: Session = Depends(get_session)) -> dict:
+def kill(body: Kill, p: Principal = Depends(require("policy")), session: Session = Depends(get_session)) -> dict:
     if body.confirm != "KILL":
         raise HTTPException(422, 'type KILL to confirm')
     row = set_enabled(session, False, body.by, body.note)
@@ -55,7 +57,7 @@ class Resume(BaseModel):
 
 
 @router.post("/resume")
-def resume(body: Resume, session: Session = Depends(get_session)) -> dict:
+def resume(body: Resume, p: Principal = Depends(require("policy")), session: Session = Depends(get_session)) -> dict:
     if not settings.agents_enabled:
         raise HTTPException(409, "AGENTS_ENABLED=false in the environment; the flag cannot override it")
     row = set_enabled(session, True, body.by, body.note)
@@ -141,7 +143,7 @@ def list_memory(site: str = Query(...), agent: str | None = None, include_quaran
 
 
 @router.post("/memory", status_code=201)
-def write_memory(body: MemoryIn, session: Session = Depends(get_session)) -> dict:
+def write_memory(body: MemoryIn, p: Principal = Depends(require("manage")), session: Session = Depends(get_session)) -> dict:
     from ..crew.memory import remember
 
     row, s = remember(body.site, body.agent, body.key, body.value, source=body.source, written_by=body.written_by, session=session,
@@ -166,7 +168,7 @@ def list_snapshots(site: str = Query(...), session: Session = Depends(get_sessio
 
 
 @router.post("/memory/rollback")
-def rollback_memory(site: str = Query(...), snapshot: int = Query(...), by: str = "admin", session: Session = Depends(get_session)) -> dict:
+def rollback_memory(site: str = Query(...), snapshot: int = Query(...), by: str = "admin", p: Principal = Depends(require("policy")), session: Session = Depends(get_session)) -> dict:
     from ..crew.memory import rollback
 
     try:

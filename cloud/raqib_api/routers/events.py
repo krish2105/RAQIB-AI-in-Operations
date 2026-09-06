@@ -10,6 +10,8 @@ from fastapi.responses import FileResponse
 from sqlmodel import Session, select
 
 from ..agent.ops_agent import handle_event
+from ..auth.deps import current_principal, require, scope_site
+from ..auth.rbac import Principal
 from ..bus import bus
 from ..config import settings
 from ..db import get_session
@@ -28,7 +30,7 @@ def _out(e: Event, has_clip: bool | None = None) -> EventOut:
 
 
 @router.post("/events/batch", response_model=BatchResult, status_code=201)
-def ingest_batch(batch: EventBatch, session: Session = Depends(get_session)) -> BatchResult:
+def ingest_batch(batch: EventBatch, p: Principal = Depends(require("ingest")), session: Session = Depends(get_session)) -> BatchResult:
     inserted = dup = created = 0
     for ev in batch.events:
         if session.get(Event, ev.id) is not None:
@@ -67,9 +69,13 @@ def list_events(
     severity: int | None = Query(None, ge=1, le=3),
     min_severity: int | None = Query(None, ge=1, le=3),
     limit: int = Query(100, ge=1, le=5000),
+    p: Principal = Depends(current_principal),
     session: Session = Depends(get_session),
 ) -> list[EventOut]:
+    scope_site(p, site)
     q = select(Event)
+    if p.site_ids and not site:
+        q = q.where(Event.site.in_(list(p.site_ids)))
     if site:
         q = q.where(Event.site == site)
     if since:
@@ -88,15 +94,16 @@ def list_events(
 
 
 @router.get("/events/{event_id}", response_model=EventOut)
-def get_event(event_id: str, session: Session = Depends(get_session)) -> EventOut:
+def get_event(event_id: str, p: Principal = Depends(current_principal), session: Session = Depends(get_session)) -> EventOut:
     e = session.get(Event, event_id)
     if e is None:
         raise HTTPException(404, "event not found")
+    scope_site(p, e.site)
     return _out(e, session.get(Clip, event_id) is not None)
 
 
 @router.put("/clips/{event_id}", status_code=201)
-async def upload_clip(event_id: str, background: BackgroundTasks, file: UploadFile = File(...), session: Session = Depends(get_session)) -> dict:
+async def upload_clip(event_id: str, background: BackgroundTasks, file: UploadFile = File(...), p: Principal = Depends(require("ingest")), session: Session = Depends(get_session)) -> dict:
     if session.get(Event, event_id) is None:
         raise HTTPException(404, "event not found")
     dest = Path(settings.clips_dir) / f"{event_id}.mp4"

@@ -5,6 +5,8 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, func, select
 
+from ..auth.deps import VLM_LIMIT, rate_limited, require
+from ..auth.rbac import Principal
 from ..db import get_session
 from ..models import Event, Opinion
 from ..vlm.opinion import opine_event
@@ -21,7 +23,7 @@ def _out(o: Opinion) -> dict:
 
 
 @router.post("/vlm/opinion/{event_id}", status_code=201)
-def request_opinion(event_id: str, session: Session = Depends(get_session)) -> dict:
+def request_opinion(event_id: str, p: Principal = Depends(require("approve")), _: Principal = Depends(rate_limited(VLM_LIMIT, "vlm")), session: Session = Depends(get_session)) -> dict:
     if session.get(Event, event_id) is None:
         raise HTTPException(404, "event not found")
     o = opine_event(event_id, session, trigger="on_demand")

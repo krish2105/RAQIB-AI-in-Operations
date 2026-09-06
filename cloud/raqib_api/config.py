@@ -84,6 +84,15 @@ class Settings(BaseSettings):
     memory_max_value_chars: int = 2000
     memory_churn_per_hour: int = 30
 
+    # ---- v2: auth and RBAC (Supabase Auth JWTs) ----
+    auth_required: bool = False  # False: unauthenticated requests act as the dev admin (local dev, demo); True: JWT on every route
+    supabase_url: str | None = None  # https://<ref>.supabase.co ; JWKS at /auth/v1/.well-known/jwks.json
+    supabase_jwt_secret: str | None = None  # legacy HS256 secret; when set it is used instead of JWKS
+    auth_admin_emails: str = ""  # comma list; these become admin on first login
+    auth_default_role: str = "viewer"
+    rate_ask_per_min: int = 20
+    rate_vlm_per_min: int = 10
+
     # ---- v2: integrations ----
     whatsapp_phone_id: str | None = None
     whatsapp_token: str | None = None

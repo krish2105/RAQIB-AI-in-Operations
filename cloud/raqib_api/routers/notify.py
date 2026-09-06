@@ -9,6 +9,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlmodel import Session, select
 
+from ..auth.deps import require
+from ..auth.rbac import Principal
 from ..config import settings
 from ..db import get_session
 from ..integrations.whatsapp import TEMPLATES, WhatsAppClient
@@ -32,7 +34,7 @@ def list_optins(site: str = Query(...), session: Session = Depends(get_session))
 
 
 @router.post("/notify/optins", status_code=201)
-def opt_in(body: OptIn, session: Session = Depends(get_session)) -> dict:
+def opt_in(body: OptIn, p: Principal = Depends(require("approve")), session: Session = Depends(get_session)) -> dict:
     phone = re.sub(r"\D", "", body.phone)
     existing = session.exec(select(NotifyOptIn).where(NotifyOptIn.site == body.site, NotifyOptIn.phone == phone, NotifyOptIn.opted_out_at.is_(None))).first()
     if existing:
@@ -45,7 +47,7 @@ def opt_in(body: OptIn, session: Session = Depends(get_session)) -> dict:
 
 
 @router.delete("/notify/optins/{optin_id}")
-def opt_out(optin_id: int, session: Session = Depends(get_session)) -> dict:
+def opt_out(optin_id: int, p: Principal = Depends(require("approve")), session: Session = Depends(get_session)) -> dict:
     row = session.get(NotifyOptIn, optin_id)
     if row is None:
         raise HTTPException(404, "opt-in not found")

@@ -33,6 +33,7 @@ dependencies = [
   "dateparser>=1.2",
   "jsonschema>=4.23",
   "pypdf>=5.0",
+  "pyjwt[crypto]>=2.9",
 ]
 
 [project.optional-dependencies]
