@@ -1,0 +1,74 @@
+{
+  "date": "2026-09-06",
+  "auth": {
+    "provider": "Supabase Auth (magic link, Google)",
+    "verification": "HS256 project secret or JWKS, server-side",
+    "roles": [
+      "viewer",
+      "operator",
+      "manager",
+      "admin"
+    ],
+    "site_scoping": "users.site_ids",
+    "rate_limits": {
+      "ask_per_min": 20,
+      "vlm_per_min": 10
+    },
+    "matrix": "docs/rbac.md",
+    "live_demo": "AUTH_REQUIRED=false (signed-out dev admin) until Supabase Auth providers are configured"
+  },
+  "drift": {
+    "sample_every_s": 120,
+    "window_h": 2,
+    "bins": 5,
+    "baseline_days": 7,
+    "threshold_psi": 0.2,
+    "hours_over": 3,
+    "healthy_psi_measured": "0.04-0.10",
+    "injected_confidence_drop_psi": 3.56,
+    "suggestions": [
+      "relabel",
+      "clean_lens",
+      "check_lighting",
+      "re_aim"
+    ]
+  },
+  "health": {
+    "heartbeat_s": 60,
+    "offline_after_s": 300,
+    "fields": [
+      "fps",
+      "temp_c",
+      "queue_depth",
+      "model_hash",
+      "detector",
+      "version",
+      "cameras"
+    ]
+  },
+  "retention": {
+    "clips_days": 30,
+    "events_days": 400,
+    "memories_days": 90,
+    "pinned_kept": true,
+    "logged": true
+  },
+  "observability": {
+    "spans": "one per model call with model, tokens, cost, latency, prompt hash",
+    "exporters": [
+      "none",
+      "console",
+      "otlp-http"
+    ],
+    "ledger": "llm_spans",
+    "cost_kpi": "GET /cost per site per day"
+  },
+  "tests": {
+    "cloud_total": 163,
+    "edge_total": 64,
+    "web": 35,
+    "auth": 8,
+    "fleet": 6,
+    "ops": 3
+  }
+}

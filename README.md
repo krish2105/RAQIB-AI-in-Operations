@@ -12,6 +12,7 @@ One engine, two site profiles, three languages (EN / HI / AR), faces blurred bef
 - **Dashboard:** https://raqib-orcin.vercel.app
 - **API:** https://raqib-backend-7qdg.onrender.com (docs at `/docs`)
 - **Repo:** https://github.com/krish2105/RAQIB-AI-in-Operations
+- **Fleet (v2, Phase J):** https://raqib-orcin.vercel.app/en/fleet — store leaderboard, per-camera model drift (PSI against a 7-day baseline with a suggested fix), edge box health from heartbeats; Supabase Auth with four roles and site scoping (`docs/rbac.md`), retention job, OpenTelemetry span per model call, and a cost-per-day tile that stays at $0.
 - **Integrations (v2, Phase I):** https://raqib-orcin.vercel.app/en/settings — POS CSV import with a POS-derived service rate, planogram diff and price-tag OCR on the edge (rules R14 and R15, shown on Shelves), WhatsApp approved-template alerts to an opt-in roster, and a Greenlam client with retries, idempotency and a circuit breaker.
 - **Twin (v2, Phase H):** https://raqib-orcin.vercel.app/en/twin — replay any day at one-minute resolution on the 3D floor, scrub at up to 600×, and re-run the queue model and staffing MILP under what-if sliders; save a scenario for Ask to cite.
 - **Crew (v2, Phase G):** https://raqib-orcin.vercel.app/en/crew — six narrow agents on one runtime: allow-listed tools, HMAC-signed messages, per-run budgets, an Auditor after every run, guarded memory, and a kill switch that returns 503 on agent routes while severity-3 escalation keeps flowing through the deterministic path.
@@ -31,7 +32,8 @@ The API is a Render free-tier instance: it sleeps after 15 minutes idle (first r
 7. Open **Crew** → the roster with budgets, the live run graph and the signed message log; post a queue event (or approve one in Actions) and watch FloorOps light and the Auditor check it; type KILL to stop every agent and Resume to bring them back.
 8. Open **Twin** → pick yesterday, press Play, watch the floor breathe with the day; move the tills slider and read the before/after wait and staff-hours; Save as scenario.
 9. Open **Settings** → download the labelled POS sample, import it, and watch the queue model's μ switch to POS; add a WhatsApp opt-in (templates only, nothing is sent until the Cloud API is configured). Open **Shelves** → planogram compliance and price-tag mismatches per shelf.
-10. Open **Ask** → press `/`, type "Which till had the longest queue last Friday evening?" (or pick an example, in Hindi or Arabic) → a cited answer; click a citation chip to open the event or the SOP section it came from.
+10. Open **Fleet** → the leaderboard (switch the KPI), the drift panel (empty until an edge box posts samples), and edge health; the dashboard's new **Inference cost today** tile reads $0 on the free providers.
+11. Open **Ask** → press `/`, type "Which till had the longest queue last Friday evening?" (or pick an example, in Hindi or Arabic) → a cited answer; click a citation chip to open the event or the SOP section it came from.
 
 ## What it does
 
@@ -118,6 +120,16 @@ The spec targets (mAP50 ≥ 0.80, forecast ≥ 20 % better than naive, zone-brea
 | Ask latency (M4 Pro, qwen3:8b) | mean 18.1 s, p95 24.0 s, 1488 tokens per query | same |
 | Ask on the live API (no model) | 0.2 s, records-only cited answers | measured 2026-09-06 |
 | Inference spend | $0 | `docs/models.md` |
+
+### Fleet, auth, ops (v2 Phase J)
+
+| Measure | Value | Source |
+|---|---|---|
+| Auth | Supabase JWTs verified server-side; viewer < operator < manager < admin; site scoping; Ask 20/min and VLM 10/min per user | `docs/rbac.md`, `cloud/tests/test_auth.py` |
+| Drift | PSI on two-minute samples over a two-hour window vs 7 days; healthy 0.04–0.10, injected confidence drop 3.56; alert after 3 hours over 0.2 with a suggested fix | `docs/results/fleet.json` |
+| Edge health | heartbeat every minute; offline after 5 minutes; one `edge_offline` event per outage | same |
+| Retention | clips 30 d, events 400 d, memories 90 d unless pinned; every run logged | `cloud/tests/test_ops.py` |
+| Cost | one span per model call; daily KPI equals the sum of spans; $0 on Ollama/Gemini/Groq | same |
 
 ### Integrations (v2 Phase I)
 
