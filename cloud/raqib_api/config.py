@@ -28,8 +28,40 @@ class Settings(BaseSettings):
 
     default_site: str = "raqib_demo_store"
 
-    # ---- v2 ----
+    # ---- v2: zero-cost LLM providers ----
+    llm_provider: str = "ollama"  # ollama | gemini | groq | claude ; the first link of the chain
+    llm_provider_order: str = "ollama,gemini,groq"  # free fallback order; claude is never implied
+    llm_provider_route: str | None = None  # per-task overrides (a single provider name or a comma list)
+    llm_provider_answer: str | None = None
+    llm_provider_caption: str | None = None
+    llm_provider_opinion: str | None = None
+    llm_provider_judge: str | None = None
+    llm_timeout_s: float = 90.0
+
+    ollama_host: str = "http://localhost:11434"
+    ollama_model_route: str = "qwen3:4b-instruct"
+    ollama_model_answer: str = "qwen3:8b"
+    ollama_model_judge: str = "qwen3:8b"
+    ollama_model_caption: str = "qwen2.5vl:7b"
+    ollama_model_opinion: str = "qwen2.5vl:7b"
+
+    gemini_api_key: str | None = None
+    gemini_model_text: str = "gemini-2.5-flash"
+    gemini_model_route: str = "gemini-2.5-flash-lite"
+    groq_api_key: str | None = None
+    groq_model: str = "llama-3.1-8b-instant"
+
+    # daily request caps, kept below the published free tiers (docs/models.md); 0 disables a provider
+    ollama_daily_requests: int = 5000
+    gemini_daily_requests: int = 800
+    groq_daily_requests: int = 800
+    claude_daily_requests: int = 0
+    llm_rpm: int = 10  # per-provider minute bucket
+
+    # ---- v2: embeddings ----
     embed_dim: int = 1024  # dimension of Chunk.embedding; set once from the Task 24b spike
+    embed_model: str = "ollama:bge-m3:567m"  # ollama:<tag> | fastembed:<name> | gemini:<model> | fake:<dim>
+    rerank_enabled: bool = False
 
     @property
     def cors_list(self) -> list[str]:

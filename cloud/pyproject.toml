@@ -25,6 +25,13 @@ dependencies = [
   "alembic>=1.13",
   "pgvector>=0.3",
   "sqlite-vec>=0.1.6",
+  "ollama>=0.5",
+  "google-genai>=1.0",
+  "groq>=0.20",
+  "fastembed>=0.5",
+  "rank-bm25>=0.2",
+  "dateparser>=1.2",
+  "jsonschema>=4.23",
 ]
 
 [project.optional-dependencies]
