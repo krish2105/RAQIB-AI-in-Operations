@@ -83,6 +83,10 @@ class Runtime:
                     denied.append(call.tool)
                     log.warning("crew %s attempted %s which is not in its allow-list", ident.name, call.tool)
                     continue
+                if is_proposal(call.tool) and not plan.evidence:  # ASI09: a proposal must cite evidence a human can check
+                    denied.append(f"{call.tool}:no_evidence")
+                    log.warning("crew %s proposed %s without evidence; refused", ident.name, call.tool)
+                    continue
                 allowed.append(call)
             if event is not None:
                 outcome = Policy(self.session).check(event, allowed, plan.confidence, ctx.get("lang", "en"))

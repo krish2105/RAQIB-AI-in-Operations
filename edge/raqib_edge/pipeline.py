@@ -213,6 +213,9 @@ def run_pipeline(
     store = EventStore(db_path or data_dir / "events.db")
     clips_dir = Path(clips_dir or data_dir / "clips")
     det = make_detector(detector)  # type: ignore[arg-type]
+    from .integrity import verify_weights
+
+    verify_weights(getattr(det, "weights", None))  # ASI04: a pinned hash that does not match stops the box here
     syncer = Syncer(store, api) if api else None
     cam_names = cameras or list(site.cameras)
     workers = [

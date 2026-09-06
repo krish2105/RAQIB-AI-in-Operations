@@ -1,0 +1,49 @@
+name: security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 3 * * 1"
+
+jobs:
+  redteam:
+    name: OWASP ASI red-team gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: cd cloud && uv sync --extra dev
+      - run: cd edge && uv sync --extra dev
+      - run: cd cloud && uv run python security/run.py --gate --md --out /tmp/security_eval.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security_eval
+          path: /tmp/security_eval.json
+  dependency-audit:
+    name: pip-audit and npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: cd cloud && uv export --no-hashes --extra dev -o /tmp/cloud-req.txt && uvx pip-audit==2.10.1 -r /tmp/cloud-req.txt --strict --desc
+      - run: cd edge && uv export --no-hashes --extra dev -o /tmp/edge-req.txt && uvx pip-audit==2.10.1 -r /tmp/edge-req.txt --strict --desc
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: cd web && npm ci
+      - run: cd web && npm audit --audit-level=high
+  secret-scan:
+    name: secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
