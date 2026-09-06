@@ -62,6 +62,10 @@ class Settings(BaseSettings):
     embed_dim: int = 1024  # dimension of Chunk.embedding; set once from the Task 24b spike
     embed_model: str = "ollama:bge-m3:567m"  # ollama:<tag> | fastembed:<name> | gemini:<model> | fake:<dim>
     rerank_enabled: bool = False
+    docs_dir: str = "./documents"
+    caption_min_severity: int = 2
+    caption_max_frames: int = 3
+    caption_daily_requests: int = 200
 
     @property
     def cors_list(self) -> list[str]:

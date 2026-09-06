@@ -32,11 +32,16 @@ dependencies = [
   "rank-bm25>=0.2",
   "dateparser>=1.2",
   "jsonschema>=4.23",
+  "pypdf>=5.0",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.6", "respx>=0.21"]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.6", "respx>=0.21", "opencv-python-headless>=4.10"]
+index = ["opencv-python-headless>=4.10"]  # keyframes from stored clips; the indexer runs on the Mac / edge box, not Render
 docs = ["python-docx>=1.1", "python-pptx>=1.0", "matplotlib>=3.9", "nbformat>=5.10", "jupyter>=1.1", "nbconvert>=7"]
+
+[project.scripts]
+raqib-api = "raqib_api.cli:main"
 
 [build-system]
 requires = ["hatchling"]

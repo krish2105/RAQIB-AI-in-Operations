@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .bus import bus
 from .config import settings
 from .db import init_db
-from .routers import actions, admin, events, forecast, health, kpis, report, sites, stream
+from .routers import actions, admin, documents, events, forecast, health, kpis, report, sites, stream
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 
@@ -40,5 +40,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for r in (health, sites, events, stream, actions, kpis, forecast, report, admin):
+for r in (health, sites, events, stream, actions, kpis, forecast, report, admin, documents):
     app.include_router(r.router)
