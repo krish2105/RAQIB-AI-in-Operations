@@ -41,7 +41,7 @@ const kindColor = (c: Colors, kind: string) =>
   ({ entrance: c.faint, queue: c.warn, checkout: c.signal, shelf: c.info, work_area: c.faint, exclusion: c.critical, machine: c.signal })[kind] ?? c.faint;
 const sevColor = (c: Colors, s: number) => (s === 3 ? c.critical : s === 2 ? c.warn : c.info);
 
-export function FloorScene({ floor, lastByZone, pulses, profile }: { floor: Floor; lastByZone: Record<string, ApiEvent>; pulses: Pulse[]; profile: string }) {
+export function FloorScene({ floor, lastByZone, pulses, profile, occupancy }: { floor: Floor; lastByZone: Record<string, ApiEvent>; pulses: Pulse[]; profile: string; occupancy?: Record<string, number> }) {
   const { resolvedTheme } = useTheme();
   const [colors, setColors] = useState<Colors | null>(null);
   useEffect(() => {
@@ -60,7 +60,7 @@ export function FloorScene({ floor, lastByZone, pulses, profile }: { floor: Floo
       <group position={[-W / 2, 0, -D / 2]}>
         <Grid args={[W, D]} position={[W / 2, 0, D / 2]} cellSize={1} cellThickness={0.5} cellColor={colors.hair} sectionSize={4} sectionThickness={1} sectionColor={colors.hair} fadeDistance={200} infiniteGrid={false} />
         {floor.zones.map((z) => (
-          <ZoneSlab key={z.name} zone={z} depthM={D} color={kindColor(colors, z.kind)} last={lastByZone[z.name]} colors={colors} />
+          <ZoneSlab key={z.name} zone={z} depthM={D} color={kindColor(colors, z.kind)} last={lastByZone[z.name]} colors={colors} occupancy={occupancy?.[z.name]} />
         ))}
         {(floor.cameras ?? []).map((c) => (
           <CameraWedge key={c.name} x={c.x} y={D - c.y} z={c.z} yaw={c.yaw} color={colors.ink} />
@@ -91,7 +91,7 @@ function FitCamera({ w, d }: { w: number; d: number }) {
   );
 }
 
-function ZoneSlab({ zone, depthM, color, last, colors }: { zone: Floor["zones"][number]; depthM: number; color: string; last?: ApiEvent; colors: Colors }) {
+function ZoneSlab({ zone, depthM, color, last, colors, occupancy }: { zone: Floor["zones"][number]; depthM: number; color: string; last?: ApiEvent; colors: Colors; occupancy?: number }) {
   const t = useTranslations("floor");
   const tk = useTranslations("kind");
   const [hover, setHover] = useState(false);
@@ -114,7 +114,8 @@ function ZoneSlab({ zone, depthM, color, last, colors }: { zone: Floor["zones"][
         }}
       >
         <boxGeometry args={[zone.w, h, zone.d]} />
-        <meshStandardMaterial color={color} transparent opacity={hover ? 0.6 : 0.35} roughness={0.9} />
+        {/* Twin replay: occupancy (0..~10) lifts the slab's opacity so the floor breathes with the day */}
+        <meshStandardMaterial color={color} transparent opacity={hover ? 0.6 : occupancy !== undefined ? 0.2 + Math.min(0.7, occupancy / 8) : 0.35} roughness={0.9} />
       </mesh>
       <lineSegments position={[0, 0.001, 0]} geometry={edges}>
         <lineBasicMaterial color={color} transparent opacity={0.9} />

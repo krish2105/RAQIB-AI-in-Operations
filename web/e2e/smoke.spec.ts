@@ -116,3 +116,35 @@ test("crew: queue event lights FloorOps, proposal carries the agent chip, Audito
   await expect(card).toBeVisible();
   await expect(card.getByTestId("agent-chip")).toHaveText("FloorOps");
 });
+
+test("twin: replay scrubs at 60x with a healthy frame rate and what-if returns a delta", async ({ page }) => {
+  await page.goto("/en/twin");
+  const day = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+  await expect(page.getByTestId("clock-overlay")).toContainText(day);
+  await expect(page.getByTestId("scrubber")).toBeVisible();
+  await page.getByTestId("play").click();
+  // count animation frames while the scene plays at the default 60x
+  const fps = await page.evaluate(() => new Promise<number>((resolve) => {
+    let n = 0;
+    const t0 = performance.now();
+    const tick = () => { n++; if (performance.now() - t0 < 2000) requestAnimationFrame(tick); else resolve(n / ((performance.now() - t0) / 1000)); };
+    requestAnimationFrame(tick);
+  }));
+  console.log(`twin playback fps (headless): ${fps.toFixed(1)}`);
+  expect(fps).toBeGreaterThan(30);
+  const before = await page.getByTestId("clock").textContent();
+  await page.waitForTimeout(1500);
+  expect(await page.getByTestId("clock").textContent()).not.toBe(before); // the playhead moved
+  await expect(page.getByTestId("delta-card")).toBeVisible();
+  await page.getByTestId("staff-delta").fill("1");
+  await expect(page.getByTestId("delta-card")).toContainText("+");
+});
+
+test("twin: reduced motion disables auto-play", async ({ browser }) => {
+  const ctx = await browser.newContext({ reducedMotion: "reduce" });
+  const page = await ctx.newPage();
+  await page.goto("/en/twin");
+  await expect(page.getByTestId("play")).toBeDisabled();
+  await expect(page.getByText(/reduced motion/)).toBeVisible();
+  await ctx.close();
+});

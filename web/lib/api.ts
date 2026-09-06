@@ -358,6 +358,49 @@ export interface CrewStatus {
   flag: { value: string; updated_by: string; note: string; updated_at: string } | null;
 }
 
+export interface TwinReplay {
+  site: string;
+  day: string;
+  bins: number;
+  arrivals: number[];
+  served: number[];
+  queue: number[];
+  occupancy: Record<string, number[]>;
+  shelf: Record<string, number[]>;
+  events: Array<{ min: number; id: string; kind: string; severity: number; zone: string | null; rule_id: string }>;
+  zones: Array<{ name: string; kind: string }>;
+  totals: { events: number; arrivals: number; served: number; queue_alerts: number; shelf_gaps: number; peak_queue: number; busiest_minute: number | null; shelf_availability: Record<string, number> };
+  simulated_share: number;
+}
+
+export interface TwinKpis {
+  tills: number[];
+  staff_hours: number;
+  customer_wait_min: number;
+  mean_wq_min: number;
+  peak_rho: number;
+  service_level_model: number;
+  unstable_slots: number;
+  per_slot: Array<{ slot: string; lam: number; tills: number; rho: number; wq_min: number | null; arrivals: number }>;
+}
+
+export interface TwinWhatIf {
+  site: string;
+  day: string;
+  sufficient: boolean;
+  reason?: string;
+  slots?: number;
+  slot_minutes?: number;
+  mu_per_h?: number;
+  mu_source?: string;
+  baseline_tills?: number;
+  inputs?: { tills_by_slot: number[] | null; staff_delta: number; zone_changes: Record<string, boolean> };
+  before?: TwinKpis;
+  after?: TwinKpis;
+  milp?: TwinKpis;
+  delta?: { staff_hours: number; customer_wait_min: number; wait_reduction_pct: number; service_level_model: number; peak_rho: number };
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -434,5 +477,18 @@ export const api = {
   crewMessages: (site: string, limit = 100) => request<CrewMessage[]>(`/crew/messages${q({ site, limit })}`),
   crewKill: (by: string, note: string, confirm: string) => request<{ agents_enabled: boolean }>("/crew/kill", { method: "POST", body: JSON.stringify({ by, note, confirm }) }),
   crewResume: (by: string) => request<{ agents_enabled: boolean }>("/crew/resume", { method: "POST", body: JSON.stringify({ by }) }),
+  twinReplay: (site: string, date: string) => request<TwinReplay>(`/twin/replay${q({ site, date })}`),
+  twinWhatIf: (body: { site: string; date: string; staff_delta?: number; tills_by_slot?: number[] | null; zone_changes?: Record<string, boolean> }) =>
+    request<TwinWhatIf>("/twin/whatif", { method: "POST", body: JSON.stringify(body) }),
+  uploadDocument: async (site: string, kind: string, title: string, filename: string, text: string) => {
+    const fd = new FormData();
+    fd.append("site", site);
+    fd.append("kind", kind);
+    fd.append("title", title);
+    fd.append("file", new Blob([text], { type: "text/markdown" }), filename);
+    const res = await fetch(`${API_URL}/documents`, { method: "POST", body: fd });
+    if (!res.ok) throw new ApiError(res.status, res.statusText);
+    return res.json() as Promise<ApiDocument & { created: boolean }>;
+  },
   index: (site: string, days = 21) => request<{ chunks: number; embedded: number }>(`/admin/index${q({ site, days })}`, { method: "POST" }),
 };
