@@ -28,6 +28,9 @@ class Settings(BaseSettings):
 
     default_site: str = "raqib_demo_store"
 
+    # ---- v2 ----
+    embed_dim: int = 1024  # dimension of Chunk.embedding; set once from the Task 24b spike
+
     @property
     def cors_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
